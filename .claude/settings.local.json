@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/ARCTe/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/c452e4fb-3c18-4ebe-99d5-5ad74a8604a8/0664d2e2-e2b4-430f-a061-3b0e14ba53fa/skills/docx/**)",
+      "Bash(extract-text \"C:\\\\Users\\\\ARCTe\\\\OneDrive\\\\Azariah\\\\Work\\\\DevelopmentAid\\\\Dr. Benjamin Azariah Mosiwa_CV.docx\")",
+      "Bash(pandoc \"C:\\\\Users\\\\ARCTe\\\\OneDrive\\\\Azariah\\\\Work\\\\DevelopmentAid\\\\Dr. Benjamin Azariah Mosiwa_CV.docx\" -t markdown)",
+      "Bash(pandoc \"C:/Users/ARCTe/OneDrive/Azariah/Work/DevelopmentAid/Dr. Benjamin Azariah Mosiwa_CV.docx\" -t markdown)",
+      "Bash(python3 -c ' *)",
+      "Bash(py --version)",
+      "Bash(node -e \"const fs=require\\('fs'\\); const AdmZip=require\\('adm-zip'\\);\")",
+      "Read(//c/Windows/System32/**)",
+      "Bash(cmd.exe /c \"node --version\")",
+      "Bash(cmd.exe /c \"where python\")",
+      "Bash(cmd.exe /c \"where node & node --version\")",
+      "Bash(cmd.exe /c \"where python & python --version\")",
+      "Bash(cmd.exe /c \"cd \\\\\"C:\\\\Users\\\\ARCTe\\\\OneDrive\\\\Desktop\\\\Personal Website\\\\\" && npm --version && node --version\")",
+      "Bash(cmd.exe /c \"npm --version\")",
+      "Bash(cmd.exe /c \"where npm 2>&1\")",
+      "mcp__Claude_in_Chrome__tabs_context_mcp"
+    ]
+  }
+}
