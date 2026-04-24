@@ -1,2 +1,9 @@
-node_modules 
-.next 
+node_modules/
+.next/
+out/
+package-lock.json
+.env
+.env.local
+.vercel
+.DS_Store
+Thumbs.db
