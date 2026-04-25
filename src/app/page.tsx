@@ -64,13 +64,18 @@ export default function HomePage() {
               Strengthening health systems through research, evidence translation, technical assistance and program evaluations. Has delivered measurable impact across 9 African countries — for governments, donors, and global health organisations.
             </p>
 
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Link href="/contact" className="btn-primary text-base">
+            <div className="mt-10 flex flex-col gap-4">
+              <div className="flex flex-wrap gap-4">
+                <Link href="/experience" className="btn-outline text-base">
+                  View Consultancy Experience
+                </Link>
+                <Link href="/work-experience" className="btn-outline text-base">
+                  View Work Experience
+                </Link>
+              </div>
+              <Link href="/contact" className="btn-primary text-base w-full justify-center">
                 Work With Me
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-              </Link>
-              <Link href="/experience" className="btn-outline text-base">
-                View Experience
               </Link>
             </div>
 
