@@ -186,7 +186,7 @@ export default function HomePage() {
             <span className="text-gold-600 text-sm font-semibold uppercase tracking-widest">Services</span>
             <h2 className="section-heading mt-2">Consulting Services & Areas of Expertise</h2>
             <p className="section-subheading">
-              From policy design to programme evaluation, offering integrated technical advisory across the global health value chain.
+              Dr. Benjamin Azariah Mosiwa offers a wide range of consultancy services, from policy design to programme evaluation, offering integrated technical advisory across the global health value chain.
             </p>
           </div>
 
