@@ -47,18 +47,18 @@ export default function HomePage() {
         {/* Content */}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 w-full">
           <div className="max-w-xl lg:max-w-2xl">
-            {/* Eyebrow badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/15 border border-gold-500/30 mb-8">
+            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
+              Dr. Benjamin<br />
+              <span className="text-gold-400">Azariah Mosiwa</span>
+            </h1>
+
+            {/* Specialist badge — sits under the name */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/15 border border-gold-500/30 mt-5">
               <span className="w-1.5 h-1.5 rounded-full bg-gold-400 animate-pulse" />
               <span className="text-gold-300 text-sm font-medium tracking-wide">
                 Health Systems & Policy Specialist
               </span>
             </div>
-
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-              Dr. Benjamin<br />
-              <span className="text-gold-400">Azariah Mosiwa</span>
-            </h1>
 
             <p className="mt-6 text-lg md:text-xl text-gray-300 leading-relaxed">
               Translating evidence into policy. Strengthening health systems. Delivering measurable impact across 9 African countries — for governments, donors, and global health organisations.
