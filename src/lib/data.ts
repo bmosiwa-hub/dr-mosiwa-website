@@ -475,7 +475,7 @@ export const publications = {
       title: "Gender-Equitable Access to Tuberculosis Care and Prevention in Malawi: A Political Economy Analysis",
       journal: "World Medical & Health Policy",
       volume: "17(3), 306–318",
-      link: "",
+      link: "https://onlinelibrary.wiley.com/doi/epdf/10.1002/wmh3.70004",
     },
     {
       authors: "Kazanga-Chiumia, I., Mosiwa, B. A., et al.",
@@ -483,7 +483,7 @@ export const publications = {
       title: "Emerging public health challenges during the COVID-19 pandemic in Malawi: A review",
       journal: "Public Health Challenges",
       volume: "1, e40",
-      link: "",
+      link: "https://pmc.ncbi.nlm.nih.gov/articles/PMC9877808/",
     },
     {
       authors: "Soyiyo, S., Tengatenga, J., & Mosiwa, B. A.",
@@ -491,7 +491,7 @@ export const publications = {
       title: "The fear of economic impacts of COVID-19 and public's response to lockdown measures in Malawi",
       journal: "Journal of Public Administration",
       volume: "55(3.1), 538–548",
-      link: "",
+      link: "https://journals.co.za/doi/10.10520/ejc-jpad-v55-n3-1-a10",
     },
   ],
   reports: [
