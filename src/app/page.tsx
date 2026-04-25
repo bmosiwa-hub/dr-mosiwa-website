@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { profile, services, projects, clients, testimonials } from "@/lib/data";
+import { profile, services, projects, clients } from "@/lib/data";
+import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 
 const featuredProjects = projects.slice(0, 3);
 const featuredClients = clients.slice(0, 10);
@@ -31,6 +32,9 @@ export default function HomePage() {
           {/* Top vignette — blends with header */}
           <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-navy-900/50 to-transparent" />
         </div>
+
+        {/* Mobile-only scrim — darkens photo so white text is legible over white shirt */}
+        <div className="absolute inset-0 bg-gradient-to-r from-navy-900/85 via-navy-900/65 to-navy-900/20 md:hidden pointer-events-none" />
 
         {/* Subtle dot grid — left content area only */}
         <div className="absolute inset-0 opacity-[0.04] pointer-events-none">
@@ -260,19 +264,7 @@ export default function HomePage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map((t) => (
-              <div key={t.author} className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/8 transition-colors">
-                <div className="text-gold-400 text-3xl leading-none mb-4">&ldquo;</div>
-                <p className="text-gray-300 text-sm leading-relaxed italic">{t.quote}</p>
-                <div className="mt-6 pt-4 border-t border-white/10">
-                  <div className="font-semibold text-white text-sm">{t.author}</div>
-                  <div className="text-gray-400 text-xs mt-0.5">{t.title}</div>
-                  <div className="text-gold-400 text-xs font-medium mt-0.5">{t.org}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <TestimonialsCarousel />
         </div>
       </section>
 
