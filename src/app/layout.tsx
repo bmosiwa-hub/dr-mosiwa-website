@@ -4,7 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-const DOMAIN = "https://www.drmosiwa.com"; // ← update to your actual domain
+const DOMAIN = "https://www.azariahmosiwa.com";
 
 export const metadata: Metadata = {
   title: {
