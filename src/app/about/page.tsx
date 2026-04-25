@@ -48,12 +48,7 @@ export default function AboutPage() {
                     <span className="text-gray-400 block text-xs uppercase tracking-wider mb-1">Countries Worked</span>
                     <span>{profile.countries.join(", ")}</span>
                   </li>
-                  <li>
-                    <span className="text-gray-400 block text-xs uppercase tracking-wider mb-1">Contact</span>
-                    <a href={`mailto:${profile.email}`} className="text-gold-300 hover:text-gold-200 transition-colors">
-                      {profile.email}
-                    </a>
-                  </li>
+
                 </ul>
               </div>
 
