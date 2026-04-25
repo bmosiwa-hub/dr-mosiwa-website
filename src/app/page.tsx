@@ -111,10 +111,10 @@ export default function HomePage() {
                 Senior Advisor at the Intersection of Health Systems, Policy & Evidence
               </h2>
               <p className="mt-6 text-gray-600 leading-relaxed">
-                With a foundation in clinical medicine and a career spanning health systems strengthening, policy research, and global health advisory, Dr. Mosiwa brings a rare combination of technical depth and strategic influence to every engagement.
+                With a foundation in clinical medicine and a career spanning health systems strengthening, policy research, global health advisory, and evaluation of complex health programs, Dr. Mosiwa brings a rare combination of technical depth and strategic influence to every engagement.
               </p>
               <p className="mt-4 text-gray-600 leading-relaxed">
-                He has embedded within ministries, supported donor-funded reform programmes, and published peer-reviewed research — always with one goal: converting evidence and analysis into decisions that improve health outcomes.
+                He has embedded within ministries, supported donor-funded reform programmes, published peer-reviewed research and improved health programming through evaluation and advisory; always with the goal of converting evidence and analysis into decisions that improve health outcomes.
               </p>
 
               <div className="mt-8 grid grid-cols-2 gap-4">
