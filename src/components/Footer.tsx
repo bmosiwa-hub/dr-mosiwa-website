@@ -39,13 +39,6 @@ export default function Footer() {
               >
                 in
               </a>
-              <a
-                href={`mailto:${profile.email}`}
-                className="w-9 h-9 flex items-center justify-center rounded-lg bg-white/10 hover:bg-gold-500 transition-colors text-sm"
-                aria-label="Email"
-              >
-                @
-              </a>
             </div>
           </div>
 
@@ -68,22 +61,16 @@ export default function Footer() {
             <h3 className="text-white font-semibold text-sm uppercase tracking-widest mb-4">Get In Touch</h3>
             <ul className="space-y-3 text-sm">
               <li>
-                <span className="text-gray-500 block text-xs uppercase tracking-wider mb-1">Email</span>
-                <a href={`mailto:${profile.email}`} className="text-gray-300 hover:text-gold-400 transition-colors">
-                  {profile.email}
-                </a>
-              </li>
-              <li>
-                <span className="text-gray-500 block text-xs uppercase tracking-wider mb-1">Phone</span>
-                <a href={`tel:${profile.phone}`} className="text-gray-300 hover:text-gold-400 transition-colors">
-                  {profile.phone}
-                </a>
-              </li>
-              <li>
                 <span className="text-gray-500 block text-xs uppercase tracking-wider mb-1">LinkedIn</span>
                 <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-gold-400 transition-colors">
                   linkedin.com/in/azariahmosiwa
                 </a>
+              </li>
+              <li>
+                <span className="text-gray-500 block text-xs uppercase tracking-wider mb-1">Enquiries</span>
+                <Link href="/contact" className="text-gray-300 hover:text-gold-400 transition-colors">
+                  Use the contact form
+                </Link>
               </li>
             </ul>
           </div>

@@ -71,7 +71,6 @@ const jsonLd = {
   sameAs: [
     "https://linkedin.com/in/azariahmosiwa",
   ],
-  email: "bmosiwa@gmail.com",
   nationality: "Malawian",
   knowsAbout: [
     "Health Systems Strengthening",

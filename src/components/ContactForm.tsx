@@ -207,8 +207,7 @@ export default function ContactForm() {
 
       {formState === "error" && (
         <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
-          Something went wrong. Please try again or email directly at{" "}
-          <a href="mailto:bmosiwa@gmail.com" className="font-semibold underline">bmosiwa@gmail.com</a>.
+          Something went wrong. Please try again or connect via LinkedIn.
         </div>
       )}
 
