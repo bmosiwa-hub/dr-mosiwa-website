@@ -11,6 +11,7 @@
     "next": "latest",
     "react": "^19",
     "react-dom": "^19",
+    "resend": "^4.0.0",
     "framer-motion": "^11.3.8",
     "react-hook-form": "^7.52.2",
     "lucide-react": "^0.400.0",

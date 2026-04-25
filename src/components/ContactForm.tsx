@@ -57,9 +57,17 @@ export default function ContactForm() {
     e.preventDefault();
     if (!validate()) return;
     setFormState("loading");
-    // Simulate submission (replace with actual API endpoint or Formspree/Resend/etc.)
-    await new Promise((r) => setTimeout(r, 1500));
-    setFormState("success");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setFormState("success");
+    } catch {
+      setFormState("error");
+    }
   };
 
   if (formState === "success") {
