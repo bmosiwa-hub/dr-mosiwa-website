@@ -53,7 +53,7 @@ export default function HomePage() {
             </h1>
 
             <p className="mt-6 text-lg md:text-xl text-gray-300 leading-relaxed">
-              Strengthening health systems through research, evidence translation, technical assistance and program evaluations. Has delivered measurable impact across 9 African countries — for governments, donors, and global health organisations.
+              Strengthening health systems through research, evidence translation, technical assistance and program evaluations. Has delivered measurable impact across 9+ African countries — for governments, donors, and global health organisations.
             </p>
 
             <div className="mt-10 flex flex-col items-center gap-4">
@@ -119,7 +119,7 @@ export default function HomePage() {
 
               <div className="mt-8 grid grid-cols-2 gap-4">
                 {[
-                  { icon: "🌍", label: "9 Countries", sub: "Across Africa & UK" },
+                  { icon: "🌍", label: "9+ Countries", sub: "Across Africa & UK" },
                   { icon: "🎓", label: "MSc Edinburgh", sub: "Global Health Policy" },
                   { icon: "📊", label: "Mixed Methods", sub: "Evaluations & Research" },
                   { icon: "🏛️", label: "Government TA", sub: "Ministry-level engagement" },

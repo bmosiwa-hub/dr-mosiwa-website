@@ -4,7 +4,7 @@ export const profile = {
   title: "Health Systems & Policy Specialist",
   tagline: "Translating Evidence into Policy. Strengthening Systems. Delivering Impact.",
   summary:
-    "Senior Health Systems & Policy Consultant with 10+ years of experience supporting governments and donors across Africa to design, evaluate, and implement high-impact health policies and programmes. Specialist in translating evidence into policy decisions, strengthening PHC systems, and aligning donor investments with national priorities. Proven track record delivering policy reforms, national strategies, evaluations, and investment cases across 9 African countries.",
+    "Senior Health Systems & Policy Consultant with 10+ years of experience supporting governments and donors across Africa to design, evaluate, and implement high-impact health policies and programmes. Specialist in translating evidence into policy decisions, strengthening PHC systems, and aligning donor investments with national priorities. Proven track record delivering policy reforms, national strategies, evaluations, and investment cases across 9+ African countries.",
   email: "bmosiwa@gmail.com",
   phone: "+265 888 584 878",
   linkedin: "https://linkedin.com/in/azariahmosiwa",
@@ -13,7 +13,7 @@ export const profile = {
   countries: ["Malawi", "Kenya", "Uganda", "Nigeria", "Mozambique", "Zambia", "DRC", "Ethiopia", "United Kingdom"],
   stats: [
     { value: "10+", label: "Years of Experience" },
-    { value: "9", label: "Countries across Africa & UK" },
+    { value: "9+", label: "Countries across Africa & UK" },
     { value: "15+", label: "Global Partners & Donors" },
     { value: "30+", label: "Consulting Engagements" },
   ],

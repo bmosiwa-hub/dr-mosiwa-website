@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     template: "%s | Dr. Benjamin Azariah Mosiwa",
   },
   description:
-    "Dr. Benjamin Azariah Mosiwa is a Senior Health Systems & Policy Consultant with 10+ years of experience across 9 African countries. Expert in health systems strengthening, health financing, PHC reform, and programme evaluation for governments, donors, and NGOs.",
+    "Dr. Benjamin Azariah Mosiwa is a Senior Health Systems & Policy Consultant with 10+ years of experience across 9+ African countries. Expert in health systems strengthening, health financing, PHC reform, and programme evaluation for governments, donors, and NGOs.",
   keywords: [
     // Name variations — the most important for personal brand SEO
     "Benjamin Mosiwa",
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     url: DOMAIN,
     title: "Dr. Benjamin Azariah Mosiwa – Health Systems & Policy Specialist",
     description:
-      "Dr. Benjamin Azariah Mosiwa — Senior Health Systems & Policy Consultant with 10+ years of experience across 9 African countries. Supporting governments, donors, and NGOs to design and evaluate high-impact health programmes.",
+      "Dr. Benjamin Azariah Mosiwa — Senior Health Systems & Policy Consultant with 10+ years of experience across 9+ African countries. Supporting governments, donors, and NGOs to design and evaluate high-impact health programmes.",
     siteName: "Dr. Benjamin Azariah Mosiwa",
   },
   twitter: {

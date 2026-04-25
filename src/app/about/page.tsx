@@ -5,7 +5,7 @@ import { profile, education, certifications } from "@/lib/data";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Learn about Dr. Benjamin Azariah Mosiwa — a Senior Health Systems & Policy Consultant with 10+ years of experience across 9 African countries, combining clinical expertise with global health policy advisory.",
+    "Learn about Dr. Benjamin Azariah Mosiwa — a Senior Health Systems & Policy Consultant with 10+ years of experience across 9+ African countries, combining clinical expertise with global health policy advisory.",
 };
 
 export default function AboutPage() {
