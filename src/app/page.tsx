@@ -64,8 +64,8 @@ export default function HomePage() {
               Strengthening health systems through research, evidence translation, technical assistance and program evaluations. Has delivered measurable impact across 9 African countries — for governments, donors, and global health organisations.
             </p>
 
-            <div className="mt-10 flex flex-col gap-4">
-              <div className="flex flex-wrap gap-4">
+            <div className="mt-10 flex flex-col items-center gap-4">
+              <div className="flex flex-wrap justify-center gap-4">
                 <Link href="/experience" className="btn-outline text-base">
                   View Consultancy Experience
                 </Link>
