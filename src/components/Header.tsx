@@ -65,12 +65,6 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/contact"
-              className="ml-4 px-5 py-2 bg-gold-500 hover:bg-gold-600 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
-            >
-              Work With Me
-            </Link>
           </nav>
 
           {/* Mobile menu toggle */}
@@ -104,14 +98,6 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
-          <div className="pt-2">
-            <Link
-              href="/contact"
-              className="block text-center px-5 py-3 bg-gold-500 hover:bg-gold-600 text-white text-sm font-semibold rounded-lg transition-colors"
-            >
-              Work With Me
-            </Link>
-          </div>
         </nav>
       </div>
     </header>
