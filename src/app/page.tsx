@@ -61,7 +61,7 @@ export default function HomePage() {
             </div>
 
             <p className="mt-6 text-lg md:text-xl text-gray-300 leading-relaxed">
-              Strengthening health systems through research, evidence translation, technical assistance and program evaluations. Delivering measurable impact across 9 African countries — for governments, donors, and global health organisations.
+              Strengthening health systems through research, evidence translation, technical assistance and program evaluations. Has delivered measurable impact across 9 African countries — for governments, donors, and global health organisations.
             </p>
 
             <div className="mt-10 flex flex-wrap gap-4">
