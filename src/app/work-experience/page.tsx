@@ -9,6 +9,25 @@ export const metadata: Metadata = {
 
 const roles = [
   {
+    id: "astellic",
+    period: "Oct 2025 – Present",
+    role: "Chief Executive Officer (CEO)",
+    org: "Astellic",
+    location: "Africa",
+    type: "Executive Leadership",
+    summary:
+      "Provides strategic and technical leadership for a multidisciplinary research, advisory, and implementation firm operating across health systems, governance, education, and social development in Africa.",
+    responsibilities: [
+      "Provide strategic and technical leadership for a multidisciplinary research, advisory, and implementation firm operating across health systems, governance, education, and social development in Africa",
+      "Lead the design and execution of project assessments, including baseline evaluations, applying mixed-methods approaches to generate actionable evidence for governments, donors, and partners",
+      "Provide technical oversight on study methodology, including sampling design, tool development, indicator frameworks, and data analysis plans for complex, multi-sectoral assignments",
+      "Oversee the development of monitoring, evaluation, and learning (MEAL) frameworks, ensuring alignment with programme objectives and international best practices",
+      "Lead multidisciplinary teams in delivering high-quality research outputs, including inception reports, analytical reports, and policy briefs tailored to decision-makers",
+      "Spearhead stakeholder engagement and policy translation processes, including validation workshops, dissemination forums, and advisory support to government and partners",
+      "Ensure quality assurance and compliance with ethical research standards, including safeguarding, data protection, and institutional review processes",
+    ],
+  },
+  {
     id: "amari",
     period: "Dec 2025 – Present",
     role: "Policy Advisor – African Mental Health Research Initiative (AMARI)",
@@ -104,6 +123,7 @@ const roles = [
 ];
 
 const typeColors: Record<string, string> = {
+  "Executive Leadership": "bg-emerald-50 text-emerald-700 border-emerald-200",
   Advisory: "bg-purple-50 text-purple-700 border-purple-200",
   "Senior Management": "bg-navy-50 text-navy-700 border-navy-200",
   "Research & Policy": "bg-blue-50 text-blue-700 border-blue-200",
@@ -144,9 +164,9 @@ export default function WorkExperiencePage() {
           {roles.map((item, index) => (
             <div key={item.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
               {/* Header bar */}
-              <div className="bg-navy-900 px-8 py-6">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
+              <div className="bg-navy-900 px-6 sm:px-8 py-6">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
                       <span className="text-gold-400 text-xs font-semibold uppercase tracking-widest">
                         {String(index + 1).padStart(2, "0")}
@@ -160,9 +180,9 @@ export default function WorkExperiencePage() {
                     </h2>
                     <div className="mt-1 text-gold-300 font-medium text-sm">{item.org}</div>
                   </div>
-                  <div className="text-right flex-shrink-0">
+                  <div className="sm:text-right sm:flex-shrink-0">
                     <div className="text-white font-semibold text-sm">{item.period}</div>
-                    <div className="text-gray-400 text-xs mt-1">{item.location}</div>
+                    <div className="text-gray-400 text-xs mt-1 sm:max-w-[200px] sm:ml-auto">{item.location}</div>
                   </div>
                 </div>
               </div>
