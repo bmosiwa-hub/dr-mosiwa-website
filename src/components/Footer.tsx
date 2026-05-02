@@ -23,7 +23,7 @@ export default function Footer() {
                 Dr. B. A. Mosiwa
               </span>
               <span className="text-gold-400 text-xs font-medium tracking-widest uppercase mt-1">
-                Health Systems Consultant
+                International Health & Development Expert
               </span>
             </Link>
             <p className="mt-4 text-sm text-gray-400 leading-relaxed max-w-xs">
@@ -78,7 +78,7 @@ export default function Footer() {
 
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500">
           <p>© {new Date().getFullYear()} Dr. Benjamin Azariah Mosiwa. All rights reserved.</p>
-          <p className="text-xs">Health Systems & Policy Specialist · Malawi · Africa</p>
+          <p className="text-xs">International Health & Development Expert · Malawi · Africa</p>
         </div>
       </div>
     </footer>

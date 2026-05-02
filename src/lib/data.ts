@@ -1,7 +1,7 @@
 export const profile = {
   name: "Dr. Benjamin Azariah Mosiwa",
   shortName: "Dr. Mosiwa",
-  title: "Health Systems & Policy Specialist",
+  title: "International Health & Development Expert",
   tagline: "Translating Evidence into Policy. Strengthening Systems. Delivering Impact.",
   summary:
     "Senior Health Systems & Policy Consultant with 10+ years of experience supporting governments and donors across Africa to design, evaluate, and implement high-impact health policies and programmes. Specialist in translating evidence into policy decisions, strengthening PHC systems, and aligning donor investments with national priorities. Proven track record delivering policy reforms, national strategies, evaluations, and investment cases across 9+ African countries.",

@@ -46,7 +46,7 @@ export default function Header() {
               Dr. B. A. Mosiwa
             </span>
             <span className="text-gold-400 text-xs font-medium tracking-widest uppercase">
-              Health Systems & Policy Specialist
+              International Health & Development Expert
             </span>
           </Link>
 

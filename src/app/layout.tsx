@@ -8,7 +8,7 @@ const DOMAIN = "https://www.azariahmosiwa.com";
 
 export const metadata: Metadata = {
   title: {
-    default: "Dr. Benjamin Azariah Mosiwa – Health Systems & Policy Specialist",
+    default: "Dr. Benjamin Azariah Mosiwa – International Health & Development Expert",
     template: "%s | Dr. Benjamin Azariah Mosiwa",
   },
   description:
@@ -43,14 +43,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: DOMAIN,
-    title: "Dr. Benjamin Azariah Mosiwa – Health Systems & Policy Specialist",
+    title: "Dr. Benjamin Azariah Mosiwa – International Health & Development Expert",
     description:
       "Dr. Benjamin Azariah Mosiwa — Senior Health Systems & Policy Consultant with 10+ years of experience across 9+ African countries. Supporting governments, donors, and NGOs to design and evaluate high-impact health programmes.",
     siteName: "Dr. Benjamin Azariah Mosiwa",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Dr. Benjamin Azariah Mosiwa – Health Systems & Policy Specialist",
+    title: "Dr. Benjamin Azariah Mosiwa – International Health & Development Expert",
     description:
       "Senior Health Systems & Policy Consultant with 10+ years of experience across Africa. Expert in health financing, PHC reform, and programme evaluation.",
     creator: "@azariahmosiwa",
@@ -64,7 +64,7 @@ const jsonLd = {
   name: "Benjamin Azariah Mosiwa",
   alternateName: ["Dr. Benjamin Mosiwa", "Azariah Mosiwa", "Dr. Azariah Mosiwa", "Benjamin Mosiwa"],
   honorificPrefix: "Dr.",
-  jobTitle: "Health Systems & Policy Specialist",
+  jobTitle: "International Health & Development Expert",
   description:
     "Senior Health Systems & Policy Consultant with 10+ years of experience supporting governments and donors across Africa to design, evaluate, and implement high-impact health policies and programmes.",
   url: DOMAIN,
