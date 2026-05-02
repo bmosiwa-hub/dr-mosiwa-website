@@ -93,13 +93,13 @@ export default function AboutPage() {
                 <h2 className="section-heading text-2xl">Professional Profile</h2>
                 <div className="mt-6 space-y-4 text-gray-600 leading-relaxed">
                   <p>
-                    Dr. Benjamin Azariah Mosiwa is a Senior Health Systems & Policy Consultant with over a decade of experience supporting governments and donors across Africa to design, evaluate, and implement high-impact health policies and programmes.
+                    Dr. Benjamin Azariah Mosiwa is a Senior International Health & Development Expert with over a decade of experience supporting governments and donors across Africa to design, evaluate, and implement high-impact health and development policies and programmes.
                   </p>
                   <p>
                     His journey began as a Medical Officer at the Queen Elizabeth Central Hospital in Malawi, where clinical practice gave him an unfiltered view of what system failures cost real patients. That experience became the foundation for a career dedicated to fixing the systems behind the care — through evidence, policy, and strategic advisory work.
                   </p>
                   <p>
-                    After completing an MSc in Global Health Policy at the University of Edinburgh, Dr. Mosiwa moved into full-time policy and systems advisory. Today he works across the global health architecture — advising ministries, supporting multilateral donors, leading programme evaluations, and informing investment decisions — always translating complex technical evidence into decisions that matter.
+                    After completing an MSc in Global Health Policy at the University of Edinburgh, Dr. Mosiwa moved into full-time health and development policy and systems advisory. Today he works across the global health and development architecture — advising ministries, supporting multilateral donors, leading programme evaluations, and informing investment decisions — always translating complex technical evidence into decisions that matter.
                   </p>
                 </div>
               </div>
@@ -115,7 +115,7 @@ export default function AboutPage() {
                     },
                     {
                       title: "Technical Depth",
-                      desc: "Rigorous analytical capability across health systems, financing, evaluation methods, and digital health governance.",
+                      desc: "Rigorous analytical capability across health and development systems, financing, evaluation methods, and digital health governance.",
                     },
                     {
                       title: "Government Engagement",

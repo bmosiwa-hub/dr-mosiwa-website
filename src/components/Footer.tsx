@@ -27,7 +27,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="mt-4 text-sm text-gray-400 leading-relaxed max-w-xs">
-              Senior Health Systems & Policy Consultant delivering evidence-based solutions for governments, donors, and NGOs across Africa.
+              Senior International Health & Development Expert delivering evidence-based solutions for governments, donors, and NGOs across Africa.
             </p>
             <div className="mt-6 flex gap-3">
               <a

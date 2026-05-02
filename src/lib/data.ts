@@ -4,7 +4,7 @@ export const profile = {
   title: "International Health & Development Expert",
   tagline: "Translating Evidence into Policy. Strengthening Systems. Delivering Impact.",
   summary:
-    "Senior Health Systems & Policy Consultant with 10+ years of experience supporting governments and donors across Africa to design, evaluate, and implement high-impact health policies and programmes. Specialist in translating evidence into policy decisions, strengthening PHC systems, and aligning donor investments with national priorities. Proven track record delivering policy reforms, national strategies, evaluations, and investment cases across 9+ African countries.",
+    "Senior International Health & Development Expert with 10+ years of experience supporting governments and donors across Africa to design, evaluate, and implement high-impact health and development policies and programmes. Specialist in translating evidence into policy decisions, strengthening health and development systems, and aligning donor investments with national priorities. Proven track record delivering policy reforms, national strategies, evaluations, and investment cases across 9+ African countries.",
   email: "bmosiwa@gmail.com",
   phone: "+265 888 584 878",
   linkedin: "https://linkedin.com/in/azariahmosiwa",

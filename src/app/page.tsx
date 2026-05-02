@@ -108,7 +108,7 @@ export default function HomePage() {
             <div>
               <span className="text-gold-600 text-sm font-semibold uppercase tracking-widest">About</span>
               <h2 className="section-heading mt-2">
-                Senior Advisor at the Intersection of Health Systems, Policy & Evidence
+                Senior Advisor at the Intersection of Health, Development Systems, Policy & Evidence
               </h2>
               <p className="mt-6 text-gray-600 leading-relaxed">
                 With a foundation in clinical medicine and a career spanning health systems strengthening, policy research, global health advisory, and evaluation of complex health programs, Dr. Benjamin Azariah Mosiwa brings a rare combination of technical depth and strategic influence to every engagement.

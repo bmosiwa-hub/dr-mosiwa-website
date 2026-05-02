@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     template: "%s | Dr. Benjamin Azariah Mosiwa",
   },
   description:
-    "Dr. Benjamin Azariah Mosiwa is a Senior Health Systems & Policy Consultant with 10+ years of experience across 9+ African countries. Expert in health systems strengthening, health financing, PHC reform, and programme evaluation for governments, donors, and NGOs.",
+    "Dr. Benjamin Azariah Mosiwa is a Senior International Health & Development Expert with 10+ years of experience across 9+ African countries. Expert in health and development systems strengthening, health financing, policy reform, and programme evaluation for governments, donors, and NGOs.",
   keywords: [
     // Name variations — the most important for personal brand SEO
     "Benjamin Mosiwa",
@@ -22,18 +22,18 @@ export const metadata: Metadata = {
     "Dr Azariah Mosiwa",
     "Dr Benjamin Azariah Mosiwa",
     // Profession keywords
-    "health policy consultant Africa",
-    "health systems strengthening expert",
-    "global health evaluation consultant",
-    "PHC reform consultant",
+    "international health and development expert",
+    "health and development policy consultant Africa",
+    "health and development systems strengthening",
+    "global health and development evaluation consultant",
     "health financing Africa",
     "USAID health consultant",
     "World Bank health advisor",
-    "Malawi health policy consultant",
+    "Malawi health and development consultant",
     "mixed methods evaluation Africa",
     "digital health policy Africa",
-    "health systems consultant Malawi",
-    "global health policy specialist",
+    "health development consultant Malawi",
+    "global health development specialist",
   ],
   authors: [{ name: "Dr. Benjamin Azariah Mosiwa" }],
   creator: "Dr. Benjamin Azariah Mosiwa",
@@ -45,14 +45,14 @@ export const metadata: Metadata = {
     url: DOMAIN,
     title: "Dr. Benjamin Azariah Mosiwa – International Health & Development Expert",
     description:
-      "Dr. Benjamin Azariah Mosiwa — Senior Health Systems & Policy Consultant with 10+ years of experience across 9+ African countries. Supporting governments, donors, and NGOs to design and evaluate high-impact health programmes.",
+      "Dr. Benjamin Azariah Mosiwa — Senior International Health & Development Expert with 10+ years of experience across 9+ African countries. Supporting governments, donors, and NGOs to design and evaluate high-impact health and development programmes.",
     siteName: "Dr. Benjamin Azariah Mosiwa",
   },
   twitter: {
     card: "summary_large_image",
     title: "Dr. Benjamin Azariah Mosiwa – International Health & Development Expert",
     description:
-      "Senior Health Systems & Policy Consultant with 10+ years of experience across Africa. Expert in health financing, PHC reform, and programme evaluation.",
+      "Senior International Health & Development Expert with 10+ years of experience across Africa. Expert in health and development systems, financing, policy reform, and programme evaluation.",
     creator: "@azariahmosiwa",
   },
 };
@@ -66,15 +66,15 @@ const jsonLd = {
   honorificPrefix: "Dr.",
   jobTitle: "International Health & Development Expert",
   description:
-    "Senior Health Systems & Policy Consultant with 10+ years of experience supporting governments and donors across Africa to design, evaluate, and implement high-impact health policies and programmes.",
+    "Senior International Health & Development Expert with 10+ years of experience supporting governments and donors across Africa to design, evaluate, and implement high-impact health and development policies and programmes.",
   url: DOMAIN,
   sameAs: [
     "https://linkedin.com/in/azariahmosiwa",
   ],
   nationality: "Malawian",
   knowsAbout: [
-    "Health Systems Strengthening",
-    "Health Policy",
+    "Health and Development Systems Strengthening",
+    "Health and Development Policy",
     "Health Financing",
     "Primary Health Care",
     "Programme Evaluation",
@@ -83,6 +83,8 @@ const jsonLd = {
     "Sexual and Reproductive Health",
     "MNCH",
     "Political Economy Analysis",
+    "Governance",
+    "Social Development",
   ],
   alumniOf: [
     {
@@ -97,7 +99,7 @@ const jsonLd = {
   ],
   worksFor: {
     "@type": "Organization",
-    name: "Independent Health Systems & Policy Consultant",
+    name: "Independent International Health & Development Expert",
   },
 };
 
