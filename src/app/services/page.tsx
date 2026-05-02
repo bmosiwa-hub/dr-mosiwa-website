@@ -36,7 +36,7 @@ export default function ServicesPage() {
             {[
               { icon: "🏛️", title: "Government Ministries", desc: "Health, Finance, and Planning ministries seeking embedded technical advisory" },
               { icon: "💼", title: "Donors & Funders", desc: "World Bank, USAID, FCDO, Gavi, and Global Fund — for programme design and evaluation" },
-              { icon: "🌐", title: "NGOs & Implementers", desc: "Implementing partners needing policy, evaluation, or health systems expertise" },
+              { icon: "🌐", title: "NGOs & Implementers", desc: "Implementing partners needing policy, evaluation, or health and development systems expertise" },
               { icon: "🎓", title: "Research Institutions", desc: "Academic and policy research organisations seeking experienced field partners" },
             ].map((item) => (
               <div key={item.title} className="text-center p-6 rounded-xl border border-gray-100 hover:border-gold-200 hover:shadow-sm transition-all">

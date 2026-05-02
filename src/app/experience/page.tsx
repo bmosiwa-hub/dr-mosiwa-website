@@ -5,7 +5,7 @@ import { projects } from "@/lib/data";
 export const metadata: Metadata = {
   title: "Consultancy Experience",
   description:
-    "Consultancy engagements across health systems strengthening, programme evaluation, health financing, and digital health — for World Bank, USAID, FCDO, Palladium, Frontline AIDS, and governments across Africa.",
+    "Consultancy engagements across health and development systems strengthening, programme evaluation, health financing, and digital health — for World Bank, USAID, FCDO, Palladium, Frontline AIDS, and governments across Africa.",
 };
 
 const allTags = Array.from(new Set(projects.flatMap((p) => p.tags)));

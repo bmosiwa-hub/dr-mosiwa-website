@@ -93,9 +93,9 @@ const roles = [
     location: "Malawi",
     type: "Programme Leadership",
     summary:
-      "Led the design, implementation, and strategic direction of health systems and digital health programmes in partnership with the Ministry of Health, managing donor-funded projects across HIV, TB, and SRH and representing the organisation in national policy platforms.",
+      "Led the design, implementation, and strategic direction of health and development systems and digital health programmes in partnership with the Ministry of Health, managing donor-funded projects across HIV, TB, and SRH and representing the organisation in national policy platforms.",
     responsibilities: [
-      "Led design and implementation of health systems and digital health programmes in partnership with the Ministry of Health",
+      "Led design and implementation of health and development systems and digital health programmes in partnership with the Ministry of Health",
       "Managed USAID and Global Fund-funded projects across HIV, TB, and Sexual and Reproductive Health",
       "Developed and implemented policy advocacy strategies aligned with national health priorities",
       "Designed community-based TB and HIV interventions and digital health reporting tools",
@@ -143,7 +143,7 @@ export default function WorkExperiencePage() {
               Professional Roles & Institutional Experience
             </h1>
             <p className="mt-6 text-lg text-gray-300 leading-relaxed">
-              From clinical medicine to senior policy advisory — a career spanning health systems leadership, multi-country research, programme management, and global health advocacy.
+              From clinical medicine to senior policy advisory — a career spanning health and development systems leadership, multi-country research, programme management, and global health and development advocacy.
             </p>
           </div>
 

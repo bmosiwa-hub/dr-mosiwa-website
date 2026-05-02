@@ -5,7 +5,7 @@ import { publications } from "@/lib/data";
 export const metadata: Metadata = {
   title: "Publications & Insights",
   description:
-    "Peer-reviewed articles, policy reports, and conference presentations by Dr. Benjamin Azariah Mosiwa on health systems strengthening, political economy analysis, health financing, and digital health across Africa.",
+    "Peer-reviewed articles, policy reports, and conference presentations by Dr. Benjamin Azariah Mosiwa on health and development systems strengthening, political economy analysis, health financing, and digital health across Africa.",
 };
 
 export default function PublicationsPage() {
@@ -20,7 +20,7 @@ export default function PublicationsPage() {
               Thought Leadership & Published Research
             </h1>
             <p className="mt-6 text-lg text-gray-300 leading-relaxed">
-              Peer-reviewed articles, policy reports, and international conference presentations advancing the evidence base for health systems, policy, and financing in Africa.
+              Peer-reviewed articles, policy reports, and international conference presentations advancing the evidence base for health and development systems, policy, and financing in Africa.
             </p>
           </div>
 
@@ -169,7 +169,7 @@ export default function PublicationsPage() {
             <div>
               <h3 className="font-display text-xl font-bold text-white">Looking for More Insights?</h3>
               <p className="text-gray-400 mt-2 text-sm max-w-md">
-                Connect on LinkedIn for updates on health policy analysis, research findings, and commentary on global health systems trends.
+                Connect on LinkedIn for updates on health and development policy analysis, research findings, and commentary on global health and development systems trends.
               </p>
             </div>
             <div className="flex flex-wrap gap-3 flex-shrink-0">

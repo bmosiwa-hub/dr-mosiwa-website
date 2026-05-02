@@ -5,7 +5,7 @@ import ContactForm from "@/components/ContactForm";
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Get in touch with Dr. Benjamin Azariah Mosiwa to discuss consulting engagements in health systems strengthening, programme evaluation, health financing, and policy advisory across Africa.",
+    "Get in touch with Dr. Benjamin Azariah Mosiwa to discuss consulting engagements in health and development systems strengthening, programme evaluation, health financing, and health and development policy advisory across Africa.",
 };
 
 export default function ContactPage() {

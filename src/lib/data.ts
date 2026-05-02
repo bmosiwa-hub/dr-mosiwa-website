@@ -181,7 +181,7 @@ export const projects = [
   {
     id: "dai-fcdo-district-planning",
     title: "Sub-National Planning & Technical Assistance",
-    role: "Health Systems and Policy Specialist",
+    role: "Health and Development Systems and Policy Specialist",
     client: "DAI / FCDO – Malawi Ministry of Health",
     period: "Dec 2025 – Mar 2026",
     partners: ["FCDO", "WHO", "UNICEF", "World Bank", "Global Fund", "Gavi"],
@@ -202,7 +202,7 @@ export const projects = [
   {
     id: "palladium-fp-phc",
     title: "National Assessment: FP-PHC Integration",
-    role: "Health Systems and Policy Specialist",
+    role: "Health and Development Systems and Policy Specialist",
     client: "Palladium | USAID PROPEL Health Project",
     period: "Apr 2024 – Jan 2025",
     partners: ["USAID", "Malawi Ministry of Health"],
@@ -406,7 +406,7 @@ export const projects = [
   {
     id: "kuhes-blantyre-hiv",
     title: "Blantyre HIV Prevention Strategy Assessment",
-    role: "Health Systems and Policy Specialist",
+    role: "Health and Development Systems and Policy Specialist",
     client: "Kamuzu University of Health Sciences (KUHeS)",
     period: "Oct 2022 – Jan 2023",
     partners: ["KUHeS", "Malawi Ministry of Health"],

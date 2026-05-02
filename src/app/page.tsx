@@ -53,7 +53,7 @@ export default function HomePage() {
             </h1>
 
             <p className="mt-6 text-lg md:text-xl text-gray-300 leading-relaxed">
-              Strengthening health systems through research, evidence translation, technical assistance and program evaluations. Has delivered measurable impact across 9+ African countries — for governments, donors, and global health organisations.
+              Strengthening health and development systems through research, evidence translation, technical assistance and program evaluations. Has delivered measurable impact across 9+ African countries — for governments, donors, and global health organisations.
             </p>
 
             <div className="mt-10 flex flex-col items-center gap-4">
@@ -111,7 +111,7 @@ export default function HomePage() {
                 Senior Advisor at the Intersection of Health, Development Systems, Policy & Evidence
               </h2>
               <p className="mt-6 text-gray-600 leading-relaxed">
-                With a foundation in clinical medicine and a career spanning health systems strengthening, policy research, global health advisory, and evaluation of complex health programs, Dr. Benjamin Azariah Mosiwa brings a rare combination of technical depth and strategic influence to every engagement.
+                With a foundation in clinical medicine and a career spanning health and development systems strengthening, policy research, global health and development advisory, and evaluation of complex health and development programs, Dr. Benjamin Azariah Mosiwa brings a rare combination of technical depth and strategic influence to every engagement.
               </p>
               <p className="mt-4 text-gray-600 leading-relaxed">
                 He has embedded within ministries, supported donor-funded reform programmes, published peer-reviewed research and improved health programming through evaluation and advisory; always with the goal of converting evidence and analysis into decisions that improve health outcomes.
@@ -269,7 +269,7 @@ export default function HomePage() {
       <section className="py-24 bg-gradient-to-br from-gold-500 to-gold-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-display text-3xl md:text-4xl font-bold text-white leading-tight">
-            Ready to Strengthen Your Health Systems Programme?
+            Ready to Strengthen Your Health & Development Systems Programme?
           </h2>
           <p className="mt-4 text-lg text-white/80 max-w-2xl mx-auto">
             Whether you need a technical expert, an evaluation lead, or a policy advisor — let&apos;s discuss how we can work together.
