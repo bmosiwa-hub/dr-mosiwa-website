@@ -158,6 +158,27 @@ export const services = [
 
 export const projects = [
   {
+    id: "nca-srhr-policy",
+    title: "SRHR Policy Evaluation & Update for Faith-Based Institutions",
+    role: "SRHR Policy Specialist",
+    client: "Norwegian Church Aid / DanChurchAid",
+    period: "Mar 2026 – May 2026",
+    partners: ["Norwegian Church Aid", "DanChurchAid"],
+    tags: ["SRHR", "Policy", "Faith-Based"],
+    summary:
+      "Led a comprehensive review and revision of Sexual and Reproductive Health and Rights (SRHR) policies for three major faith-based institutions in Malawi, ensuring alignment with national and international frameworks.",
+    problem:
+      "Existing SRHR policies of Blantyre Synod, Livingstonia Synod, and the Evangelical Association of Malawi contained gaps, inconsistencies, and misalignments with national frameworks and evolving community needs.",
+    approach:
+      "Conducted in-depth desk reviews and policy benchmarking against national frameworks and regional/international SRHR policies. Designed evidence synthesis and stakeholder consultation processes with faith leaders, youth groups, implementing partners, and government stakeholders. Coordinated multilingual translation (English, Chichewa, and Tumbuka) to ensure accessibility.",
+    results: [
+      "Revised, publication-ready SRHR policies for three major faith-based institutions",
+      "Policies aligned with national and international SRHR frameworks while maintaining cultural and religious sensitivity",
+      "Stakeholder validation processes completed across faith, youth, and government communities",
+      "Multilingual translation ensuring accessibility across target populations",
+    ],
+  },
+  {
     id: "telehealth-africa",
     title: "Africa-Wide Telehealth Regulatory Mapping",
     role: "Digital Health Policy Specialist",
@@ -302,27 +323,6 @@ export const projects = [
     ],
   },
   {
-    id: "nca-srhr-policy",
-    title: "SRHR Policy Evaluation & Update for Faith-Based Institutions",
-    role: "SRHR Policy Specialist",
-    client: "Norwegian Church Aid / DanChurchAid",
-    period: "Mar 2026 – May 2026",
-    partners: ["Norwegian Church Aid", "DanChurchAid"],
-    tags: ["SRHR", "Policy", "Faith-Based"],
-    summary:
-      "Led a comprehensive review and revision of Sexual and Reproductive Health and Rights (SRHR) policies for three major faith-based institutions in Malawi, ensuring alignment with national and international frameworks.",
-    problem:
-      "Existing SRHR policies of Blantyre Synod, Livingstonia Synod, and the Evangelical Association of Malawi contained gaps, inconsistencies, and misalignments with national frameworks and evolving community needs.",
-    approach:
-      "Conducted in-depth desk reviews and policy benchmarking against national frameworks and regional/international SRHR policies. Designed evidence synthesis and stakeholder consultation processes with faith leaders, youth groups, implementing partners, and government stakeholders. Coordinated multilingual translation (English, Chichewa, and Tumbuka) to ensure accessibility.",
-    results: [
-      "Revised, publication-ready SRHR policies for three major faith-based institutions",
-      "Policies aligned with national and international SRHR frameworks while maintaining cultural and religious sensitivity",
-      "Stakeholder validation processes completed across faith, youth, and government communities",
-      "Multilingual translation ensuring accessibility across target populations",
-    ],
-  },
-  {
     id: "kelin-market-intelligence",
     title: "National Market Intelligence Assessment: HIV & TB Commodities",
     role: "Evaluation Specialist",
@@ -427,7 +427,7 @@ export const projects = [
   {
     id: "kuhes-tma-condoms",
     title: "Total Market Approach Assessment for Condom Programming",
-    role: "Evaluation Specialist",
+    role: "Associate Consultant",
     client: "Kamuzu University of Health Sciences (KUHeS)",
     period: "Oct 2022 – Jan 2023",
     partners: ["KUHeS", "Malawi Ministry of Health"],
