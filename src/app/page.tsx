@@ -111,10 +111,13 @@ export default function HomePage() {
                 Senior Advisor at the Intersection of Health and Development Systems, Policy & Evidence
               </h2>
               <p className="mt-6 text-gray-600 leading-relaxed">
-                With a foundation in clinical medicine and a career spanning health and development systems strengthening, policy research, global health and development advisory, and evaluation of complex health and development programs, Dr. Benjamin Azariah Mosiwa brings a rare combination of technical depth and strategic influence to every engagement.
+                With over a decade of experience across health and development systems strengthening, policy research, strategic advisory, and the evaluation of complex programmes, Dr. Benjamin Azariah Mosiwa brings a distinctive blend of technical rigor and strategic influence to every engagement.
               </p>
               <p className="mt-4 text-gray-600 leading-relaxed">
-                He has embedded within ministries, supported donor-funded reform programmes, published peer-reviewed research and improved health programming through evaluation and advisory; always with the goal of converting evidence and analysis into decisions that improve health outcomes.
+                He has worked directly within government ministries, supported donor-funded reform initiatives, contributed to peer-reviewed research, and strengthened health programmes through evaluation and high-level advisory. His work is consistently driven by a clear objective: translating evidence and analysis into actionable decisions that improve health and development outcomes.
+              </p>
+              <p className="mt-4 text-gray-600 leading-relaxed">
+                As Founder and CEO of Astellic, he provides strategic leadership to a growing research, advisory and implementation firm, setting its vision, building high-performing multidisciplinary teams, and positioning the organization within competitive regional and global health and development markets. He leads on business development, partnership cultivation, and quality assurance across all engagements, ensuring that Astellic delivers innovative, evidence-driven solutions while maintaining strong operational sustainability and growth.
               </p>
 
               <div className="mt-8 grid grid-cols-2 gap-4">
