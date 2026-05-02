@@ -101,6 +101,9 @@ export default function AboutPage() {
                   <p>
                     After completing an MSc in Global Health Policy at the University of Edinburgh, Dr. Mosiwa moved into full-time health and development policy and systems advisory. Today he works across the global health and development architecture — advising ministries, supporting multilateral donors, leading programme evaluations, and informing investment decisions — always translating complex technical evidence into decisions that matter.
                   </p>
+                  <p>
+                    As Founder and CEO of Astellic, he provides strategic leadership to a growing research, advisory and implementation firm, setting its vision, building high-performing multidisciplinary teams, and positioning the organization within competitive regional and global health and development markets. He leads on business development, partnership cultivation, and quality assurance across all engagements, ensuring that Astellic delivers innovative, evidence-driven solutions while maintaining strong operational sustainability and growth.
+                  </p>
                 </div>
               </div>
 
