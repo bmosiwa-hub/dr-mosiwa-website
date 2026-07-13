@@ -3,7 +3,6 @@ import Script from "next/script";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ChromeGate from "@/components/ChromeGate";
 
 const DOMAIN = "https://www.azariahmosiwa.com";
 
@@ -121,9 +120,7 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-1">{children}</main>
-        <ChromeGate>
-          <Footer />
-        </ChromeGate>
+        <Footer />
       </body>
     </html>
   );
