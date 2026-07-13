@@ -19,6 +19,7 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const isHerVoice = pathname?.startsWith("/hervoice");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -29,6 +30,8 @@ export default function Header() {
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  if (isHerVoice) return null;
 
   const headerBg = isHome
     ? scrolled
