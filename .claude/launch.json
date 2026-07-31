@@ -1,0 +1,75 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "website",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "C:\\Projects\\PERSON~1",
+        "run",
+        "dev"
+      ],
+      "port": 3001
+    },
+    {
+      "name": "astellic",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "C:\\Projects\\ASTELL~1",
+        "run",
+        "dev"
+      ],
+      "port": 3000
+    },
+    {
+      "name": "astelpo",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "C:\\Projects\\Astelpo",
+        "run",
+        "dev"
+      ],
+      "port": 3000,
+      "url": "http://localhost:3000"
+    },
+    {
+      "name": "astelpo-prod",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "C:\\Projects\\Astelpo",
+        "run",
+        "start"
+      ],
+      "port": 3000,
+      "url": "http://localhost:3000"
+    },
+    {
+      "name": "astelpo-live",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "C:\\Projects\\PERSON~1",
+        "run",
+        "start"
+      ],
+      "port": 3000,
+      "url": "http://localhost:3000"
+    },
+    {
+      "name": "astelpo-new",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "C:\\Projects\\astelpo-app",
+        "run",
+        "start"
+      ],
+      "port": 3000,
+      "url": "http://localhost:3000"
+    }
+  ]
+}
