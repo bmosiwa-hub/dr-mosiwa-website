@@ -44,6 +44,15 @@ export async function deleteTask(taskId: string, projectId: string) {
   revalidatePath(base(projectId));
 }
 
+export async function postponeTask(taskId: string, projectId: string) {
+  const task = await db.task.findUnique({ where: { id: taskId }, select: { dueDate: true } });
+  const next = task?.dueDate ? new Date(task.dueDate) : new Date();
+  next.setDate(next.getDate() + 1);
+  await db.task.update({ where: { id: taskId }, data: { dueDate: next } });
+  revalidatePath("/astelpo_26/today");
+  revalidatePath(`/astelpo_26/projects/${projectId}/tasks`);
+}
+
 export async function updateTask(taskId: string, projectId: string, _: unknown, formData: FormData) {
   const session = await auth();
   if (!session?.user) return { error: "Unauthorized" };

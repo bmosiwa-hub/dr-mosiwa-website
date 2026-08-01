@@ -1,21 +1,14 @@
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
-import { formatDate, isOverdue, PROJECT_STATUS_COLORS, PROJECT_STATUS_LABELS, PRIORITY_COLORS, cn } from "@/lib/utils";
+import { PROJECT_STATUS_COLORS, PROJECT_STATUS_LABELS, cn } from "@/lib/utils";
 import { format, addDays } from "date-fns";
-import { AlertCircle, Calendar, CheckCircle2, Clock, FolderKanban } from "lucide-react";
+import { Clock, FolderKanban } from "lucide-react";
 import Link from "next/link";
+import { OverduePanel, TodayPanel, UpcomingPanel } from "./TodayClient";
+import type { DashTask } from "./TodayClient";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Today" };
-
-type TaskItem = {
-  id: string;
-  title: string;
-  priority: string;
-  status: string;
-  dueDate: Date | null;
-  project: { id: string; name: string; colorLabel: string | null };
-};
 
 type ProjectItem = {
   id: string;
@@ -105,44 +98,9 @@ export default async function TodayPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div className="lg:col-span-2 space-y-5">
-          {overdueTasksRaw.length > 0 && (
-            <div className="bg-red-950/20 border border-red-900/30 rounded-xl p-5">
-              <h3 className="text-red-400 font-semibold text-sm flex items-center gap-2 mb-3">
-                <AlertCircle className="w-4 h-4" /> Overdue ({overdueTasksRaw.length})
-              </h3>
-              <div className="space-y-2">
-                {overdueTasksRaw.map((task: TaskItem) => (
-                  <TaskRow key={task.id} task={task} showDate />
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-            <h3 className="text-white font-semibold text-sm flex items-center gap-2 mb-3">
-              <CheckCircle2 className="w-4 h-4 text-indigo-400" />
-              Today{tasksDueToday.length > 0 && <span className="text-slate-500 font-normal">({tasksDueToday.length})</span>}
-            </h3>
-            {tasksDueToday.length === 0 ? (
-              <p className="text-slate-500 text-sm">Nothing due today.</p>
-            ) : (
-              <div className="space-y-2">
-                {tasksDueToday.map((task: TaskItem) => <TaskRow key={task.id} task={task} />)}
-              </div>
-            )}
-          </div>
-
-          {tasksDueThisWeek.length > 0 && (
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-              <h3 className="text-white font-semibold text-sm flex items-center gap-2 mb-3">
-                <Calendar className="w-4 h-4 text-amber-400" />
-                Coming Up This Week
-              </h3>
-              <div className="space-y-2">
-                {tasksDueThisWeek.map((task: TaskItem) => <TaskRow key={task.id} task={task} showDate />)}
-              </div>
-            </div>
-          )}
+          <OverduePanel tasks={overdueTasksRaw} />
+          <TodayPanel tasks={tasksDueToday} />
+          <UpcomingPanel tasks={tasksDueThisWeek} />
         </div>
 
         <div className="space-y-5">
@@ -194,24 +152,3 @@ export default async function TodayPage() {
   );
 }
 
-function TaskRow({ task, showDate }: { task: TaskItem; showDate?: boolean }) {
-  return (
-    <Link href={`/astelpo_26/projects/${task.project.id}`}>
-      <div className="flex items-center gap-3 py-2 border-b border-slate-800 last:border-0 hover:opacity-80 transition-opacity">
-        <div className={cn(
-          "w-2 h-2 rounded-full flex-shrink-0",
-          task.priority === "CRITICAL" ? "bg-red-600" : task.priority === "HIGH" ? "bg-amber-500" : "bg-indigo-500"
-        )} />
-        <div className="flex-1 min-w-0">
-          <p className="text-slate-300 text-sm truncate">{task.title}</p>
-          <p className="text-slate-600 text-xs truncate">{task.project.name}</p>
-        </div>
-        {showDate && task.dueDate && (
-          <span className={cn("text-xs flex-shrink-0", isOverdue(task.dueDate) ? "text-red-400" : "text-slate-500")}>
-            {formatDate(task.dueDate)}
-          </span>
-        )}
-      </div>
-    </Link>
-  );
-}
