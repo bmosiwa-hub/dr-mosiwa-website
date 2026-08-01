@@ -19,8 +19,8 @@ export async function createTask(projectId: string, _: unknown, formData: FormDa
     data: {
       title: title.trim(),
       description: (formData.get("description") as string) || null,
-      status: (formData.get("status") as string) || "TODO",
-      priority: (formData.get("priority") as string) || "MEDIUM",
+      status: ((formData.get("status") as string) || "TODO") as "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "BLOCKED" | "DONE" | "CANCELLED",
+      priority: ((formData.get("priority") as string) || "MEDIUM") as "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
       dueDate: dueDateRaw ? new Date(dueDateRaw) : null,
       projectId,
       assigneeId: session.user.id,
@@ -33,7 +33,7 @@ export async function createTask(projectId: string, _: unknown, formData: FormDa
 }
 
 export async function updateTaskStatus(taskId: string, status: string, projectId: string) {
-  await db.task.update({ where: { id: taskId }, data: { status } });
+  await db.task.update({ where: { id: taskId }, data: { status: status as "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "BLOCKED" | "DONE" | "CANCELLED" } });
   revalidatePath(`${base(projectId)}/tasks`);
   revalidatePath(base(projectId));
 }
