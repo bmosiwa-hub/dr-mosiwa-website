@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { updateTaskStatus, postponeTask } from "@/lib/actions/tasks";
 import { cn, formatDate, isOverdue } from "@/lib/utils";
 import { CheckCircle2, Clock, SkipForward, XCircle } from "lucide-react";
@@ -16,9 +16,40 @@ export type DashTask = {
 
 function TaskActions({ task }: { task: DashTask }) {
   const [pending, startTransition] = useTransition();
+  const [pickingDate, setPickingDate] = useState(false);
+  const [newDate, setNewDate] = useState("");
 
   function act(fn: () => Promise<void>) {
     startTransition(fn);
+  }
+
+  function confirmPostpone() {
+    if (!newDate) return;
+    setPickingDate(false);
+    act(() => postponeTask(task.id, task.project.id, newDate));
+  }
+
+  if (pickingDate) {
+    return (
+      <div className="flex items-center gap-1.5 flex-shrink-0">
+        <input
+          type="date"
+          value={newDate}
+          onChange={e => setNewDate(e.target.value)}
+          min={new Date().toISOString().split("T")[0]}
+          autoFocus
+          className="h-6 px-2 bg-slate-800 border border-amber-700 rounded-md text-amber-300 text-xs focus:outline-none"
+        />
+        <button onClick={confirmPostpone} disabled={!newDate}
+          className="h-6 px-2 rounded-md bg-amber-700 hover:bg-amber-600 disabled:opacity-40 text-white text-xs font-medium transition-colors">
+          Set
+        </button>
+        <button onClick={() => setPickingDate(false)}
+          className="h-6 px-2 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs transition-colors border border-slate-700">
+          ✕
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -31,11 +62,11 @@ function TaskActions({ task }: { task: DashTask }) {
         Done
       </button>
       <button
-        onClick={() => act(() => postponeTask(task.id, task.project.id))}
-        title="Postpone by 1 day"
+        onClick={() => setPickingDate(true)}
+        title="Postpone to a new date"
         className="flex items-center gap-1 h-6 px-2 rounded-md bg-amber-900/30 hover:bg-amber-800/50 text-amber-400 text-xs font-medium transition-colors border border-amber-800/30">
         <SkipForward className="w-3 h-3" />
-        +1d
+        Postpone
       </button>
       <button
         onClick={() => act(() => updateTaskStatus(task.id, "CANCELLED", task.project.id))}

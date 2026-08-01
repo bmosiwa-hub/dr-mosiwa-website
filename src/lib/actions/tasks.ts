@@ -44,11 +44,8 @@ export async function deleteTask(taskId: string, projectId: string) {
   revalidatePath(base(projectId));
 }
 
-export async function postponeTask(taskId: string, projectId: string) {
-  const task = await db.task.findUnique({ where: { id: taskId }, select: { dueDate: true } });
-  const next = task?.dueDate ? new Date(task.dueDate) : new Date();
-  next.setDate(next.getDate() + 1);
-  await db.task.update({ where: { id: taskId }, data: { dueDate: next } });
+export async function postponeTask(taskId: string, projectId: string, newDate: string) {
+  await db.task.update({ where: { id: taskId }, data: { dueDate: new Date(newDate) } });
   revalidatePath("/astelpo_26/today");
   revalidatePath(`/astelpo_26/projects/${projectId}/tasks`);
 }
