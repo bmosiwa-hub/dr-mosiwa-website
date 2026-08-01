@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 const DOMAIN = "https://www.azariahmosiwa.com";
 
@@ -14,14 +12,12 @@ export const metadata: Metadata = {
   description:
     "Dr. Benjamin Azariah Mosiwa is a Senior International Health & Development Expert with 10+ years of experience across 9+ African countries. Expert in health and development systems strengthening, health financing, policy reform, and programme evaluation for governments, donors, and NGOs.",
   keywords: [
-    // Name variations — the most important for personal brand SEO
     "Benjamin Mosiwa",
     "Azariah Mosiwa",
     "Benjamin Azariah Mosiwa",
     "Dr Benjamin Mosiwa",
     "Dr Azariah Mosiwa",
     "Dr Benjamin Azariah Mosiwa",
-    // Profession keywords
     "international health and development expert",
     "health and development policy consultant Africa",
     "health and development systems strengthening",
@@ -57,7 +53,6 @@ export const metadata: Metadata = {
   },
 };
 
-// JSON-LD structured data — tells Google exactly who this person is
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
@@ -68,9 +63,7 @@ const jsonLd = {
   description:
     "Senior International Health & Development Expert with 10+ years of experience supporting governments and donors across Africa to design, evaluate, and implement high-impact health and development policies and programmes.",
   url: DOMAIN,
-  sameAs: [
-    "https://linkedin.com/in/azariahmosiwa",
-  ],
+  sameAs: ["https://linkedin.com/in/azariahmosiwa"],
   nationality: "Malawian",
   knowsAbout: [
     "Health and Development Systems Strengthening",
@@ -87,15 +80,8 @@ const jsonLd = {
     "Social Development",
   ],
   alumniOf: [
-    {
-      "@type": "CollegeOrUniversity",
-      name: "University of Edinburgh",
-      url: "https://www.ed.ac.uk",
-    },
-    {
-      "@type": "CollegeOrUniversity",
-      name: "University of Malawi",
-    },
+    { "@type": "CollegeOrUniversity", name: "University of Edinburgh", url: "https://www.ed.ac.uk" },
+    { "@type": "CollegeOrUniversity", name: "University of Malawi" },
   ],
   worksFor: {
     "@type": "Organization",
@@ -103,13 +89,9 @@ const jsonLd = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="h-full scroll-smooth">
       <head>
         <Script
           id="json-ld-person"
@@ -117,10 +99,8 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+      <body className="h-full">
+        {children}
       </body>
     </html>
   );
