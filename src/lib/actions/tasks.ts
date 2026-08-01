@@ -43,3 +43,28 @@ export async function deleteTask(taskId: string, projectId: string) {
   revalidatePath(`${base(projectId)}/tasks`);
   revalidatePath(base(projectId));
 }
+
+export async function updateTask(taskId: string, projectId: string, _: unknown, formData: FormData) {
+  const session = await auth();
+  if (!session?.user) return { error: "Unauthorized" };
+
+  const title = formData.get("title") as string;
+  if (!title?.trim()) return { error: "Title is required" };
+
+  const dueDateRaw = formData.get("dueDate") as string;
+
+  await db.task.update({
+    where: { id: taskId },
+    data: {
+      title: title.trim(),
+      description: (formData.get("description") as string) || null,
+      status: (formData.get("status") as string) as "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "BLOCKED" | "DONE" | "CANCELLED",
+      priority: (formData.get("priority") as string) as "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
+      dueDate: dueDateRaw ? new Date(dueDateRaw) : null,
+    },
+  });
+
+  revalidatePath(`${base(projectId)}/tasks`);
+  revalidatePath(base(projectId));
+  return null;
+}
