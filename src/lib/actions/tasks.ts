@@ -13,6 +13,7 @@ export async function createTask(projectId: string, _: unknown, formData: FormDa
   const title = formData.get("title") as string;
   if (!title?.trim()) return { error: "Title is required" };
 
+  const startDateRaw = formData.get("startDate") as string;
   const dueDateRaw = formData.get("dueDate") as string;
 
   await db.task.create({
@@ -21,6 +22,7 @@ export async function createTask(projectId: string, _: unknown, formData: FormDa
       description: (formData.get("description") as string) || null,
       status: ((formData.get("status") as string) || "TODO") as "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "BLOCKED" | "DONE" | "CANCELLED",
       priority: ((formData.get("priority") as string) || "MEDIUM") as "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
+      startDate: startDateRaw ? new Date(startDateRaw) : null,
       dueDate: dueDateRaw ? new Date(dueDateRaw) : null,
       projectId,
       assigneeId: session.user.id,
@@ -29,6 +31,7 @@ export async function createTask(projectId: string, _: unknown, formData: FormDa
 
   revalidatePath(`${base(projectId)}/tasks`);
   revalidatePath(base(projectId));
+  revalidatePath("/astelpo_26/today");
   return null;
 }
 
@@ -36,18 +39,20 @@ export async function updateTaskStatus(taskId: string, status: string, projectId
   await db.task.update({ where: { id: taskId }, data: { status: status as "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "BLOCKED" | "DONE" | "CANCELLED" } });
   revalidatePath(`${base(projectId)}/tasks`);
   revalidatePath(base(projectId));
+  revalidatePath("/astelpo_26/today");
 }
 
 export async function deleteTask(taskId: string, projectId: string) {
   await db.task.delete({ where: { id: taskId } });
   revalidatePath(`${base(projectId)}/tasks`);
   revalidatePath(base(projectId));
+  revalidatePath("/astelpo_26/today");
 }
 
 export async function postponeTask(taskId: string, projectId: string, newDate: string) {
   await db.task.update({ where: { id: taskId }, data: { dueDate: new Date(newDate) } });
   revalidatePath("/astelpo_26/today");
-  revalidatePath(`/astelpo_26/projects/${projectId}/tasks`);
+  revalidatePath(`${base(projectId)}/tasks`);
 }
 
 export async function updateTask(taskId: string, projectId: string, _: unknown, formData: FormData) {
@@ -57,6 +62,7 @@ export async function updateTask(taskId: string, projectId: string, _: unknown, 
   const title = formData.get("title") as string;
   if (!title?.trim()) return { error: "Title is required" };
 
+  const startDateRaw = formData.get("startDate") as string;
   const dueDateRaw = formData.get("dueDate") as string;
 
   await db.task.update({
@@ -66,11 +72,13 @@ export async function updateTask(taskId: string, projectId: string, _: unknown, 
       description: (formData.get("description") as string) || null,
       status: (formData.get("status") as string) as "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "BLOCKED" | "DONE" | "CANCELLED",
       priority: (formData.get("priority") as string) as "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
+      startDate: startDateRaw ? new Date(startDateRaw) : null,
       dueDate: dueDateRaw ? new Date(dueDateRaw) : null,
     },
   });
 
   revalidatePath(`${base(projectId)}/tasks`);
   revalidatePath(base(projectId));
+  revalidatePath("/astelpo_26/today");
   return null;
 }

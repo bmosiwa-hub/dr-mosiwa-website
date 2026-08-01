@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useMemo, useTransition } from "react";
 import { updateTaskStatus, postponeTask } from "@/lib/actions/tasks";
 import { cn, formatDate, isOverdue } from "@/lib/utils";
 import { CheckCircle2, Clock, SkipForward, XCircle } from "lucide-react";
@@ -10,9 +10,18 @@ export type DashTask = {
   title: string;
   priority: string;
   status: string;
+  startDate: Date | null;
   dueDate: Date | null;
   project: { id: string; name: string; colorLabel: string | null };
 };
+
+type Timeline = "week" | "14d" | "month" | "quarter";
+const TIMELINE_OPTS: { key: Timeline; label: string; days: number }[] = [
+  { key: "week",    label: "This week",    days: 7  },
+  { key: "14d",     label: "Next 14 days", days: 14 },
+  { key: "month",   label: "Next month",   days: 30 },
+  { key: "quarter", label: "Next quarter", days: 90 },
+];
 
 function TaskActions({ task }: { task: DashTask }) {
   const [pending, startTransition] = useTransition();
@@ -79,7 +88,7 @@ function TaskActions({ task }: { task: DashTask }) {
   );
 }
 
-function TaskRow({ task, showDate }: { task: DashTask; showDate?: boolean }) {
+function TaskRow({ task, showDates }: { task: DashTask; showDates?: boolean }) {
   return (
     <div className="flex items-center gap-3 py-2.5 border-b border-slate-800 last:border-0">
       <div className={cn(
@@ -90,10 +99,17 @@ function TaskRow({ task, showDate }: { task: DashTask; showDate?: boolean }) {
         <p className="text-slate-300 text-sm truncate">{task.title}</p>
         <p className="text-slate-600 text-xs truncate">{task.project.name}</p>
       </div>
-      {showDate && task.dueDate && (
-        <span className={cn("text-xs flex-shrink-0", isOverdue(task.dueDate) ? "text-red-400" : "text-slate-500")}>
-          {formatDate(task.dueDate)}
-        </span>
+      {showDates && (
+        <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
+          {task.startDate && (
+            <span className="text-xs text-slate-600">Start {formatDate(task.startDate)}</span>
+          )}
+          {task.dueDate && (
+            <span className={cn("text-xs", isOverdue(task.dueDate) ? "text-red-400" : "text-slate-500")}>
+              Due {formatDate(task.dueDate)}
+            </span>
+          )}
+        </div>
       )}
       <TaskActions task={task} />
     </div>
@@ -108,7 +124,7 @@ export function OverduePanel({ tasks }: { tasks: DashTask[] }) {
         <span className="w-4 h-4 text-red-400">!</span> Overdue ({tasks.length})
       </h3>
       <div className="divide-y divide-slate-800/0">
-        {tasks.map(t => <TaskRow key={t.id} task={t} showDate />)}
+        {tasks.map(t => <TaskRow key={t.id} task={t} showDates />)}
       </div>
     </div>
   );
@@ -131,14 +147,49 @@ export function TodayPanel({ tasks }: { tasks: DashTask[] }) {
 }
 
 export function UpcomingPanel({ tasks }: { tasks: DashTask[] }) {
-  if (tasks.length === 0) return null;
+  const [timeline, setTimeline] = useState<Timeline>("week");
+
+  const cutoff = useMemo(() => {
+    const d = new Date();
+    d.setHours(23, 59, 59, 999);
+    d.setDate(d.getDate() + TIMELINE_OPTS.find(o => o.key === timeline)!.days);
+    return d;
+  }, [timeline]);
+
+  const visible = useMemo(() => {
+    return tasks.filter(t => {
+      const anchor = t.startDate ?? t.dueDate;
+      return anchor && new Date(anchor) <= cutoff;
+    });
+  }, [tasks, cutoff]);
+
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-      <h3 className="text-white font-semibold text-sm flex items-center gap-2 mb-3">
-        <Clock className="w-4 h-4 text-amber-400" />
-        Coming Up This Week
-      </h3>
-      <div>{tasks.map(t => <TaskRow key={t.id} task={t} showDate />)}</div>
+      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+        <h3 className="text-white font-semibold text-sm flex items-center gap-2">
+          <Clock className="w-4 h-4 text-amber-400" />
+          Upcoming
+          {visible.length > 0 && <span className="text-slate-500 font-normal">({visible.length})</span>}
+        </h3>
+        <div className="flex items-center gap-1">
+          {TIMELINE_OPTS.map(o => (
+            <button key={o.key} onClick={() => setTimeline(o.key)}
+              className={cn(
+                "h-6 px-2.5 rounded-md text-xs font-medium transition-colors",
+                timeline === o.key
+                  ? "bg-amber-700/40 text-amber-300 border border-amber-700/50"
+                  : "bg-slate-800 text-slate-500 hover:text-slate-300 border border-slate-700"
+              )}>
+              {o.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      {visible.length === 0 ? (
+        <p className="text-slate-500 text-sm">No tasks coming up in this period.</p>
+      ) : (
+        <div>{visible.map(t => <TaskRow key={t.id} task={t} showDates />)}</div>
+      )}
     </div>
   );
 }

@@ -24,15 +24,17 @@ export default async function TodayPage() {
   const session = await auth();
   const userId = session?.user?.id!;
   const now = new Date();
-  const weekFromNow = addDays(now, 7);
+  const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
+  const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);
+  const ninetyDaysOut = addDays(now, 90);
 
   const taskInclude = { project: { select: { id: true, name: true, colorLabel: true } } } as const;
 
-  const [tasksDueToday, tasksDueThisWeek, overdueTasksRaw, recentProjects, activeProjects] = await Promise.all([
+  const [tasksDueToday, upcomingTasksRaw, overdueTasksRaw, recentProjects, activeProjects] = await Promise.all([
     db.task.findMany({
       where: {
         project: { leadId: userId },
-        dueDate: { gte: new Date(new Date().setHours(0, 0, 0, 0)), lte: new Date(new Date().setHours(23, 59, 59, 999)) },
+        dueDate: { gte: todayStart, lte: todayEnd },
         status: { notIn: ["DONE", "CANCELLED"] },
       },
       include: taskInclude,
@@ -41,17 +43,20 @@ export default async function TodayPage() {
     db.task.findMany({
       where: {
         project: { leadId: userId },
-        dueDate: { gt: new Date(), lte: weekFromNow },
         status: { notIn: ["DONE", "CANCELLED"] },
+        OR: [
+          { startDate: { gt: todayEnd, lte: ninetyDaysOut } },
+          { startDate: null, dueDate: { gt: todayEnd, lte: ninetyDaysOut } },
+        ],
       },
       include: taskInclude,
-      orderBy: { dueDate: "asc" },
-      take: 10,
+      orderBy: [{ startDate: "asc" }, { dueDate: "asc" }],
+      take: 100,
     }),
     db.task.findMany({
       where: {
         project: { leadId: userId },
-        dueDate: { lt: new Date() },
+        dueDate: { lt: todayStart },
         status: { notIn: ["DONE", "CANCELLED"] },
       },
       include: taskInclude,
@@ -87,7 +92,7 @@ export default async function TodayPage() {
         {[
           { label: "Due Today", value: tasksDueToday.length, color: tasksDueToday.length > 0 ? "bg-indigo-900/30 text-indigo-300 border-indigo-700/30" : "bg-slate-800 text-slate-400 border-slate-700" },
           { label: "Overdue", value: overdueTasksRaw.length, color: overdueTasksRaw.length > 0 ? "bg-red-900/30 text-red-400 border-red-800/30" : "bg-slate-800 text-slate-400 border-slate-700" },
-          { label: "Due This Week", value: tasksDueThisWeek.length, color: "bg-amber-900/20 text-amber-400 border-amber-800/20" },
+          { label: "Upcoming", value: upcomingTasksRaw.length, color: "bg-amber-900/20 text-amber-400 border-amber-800/20" },
         ].map((s) => (
           <div key={s.label} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium ${s.color}`}>
             <span className="font-bold text-base">{s.value}</span>
@@ -100,7 +105,7 @@ export default async function TodayPage() {
         <div className="lg:col-span-2 space-y-5">
           <OverduePanel tasks={overdueTasksRaw} />
           <TodayPanel tasks={tasksDueToday} />
-          <UpcomingPanel tasks={tasksDueThisWeek} />
+          <UpcomingPanel tasks={upcomingTasksRaw} />
         </div>
 
         <div className="space-y-5">

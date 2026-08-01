@@ -42,7 +42,7 @@ function TaskForm({
 }: {
   projectId: string;
   onDone: () => void;
-  defaultValues?: { title: string; description: string | null; status: string; priority: string; dueDate: Date | null };
+  defaultValues?: { title: string; description: string | null; status: string; priority: string; startDate: Date | null; dueDate: Date | null };
 }) {
   const bound = createTask.bind(null, projectId);
   const [state, formAction] = useActionState(bound, null);
@@ -57,7 +57,7 @@ function TaskForm({
         className="w-full h-9 bg-slate-800 border border-slate-700 rounded-lg px-3 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500" />
       <textarea name="description" rows={2} placeholder="Description (optional)" defaultValue={defaultValues?.description ?? ""}
         className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 resize-none" />
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <select name="status" defaultValue={defaultValues?.status ?? "TODO"}
           className="h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white text-sm focus:outline-none focus:border-indigo-500">
           {STATUS_OPTS.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
@@ -66,9 +66,18 @@ function TaskForm({
           className="h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white text-sm focus:outline-none focus:border-indigo-500">
           {PRIORITY_OPTS.map(p => <option key={p} value={p}>{p[0] + p.slice(1).toLowerCase()}</option>)}
         </select>
-        <input type="date" name="dueDate"
-          defaultValue={defaultValues?.dueDate ? new Date(defaultValues.dueDate).toISOString().split("T")[0] : ""}
-          className="h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white text-sm focus:outline-none focus:border-indigo-500" />
+        <div className="flex flex-col gap-0.5">
+          <label className="text-xs text-slate-500 px-1">Start date</label>
+          <input type="date" name="startDate"
+            defaultValue={defaultValues?.startDate ? new Date(defaultValues.startDate).toISOString().split("T")[0] : ""}
+            className="h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white text-sm focus:outline-none focus:border-indigo-500" />
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <label className="text-xs text-slate-500 px-1">Due date</label>
+          <input type="date" name="dueDate"
+            defaultValue={defaultValues?.dueDate ? new Date(defaultValues.dueDate).toISOString().split("T")[0] : ""}
+            className="h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white text-sm focus:outline-none focus:border-indigo-500" />
+        </div>
       </div>
       <div className="flex gap-2 justify-end">
         <button type="button" onClick={onDone}
@@ -99,7 +108,7 @@ function EditTaskForm({
         className="w-full h-9 bg-slate-800 border border-slate-700 rounded-lg px-3 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500" />
       <textarea name="description" rows={2} placeholder="Description (optional)" defaultValue={task.description ?? ""}
         className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 resize-none" />
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <select name="status" defaultValue={task.status}
           className="h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white text-sm focus:outline-none focus:border-indigo-500">
           {STATUS_OPTS.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
@@ -108,9 +117,18 @@ function EditTaskForm({
           className="h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white text-sm focus:outline-none focus:border-indigo-500">
           {PRIORITY_OPTS.map(p => <option key={p} value={p}>{p[0] + p.slice(1).toLowerCase()}</option>)}
         </select>
-        <input type="date" name="dueDate"
-          defaultValue={task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : ""}
-          className="h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white text-sm focus:outline-none focus:border-indigo-500" />
+        <div className="flex flex-col gap-0.5">
+          <label className="text-xs text-slate-500 px-1">Start date</label>
+          <input type="date" name="startDate"
+            defaultValue={task.startDate ? new Date(task.startDate).toISOString().split("T")[0] : ""}
+            className="h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white text-sm focus:outline-none focus:border-indigo-500" />
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <label className="text-xs text-slate-500 px-1">Due date</label>
+          <input type="date" name="dueDate"
+            defaultValue={task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : ""}
+            className="h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white text-sm focus:outline-none focus:border-indigo-500" />
+        </div>
       </div>
       <div className="flex gap-2 justify-end">
         <button type="button" onClick={onDone}
@@ -123,7 +141,7 @@ function EditTaskForm({
 
 export type Task = {
   id: string; title: string; description: string | null;
-  status: string; priority: string; dueDate: Date | null;
+  status: string; priority: string; startDate: Date | null; dueDate: Date | null;
 };
 
 type SortKey = "priority" | "dueDate" | "none";
@@ -221,9 +239,14 @@ export function TasksClient({ projectId, initialTasks }: { projectId: string; in
                   {task.description && <p className="text-xs text-slate-500 mt-0.5 truncate">{task.description}</p>}
                 </div>
                 <span className={cn("text-xs font-medium flex-shrink-0", PRIORITY_COLORS[task.priority])}>{task.priority}</span>
+                {task.startDate && (
+                  <span className="text-xs text-slate-600 flex-shrink-0">
+                    Start {new Date(task.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
+                )}
                 {task.dueDate && (
                   <span className="text-xs text-slate-500 flex-shrink-0">
-                    {new Date(task.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    Due {new Date(task.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </span>
                 )}
                 <select value={task.status}
