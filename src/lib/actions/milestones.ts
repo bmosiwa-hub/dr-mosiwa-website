@@ -29,7 +29,7 @@ export async function updateMilestoneStatus(milestoneId: string, status: string,
   const completionPct = status === "COMPLETED" ? 100 : status === "IN_PROGRESS" ? 50 : 0;
   await db.milestone.update({
     where: { id: milestoneId },
-    data: { status, completionPct },
+    data: { status: status as "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED" | "MISSED", completionPct },
   });
   revalidatePath(`${base(projectId)}/milestones`);
 }
