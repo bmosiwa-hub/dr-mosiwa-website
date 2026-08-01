@@ -3,13 +3,10 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { loginSchema } from "@/lib/validations/auth";
+import { authConfig } from "@/auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  session: { strategy: "jwt" },
-  pages: {
-    signIn: "/astelpo_26/login",
-    error: "/astelpo_26/login",
-  },
+  ...authConfig,
   providers: [
     Credentials({
       async authorize(credentials) {
