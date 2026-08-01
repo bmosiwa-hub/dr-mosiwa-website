@@ -16,7 +16,7 @@ export async function createResource(projectId: string, _: unknown, formData: Fo
       title: title.trim(),
       url: url.trim(),
       description: (formData.get("description") as string) || null,
-      category: (formData.get("category") as string) || "OTHER",
+      category: ((formData.get("category") as string) || "OTHER") as "GOOGLE_DRIVE" | "DROPBOX" | "GITHUB" | "SHAREPOINT" | "MEETING_LINK" | "REFERENCE" | "DATASET" | "PUBLICATION" | "GUIDELINE" | "OTHER",
       notes: (formData.get("notes") as string) || null,
       projectId,
     },
