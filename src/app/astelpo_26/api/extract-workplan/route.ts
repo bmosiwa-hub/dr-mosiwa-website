@@ -93,9 +93,14 @@ export async function POST(req: Request) {
   });
 
   const raw = message.content[0].type === "text" ? message.content[0].text : "";
-  const match = raw.match(/\{[\s\S]*\}/);
+  console.log("[extract-workplan] raw response:", raw.slice(0, 2000));
+
+  // Strip markdown code fences if present
+  const stripped = raw.replace(/```(?:json)?\s*/g, "").replace(/```\s*/g, "").trim();
+  const match = stripped.match(/\{[\s\S]*\}/);
 
   if (!match) {
+    console.log("[extract-workplan] no JSON object found in response");
     return NextResponse.json({ error: "Extraction produced no structured output." }, { status: 500 });
   }
 
@@ -108,7 +113,8 @@ export async function POST(req: Request) {
       tasks: result.tasks ?? [],
       milestones: result.milestones ?? [],
     });
-  } catch {
+  } catch (err) {
+    console.log("[extract-workplan] JSON parse error:", err, "matched text:", match[0].slice(0, 500));
     return NextResponse.json({ error: "Could not parse the extracted data." }, { status: 500 });
   }
 }
