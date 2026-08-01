@@ -223,6 +223,7 @@ model Task {
   checklist  ChecklistItem[]
   comments   TaskComment[]
   files      TaskFile[]
+  links      TaskLink[]
   tags       TagOnTask[]
 
   dependencies Task[] @relation("TaskDependencies")
@@ -255,6 +256,16 @@ model TaskFile {
   url       String
   size      Int
   mimeType  String
+  taskId    String
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model TaskLink {
+  id        String   @id @default(cuid())
+  title     String
+  url       String
   taskId    String
   createdAt DateTime @default(now())
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useTransition } from "react";
+import Link from "next/link";
 import { updateTaskStatus, postponeTask } from "@/lib/actions/tasks";
 import { cn, formatDate, isOverdue } from "@/lib/utils";
 import { CheckCircle2, Clock, SkipForward, XCircle } from "lucide-react";
@@ -95,10 +96,10 @@ function TaskRow({ task, showDates }: { task: DashTask; showDates?: boolean }) {
         "w-2 h-2 rounded-full flex-shrink-0",
         task.priority === "CRITICAL" ? "bg-red-600" : task.priority === "HIGH" ? "bg-amber-500" : "bg-indigo-500"
       )} />
-      <div className="flex-1 min-w-0">
+      <Link href={`/astelpo_26/projects/${task.project.id}/tasks/${task.id}`} className="flex-1 min-w-0 hover:opacity-80 transition-opacity">
         <p className="text-slate-300 text-sm truncate">{task.title}</p>
         <p className="text-slate-600 text-xs truncate">{task.project.name}</p>
-      </div>
+      </Link>
       {showDates && (
         <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
           {task.startDate && (

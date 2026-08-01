@@ -3,6 +3,7 @@
 import { useActionState, useState, useMemo } from "react";
 import { useFormStatus } from "react-dom";
 import { createTask, updateTaskStatus, deleteTask, updateTask } from "@/lib/actions/tasks";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Plus, Trash2, Circle, CheckCircle2, Clock, AlertCircle, Pencil, X, ArrowUpDown } from "lucide-react";
 
@@ -232,12 +233,12 @@ export function TasksClient({ projectId, initialTasks }: { projectId: string; in
               <div key={task.id}
                 className="flex items-center gap-3 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl px-4 py-3 group transition-colors">
                 <div className="flex-shrink-0">{STATUS_ICON[task.status] ?? <Circle className="w-4 h-4 text-slate-500" />}</div>
-                <div className="flex-1 min-w-0">
+                <Link href={`/astelpo_26/projects/${projectId}/tasks/${task.id}`} className="flex-1 min-w-0 hover:opacity-80 transition-opacity">
                   <span className={cn("text-sm", task.status === "DONE" || task.status === "CANCELLED" ? "line-through text-slate-500" : "text-white")}>
                     {task.title}
                   </span>
                   {task.description && <p className="text-xs text-slate-500 mt-0.5 truncate">{task.description}</p>}
-                </div>
+                </Link>
                 <span className={cn("text-xs font-medium flex-shrink-0", PRIORITY_COLORS[task.priority])}>{task.priority}</span>
                 {task.startDate && (
                   <span className="text-xs text-slate-600 flex-shrink-0">
