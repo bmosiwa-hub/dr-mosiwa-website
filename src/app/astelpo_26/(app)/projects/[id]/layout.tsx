@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { formatDate, PROJECT_STATUS_LABELS, PROJECT_STATUS_COLORS, PRIORITY_LABELS, PRIORITY_COLORS, PROJECT_CATEGORY_LABELS, cn } from "@/lib/utils";
 import { Calendar, Building2, Globe, DollarSign } from "lucide-react";
+import { WorkplanImport } from "./WorkplanImport";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -71,10 +72,13 @@ export default async function ProjectLayout({ params, children }: Props) {
               )}
             </div>
           </div>
-          <Link href={`/astelpo_26/projects/${id}/edit`}
-            className="flex-shrink-0 h-8 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 text-sm font-medium transition-colors flex items-center">
-            Edit
-          </Link>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <WorkplanImport projectId={id} />
+            <Link href={`/astelpo_26/projects/${id}/edit`}
+              className="h-8 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 text-sm font-medium transition-colors flex items-center">
+              Edit
+            </Link>
+          </div>
         </div>
 
         <div className="mt-4">
