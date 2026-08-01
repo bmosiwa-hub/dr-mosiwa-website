@@ -8,7 +8,7 @@ import { OverduePanel, TodayPanel, UpcomingPanel } from "./TodayClient";
 import type { DashTask } from "./TodayClient";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Today" };
+export const metadata: Metadata = { title: "Home" };
 
 type ProjectItem = {
   id: string;
@@ -46,7 +46,7 @@ export default async function TodayPage() {
         status: { notIn: ["DONE", "CANCELLED"] },
         OR: [
           { startDate: { gt: todayEnd, lte: ninetyDaysOut } },
-          { startDate: null, dueDate: { gt: todayEnd, lte: ninetyDaysOut } },
+          { dueDate: { gt: todayEnd, lte: ninetyDaysOut } },
         ],
       },
       include: taskInclude,

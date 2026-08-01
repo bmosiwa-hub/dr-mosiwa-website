@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard,
   Sun,
   FolderKanban,
   CalendarDays,
@@ -19,8 +18,7 @@ import { useState } from "react";
 const BASE = "/astelpo_26";
 
 const navItems = [
-  { label: "Today", href: `${BASE}/today`, icon: Sun },
-  { label: "Dashboard", href: `${BASE}/dashboard`, icon: LayoutDashboard },
+  { label: "Home", href: `${BASE}/today`, icon: Sun },
   { label: "Projects", href: `${BASE}/projects`, icon: FolderKanban },
   { label: "Calendar", href: `${BASE}/calendar`, icon: CalendarDays },
   { label: "Files", href: `${BASE}/files`, icon: Files },

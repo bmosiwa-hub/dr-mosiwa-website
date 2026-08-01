@@ -158,8 +158,9 @@ export function UpcomingPanel({ tasks }: { tasks: DashTask[] }) {
 
   const visible = useMemo(() => {
     return tasks.filter(t => {
-      const anchor = t.startDate ?? t.dueDate;
-      return anchor && new Date(anchor) <= cutoff;
+      const startInPeriod = t.startDate && new Date(t.startDate) <= cutoff;
+      const dueInPeriod = t.dueDate && new Date(t.dueDate) <= cutoff;
+      return startInPeriod || dueInPeriod;
     });
   }, [tasks, cutoff]);
 
