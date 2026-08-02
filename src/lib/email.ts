@@ -39,37 +39,7 @@ export async function sendEditorInvite({
   console.log("[Resend] sendEditorInvite sent, id:", data?.id);
 }
 
-export async function sendViewerApprovalRequest({
-  ownerEmail,
-  requesterEmail,
-  projectName,
-  approvalLink,
-}: {
-  ownerEmail: string;
-  requesterEmail: string;
-  projectName: string;
-  approvalLink: string;
-}) {
-  const { data, error } = await getResend().emails.send({
-    from: FROM,
-    to: ownerEmail,
-    subject: `Access request for "${projectName}"`,
-    html: `
-      <p>Hi,</p>
-      <p><strong>${requesterEmail}</strong> is requesting viewer access to your project <strong>${projectName}</strong>.</p>
-      <p>Click below to approve their access (valid for 48 hours):</p>
-      <p><a href="${approvalLink}" style="background:#4f46e5;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;">Approve Access</a></p>
-      <p style="color:#888;font-size:12px;">If you don't recognize this request, ignore this email.</p>
-    `,
-  });
-  if (error) {
-    console.error("[Resend] sendViewerApprovalRequest error:", JSON.stringify(error));
-    throw new Error(error.message);
-  }
-  console.log("[Resend] sendViewerApprovalRequest sent, id:", data?.id);
-}
-
-export async function sendViewerAccessGranted({
+export async function sendViewerInvite({
   email,
   projectName,
   viewLink,
@@ -81,16 +51,18 @@ export async function sendViewerAccessGranted({
   const { data, error } = await getResend().emails.send({
     from: FROM,
     to: email,
-    subject: `Your access to "${projectName}" has been approved`,
+    subject: `You've been given access to "${projectName}"`,
     html: `
       <p>Hi,</p>
-      <p>Your request to view <strong>${projectName}</strong> has been approved. Your access is valid for 48 hours.</p>
+      <p>You've been invited to view the project <strong>${projectName}</strong> in AstelPO.</p>
+      <p>Click the link below to access it at any time:</p>
       <p><a href="${viewLink}" style="background:#4f46e5;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;">View Project</a></p>
+      <p style="color:#888;font-size:12px;">Bookmark this link — you'll need it each time you want to access the project.</p>
     `,
   });
   if (error) {
-    console.error("[Resend] sendViewerAccessGranted error:", JSON.stringify(error));
+    console.error("[Resend] sendViewerInvite error:", JSON.stringify(error));
     throw new Error(error.message);
   }
-  console.log("[Resend] sendViewerAccessGranted sent, id:", data?.id);
+  console.log("[Resend] sendViewerInvite sent, id:", data?.id);
 }

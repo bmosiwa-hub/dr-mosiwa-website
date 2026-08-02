@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
-import { sendEditorInvite, sendViewerApprovalRequest, sendViewerAccessGranted } from "@/lib/email";
+import { sendEditorInvite, sendViewerInvite } from "@/lib/email";
 import { randomBytes } from "crypto";
 
 const BASE = "/astelpo_26";
@@ -37,15 +37,16 @@ export async function inviteCollaborator(
 
   let memberId: string;
   if (existing) {
-    // Resend: refresh token and reset to PENDING
+    const newStatus = role === "VIEWER" ? "ACTIVE" : "PENDING";
     await db.projectMember.update({
       where: { id: existing.id },
-      data: { role, status: "PENDING", inviteToken: token, tokenExpiry },
+      data: { role, status: newStatus, inviteToken: token, tokenExpiry },
     });
     memberId = existing.id;
   } else {
+    const newStatus = role === "VIEWER" ? "ACTIVE" : "PENDING";
     const created = await db.projectMember.create({
-      data: { projectId, email, role, status: "PENDING", inviteToken: token, tokenExpiry },
+      data: { projectId, email, role, status: newStatus, inviteToken: token, tokenExpiry },
     });
     memberId = created.id;
   }
@@ -60,7 +61,7 @@ export async function inviteCollaborator(
       });
     } else {
       const viewLink = `${BASE_URL}${BASE}/view/${memberId}`;
-      await sendViewerAccessGranted({ email, projectName: project.name, viewLink });
+      await sendViewerInvite({ email, projectName: project.name, viewLink });
     }
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
@@ -109,46 +110,6 @@ export async function acceptEditorInvite(token: string, formData: FormData): Pro
   return {};
 }
 
-export async function requestViewerAccess(
-  memberId: string,
-  requesterEmail: string
-): Promise<{ error?: string; success?: string }> {
-  const member = await db.projectMember.findUnique({
-    where: { id: memberId },
-    include: { project: { include: { lead: true } } },
-  });
-
-  if (!member || member.role !== "VIEWER") return { error: "Invalid access link." };
-  if (member.status === "REVOKED") return { error: "Your access to this project has been revoked." };
-
-  // Check for recent pending session to avoid spam
-  const recent = await db.viewerSession.findFirst({
-    where: {
-      memberId,
-      requesterEmail,
-      createdAt: { gte: new Date(Date.now() - 15 * 60 * 1000) }, // 15 min
-    },
-  });
-  if (recent) return { success: "A request was already sent recently. Please wait for approval." };
-
-  const vsToken = randomBytes(32).toString("hex");
-  const viewerSession = await db.viewerSession.create({
-    data: { memberId, requesterEmail, token: vsToken },
-  });
-
-  const ownerEmail = member.project.lead?.email;
-  if (!ownerEmail) return { error: "Could not reach project owner." };
-
-  const approvalLink = `${BASE_URL}${BASE}/api/approve-viewer?token=${vsToken}`;
-  await sendViewerApprovalRequest({
-    ownerEmail,
-    requesterEmail,
-    projectName: member.project.name,
-    approvalLink,
-  });
-
-  return { success: "Access request sent. You'll receive an email when approved." };
-}
 
 export async function revokeAccess(memberId: string): Promise<{ error?: string }> {
   const session = await auth();
