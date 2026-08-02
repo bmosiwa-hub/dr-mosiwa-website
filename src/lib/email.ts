@@ -6,7 +6,7 @@ function getResend() {
   return _resend;
 }
 const FROM = "AstelPO <noreply@azariahmosiwa.com>";
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.azariah.ca";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.azariahmosiwa.com";
 
 export async function sendEditorInvite({
   email,
