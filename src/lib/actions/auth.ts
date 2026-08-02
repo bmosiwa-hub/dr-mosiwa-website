@@ -53,6 +53,7 @@ export async function createUser(data: FormData) {
       name: parsed.data.name,
       email: parsed.data.email,
       password: hashedPassword,
+      accountStatus: "PENDING",
     },
   });
 
