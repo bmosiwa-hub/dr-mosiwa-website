@@ -7,9 +7,18 @@ export const authConfig = {
   },
   session: { strategy: "jwt" as const, maxAge: 30 * 60 },
   callbacks: {
-    // Runs in both the middleware (lightweight auth instance) and the full auth instance.
-    // Without this, req.auth.user in middleware only has standard fields (name/email/image)
-    // and accountStatus/role are invisible — causing all users to appear non-ACTIVE.
+    // Enforces inactivity timeout in middleware (no DB calls — edge-safe).
+    // The full auth instance (auth.ts) writes lastActivity on every request;
+    // this callback reads it and invalidates the token when 30 min has elapsed.
+    jwt({ token }) {
+      if (!token?.id) return token;
+      const now = Math.floor(Date.now() / 1000);
+      const lastActivity = token.lastActivity as number | undefined;
+      if (lastActivity && now - lastActivity > 30 * 60) {
+        return null;
+      }
+      return token;
+    },
     session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;

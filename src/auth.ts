@@ -38,24 +38,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user }) {
+      const now = Math.floor(Date.now() / 1000);
+      const TIMEOUT = 30 * 60;
+
       if (user) {
-        // Initial sign-in: user object is from authorize()
+        // Initial sign-in
         token.id = user.id;
+        token.lastActivity = now;
       }
-      // Always re-read role and accountStatus from DB so changes take effect immediately.
-      // This runs on every JWT access (every request in JWT strategy).
-      if (token.id) {
-        const dbUser = await db.user.findUnique({
-          where: { id: token.id as string },
-          select: { role: true, accountStatus: true },
-        });
-        if (!dbUser) {
-          // User was deleted — invalidate the token
-          return {} as typeof token;
-        }
-        token.role = dbUser.role;
-        token.accountStatus = dbUser.accountStatus;
+
+      if (!token.id) return token;
+
+      // Inactivity timeout: if the last activity was more than 30 minutes ago, invalidate.
+      const lastActivity = token.lastActivity as number | undefined;
+      if (lastActivity && now - lastActivity > TIMEOUT) {
+        return {} as typeof token;
       }
+
+      // Stamp the current request as the latest activity so the timer resets.
+      token.lastActivity = now;
+
+      const dbUser = await db.user.findUnique({
+        where: { id: token.id as string },
+        select: { role: true, accountStatus: true },
+      });
+      if (!dbUser) return {} as typeof token;
+      token.role = dbUser.role;
+      token.accountStatus = dbUser.accountStatus;
+
       return token;
     },
     session({ session, token }) {
