@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
-import { sendEditorInvite, sendViewerInvite } from "@/lib/email";
+import { sendEditorInvite, sendViewerInvite, sendNewAccountNotification } from "@/lib/email";
 import { randomBytes } from "crypto";
 
 const BASE = "/astelpo_26";
@@ -101,8 +101,20 @@ export async function acceptEditorInvite(token: string, formData: FormData): Pro
   const hashed = await bcrypt.hash(password, 12);
 
   const user = await db.user.create({
-    data: { name, email: member.email, password: hashed, role: "VIEWER" },
+    data: { name, email: member.email, password: hashed, role: "VIEWER", accountStatus: "PENDING" },
   });
+
+  // Notify admin of new account
+  const admin = await db.user.findFirst({ where: { role: "ADMIN" } });
+  const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.azariahmosiwa.com";
+  if (admin?.email) {
+    sendNewAccountNotification({
+      adminEmail: admin.email,
+      newUserName: name,
+      newUserEmail: member.email,
+      settingsLink: `${BASE_URL}/astelpo_26/settings`,
+    }).catch(() => {});
+  }
 
   await db.projectMember.update({
     where: { id: member.id },

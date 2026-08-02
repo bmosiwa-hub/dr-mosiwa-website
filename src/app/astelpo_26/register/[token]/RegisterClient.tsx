@@ -1,22 +1,20 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { acceptEditorInvite } from "@/lib/actions/collaborators";
+import { createAccountFromPlatformInvite } from "@/lib/actions/accounts";
 import { Briefcase, CheckCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
-export function JoinClient({
+export function RegisterClient({
   token,
-  projectName,
   email,
   expired,
-  alreadyUsed,
+  used,
 }: {
   token: string;
-  projectName: string;
   email: string;
   expired: boolean;
-  alreadyUsed: boolean;
+  used: boolean;
 }) {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -26,7 +24,7 @@ export function JoinClient({
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     startTransition(async () => {
-      const res = await acceptEditorInvite(token, fd);
+      const res = await createAccountFromPlatformInvite(token, fd);
       if (res?.error) setError(res.error);
       else setDone(true);
     });
@@ -41,28 +39,28 @@ export function JoinClient({
           </div>
         </div>
 
-        {expired && (
+        {(expired || used) && (
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 text-center">
             <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
-            <h1 className="text-white text-xl font-bold mb-2">Link Expired</h1>
-            <p className="text-slate-400 text-sm">This invitation link has expired. Ask the project owner to send a new one.</p>
+            <h1 className="text-white text-xl font-bold mb-2">{used ? "Link Already Used" : "Link Expired"}</h1>
+            <p className="text-slate-400 text-sm">
+              {used
+                ? "This invite link has already been used. Try logging in instead."
+                : "This invite link has expired. Ask the project owner to send a new one."}
+            </p>
+            {used && (
+              <Link href="/astelpo_26/login" className="inline-block mt-4 text-indigo-400 hover:text-indigo-300 text-sm">
+                Go to login →
+              </Link>
+            )}
           </div>
         )}
 
-        {alreadyUsed && !expired && (
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 text-center">
-            <CheckCircle className="w-10 h-10 text-green-400 mx-auto mb-3" />
-            <h1 className="text-white text-xl font-bold mb-2">Already Joined</h1>
-            <p className="text-slate-400 text-sm mb-5">Your account is already set up.</p>
-            <Link href="/astelpo_26/login" className="text-indigo-400 hover:text-indigo-300 text-sm">Sign in →</Link>
-          </div>
-        )}
-
-        {!expired && !alreadyUsed && !done && (
+        {!expired && !used && !done && (
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-8">
-            <h1 className="text-white text-xl font-bold mb-1">You've been invited</h1>
+            <h1 className="text-white text-xl font-bold mb-1">Create your account</h1>
             <p className="text-slate-400 text-sm mb-6">
-              Create your account to join <strong className="text-white">{projectName}</strong> as an Editor.
+              You've been invited to join <strong className="text-white">AstelPO</strong>. Your account will need to be approved before you can access projects.
             </p>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -101,18 +99,13 @@ export function JoinClient({
                 disabled={pending}
                 className="w-full h-10 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-lg text-white text-sm font-medium transition-colors"
               >
-                {pending ? "Creating account…" : "Create Account & Join"}
+                {pending ? "Creating account…" : "Create Account"}
               </button>
             </form>
-            <div className="mt-5 pt-4 border-t border-slate-800 text-center">
-              <p className="text-xs text-slate-500 mb-3">Already have an account?</p>
-              <Link
-                href="/astelpo_26/login"
-                className="inline-block h-9 px-5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 text-sm font-medium leading-9 transition-colors"
-              >
-                Log in to existing account
-              </Link>
-            </div>
+            <p className="text-center text-xs text-slate-500 mt-4">
+              Already have an account?{" "}
+              <Link href="/astelpo_26/login" className="text-indigo-400 hover:text-indigo-300">Log in</Link>
+            </p>
           </div>
         )}
 
@@ -121,10 +114,13 @@ export function JoinClient({
             <CheckCircle className="w-10 h-10 text-green-400 mx-auto mb-3" />
             <h1 className="text-white text-xl font-bold mb-2">Account created!</h1>
             <p className="text-slate-400 text-sm mb-5">
-              Your account is pending approval. You'll receive an email once the project owner approves your access to <strong className="text-white">{projectName}</strong>.
+              Your account is pending approval. You'll receive an email once the project owner approves your access.
             </p>
-            <Link href="/astelpo_26/login" className="inline-block h-10 px-6 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white text-sm font-medium leading-10 transition-colors">
-              Sign in
+            <Link
+              href="/astelpo_26/login"
+              className="inline-block h-10 px-6 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white text-sm font-medium leading-10 transition-colors"
+            >
+              Go to login
             </Link>
           </div>
         )}

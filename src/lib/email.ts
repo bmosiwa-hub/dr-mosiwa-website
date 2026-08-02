@@ -39,6 +39,57 @@ export async function sendEditorInvite({
   console.log("[Resend] sendEditorInvite sent, id:", data?.id);
 }
 
+export async function sendPlatformInviteEmail({
+  email,
+  registerLink,
+}: {
+  email: string;
+  registerLink: string;
+}) {
+  const { data, error } = await getResend().emails.send({
+    from: FROM,
+    to: email,
+    subject: "You've been invited to join AstelPO",
+    html: `
+      <p>Hi,</p>
+      <p>You've been invited to create an account on <strong>AstelPO</strong>.</p>
+      <p>Click the link below to set up your account. This link expires in 7 days.</p>
+      <p><a href="${registerLink}" style="background:#4f46e5;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;">Create Account</a></p>
+      <p style="color:#888;font-size:12px;">If you didn't expect this, you can ignore this email.</p>
+    `,
+  });
+  if (error) {
+    console.error("[Resend] sendPlatformInviteEmail error:", JSON.stringify(error));
+    throw new Error(error.message);
+  }
+  console.log("[Resend] sendPlatformInviteEmail sent, id:", data?.id);
+}
+
+export async function sendNewAccountNotification({
+  adminEmail,
+  newUserName,
+  newUserEmail,
+  settingsLink,
+}: {
+  adminEmail: string;
+  newUserName: string;
+  newUserEmail: string;
+  settingsLink: string;
+}) {
+  const { data, error } = await getResend().emails.send({
+    from: FROM,
+    to: adminEmail,
+    subject: `New account pending approval — ${newUserName}`,
+    html: `
+      <p>Hi,</p>
+      <p><strong>${newUserName}</strong> (${newUserEmail}) has created an account on AstelPO and is waiting for your approval.</p>
+      <p><a href="${settingsLink}" style="background:#4f46e5;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;">Review in Settings</a></p>
+    `,
+  });
+  if (error) console.error("[Resend] sendNewAccountNotification error:", JSON.stringify(error));
+  else console.log("[Resend] sendNewAccountNotification sent, id:", data?.id);
+}
+
 export async function sendViewerInvite({
   email,
   projectName,

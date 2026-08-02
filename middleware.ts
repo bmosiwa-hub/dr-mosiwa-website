@@ -8,8 +8,9 @@ const PUBLIC = [
   `${BASE}/forgot-password`,
   `${BASE}/join`,
   `${BASE}/view`,
-  `${BASE}/api/approve-viewer`,
+  `${BASE}/register`,
 ];
+const PENDING_PAGE = `${BASE}/pending-approval`;
 
 const { auth } = NextAuth(authConfig);
 
@@ -20,6 +21,8 @@ export default auth((req) => {
 
   const isPublic = PUBLIC.some((p) => pathname.startsWith(p));
   const isLoggedIn = !!req.auth;
+  const accountStatus = (req.auth?.user as { accountStatus?: string } | undefined)?.accountStatus;
+  const userRole = (req.auth?.user as { role?: string } | undefined)?.role;
 
   if (!isLoggedIn && !isPublic) {
     return NextResponse.redirect(new URL(`${BASE}/login`, req.url));
@@ -29,6 +32,10 @@ export default auth((req) => {
   }
   if (isLoggedIn && pathname === BASE) {
     return NextResponse.redirect(new URL(`${BASE}/today`, req.url));
+  }
+  // Redirect pending (non-admin) users to the approval waiting room
+  if (isLoggedIn && accountStatus === "PENDING" && userRole !== "ADMIN" && pathname !== PENDING_PAGE) {
+    return NextResponse.redirect(new URL(PENDING_PAGE, req.url));
   }
 
   return NextResponse.next();
