@@ -52,6 +52,18 @@ export default async function ViewerProjectPage({ params }: { params: Promise<{ 
     );
   }
 
+  const expired = member.tokenExpiry && member.tokenExpiry < new Date();
+  if (expired) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+        <div className="text-center max-w-sm">
+          <p className="text-amber-400 font-semibold mb-2">Link Expired</p>
+          <p className="text-slate-400 text-sm">This view link has expired. Contact the project owner to get a new one.</p>
+        </div>
+      </div>
+    );
+  }
+
   const project = member.project;
 
   return (

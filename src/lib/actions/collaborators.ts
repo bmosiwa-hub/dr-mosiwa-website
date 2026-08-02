@@ -29,7 +29,9 @@ export async function inviteCollaborator(
   if (!project) return { error: "Project not found." };
 
   const token = randomBytes(32).toString("hex");
-  const tokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+  const editorExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days for editors
+  const viewerExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour for viewers
+  const tokenExpiry = role === "VIEWER" ? viewerExpiry : editorExpiry;
 
   const existing = await db.projectMember.findFirst({
     where: { projectId, email, status: { notIn: ["REVOKED"] } },
