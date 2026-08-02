@@ -14,7 +14,7 @@ export default async function SettingsPage() {
   const users = await db.user.findMany({
     where: { role: "VIEWER" },
     orderBy: [{ accountStatus: "asc" }, { createdAt: "asc" }],
-    select: { id: true, name: true, email: true, accountStatus: true, createdAt: true },
+    select: { id: true, name: true, email: true, role: true, accountStatus: true, createdAt: true },
   });
 
   return (

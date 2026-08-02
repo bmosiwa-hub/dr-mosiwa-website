@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState, useTransition } from "react";
-import { approveAccount, suspendAccount, reactivateAccount, sendPlatformInvite } from "@/lib/actions/accounts";
-import { UserPlus, CheckCircle, Clock, XCircle, Users } from "lucide-react";
+import { approveAccount, suspendAccount, reactivateAccount, sendPlatformInvite, setUserRole } from "@/lib/actions/accounts";
+import { UserPlus, CheckCircle, Clock, XCircle, Users, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 
@@ -10,6 +10,7 @@ type User = {
   id: string;
   name: string;
   email: string;
+  role: "ADMIN" | "VIEWER";
   accountStatus: "PENDING" | "ACTIVE" | "SUSPENDED";
   createdAt: Date;
 };
@@ -32,6 +33,29 @@ const STATUS_BADGE: Record<string, { label: string; class: string; icon: React.R
   },
 };
 
+function RoleSelect({ user }: { user: User }) {
+  const [, startTransition] = useTransition();
+
+  return (
+    <select
+      value={user.role}
+      onChange={(e) => {
+        const role = e.target.value as "ADMIN" | "VIEWER";
+        startTransition(async () => { await setUserRole(user.id, role); });
+      }}
+      className={cn(
+        "h-7 px-2 rounded-lg text-xs font-medium border transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500",
+        user.role === "ADMIN"
+          ? "bg-indigo-900/30 text-indigo-400 border-indigo-700/30"
+          : "bg-slate-800 text-slate-400 border-slate-700"
+      )}
+    >
+      <option value="VIEWER">Viewer</option>
+      <option value="ADMIN">Admin</option>
+    </select>
+  );
+}
+
 export function SettingsClient({ users }: { users: User[] }) {
   const [inviteState, inviteAction, invitePending] = useActionState(sendPlatformInvite, {});
   const [, startTransition] = useTransition();
@@ -47,7 +71,7 @@ export function SettingsClient({ users }: { users: User[] }) {
   return (
     <div className="space-y-8">
 
-      {/* Pending approvals — shown prominently at top */}
+      {/* Pending approvals */}
       {pending.length > 0 && (
         <div className="bg-amber-900/10 border border-amber-700/30 rounded-xl p-5 space-y-3">
           <h3 className="text-amber-400 font-semibold text-sm flex items-center gap-2">
@@ -123,7 +147,7 @@ export function SettingsClient({ users }: { users: User[] }) {
               return (
                 <div key={u.id} className="flex items-center justify-between gap-3 border border-slate-800 rounded-lg px-4 py-3">
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-white text-sm font-medium truncate">{u.name}</p>
                       <span className={cn("flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border font-medium", badge.class)}>
                         {badge.icon}
@@ -133,6 +157,7 @@ export function SettingsClient({ users }: { users: User[] }) {
                     <p className="text-slate-500 text-xs mt-0.5">{u.email} · Joined {format(new Date(u.createdAt), "MMM d, yyyy")}</p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
+                    <RoleSelect user={u} />
                     {u.accountStatus === "PENDING" && (
                       <button onClick={() => handleApprove(u.id)} className="h-7 px-3 bg-green-700 hover:bg-green-600 rounded-lg text-white text-xs font-medium transition-colors">Approve</button>
                     )}
@@ -147,6 +172,13 @@ export function SettingsClient({ users }: { users: User[] }) {
               );
             })}
           </div>
+        )}
+
+        {users.length > 0 && (
+          <p className="text-slate-600 text-xs flex items-center gap-1 pt-1">
+            <Shield className="w-3 h-3" />
+            Role changes take effect on the user&apos;s next request.
+          </p>
         )}
       </div>
     </div>

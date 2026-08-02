@@ -68,6 +68,19 @@ export async function reactivateAccount(userId: string): Promise<{ error?: strin
   return {};
 }
 
+export async function setUserRole(userId: string, role: "ADMIN" | "VIEWER"): Promise<{ error?: string }> {
+  let admin: { id: string };
+  try {
+    admin = await requireAdmin();
+  } catch {
+    return { error: "Unauthorized" };
+  }
+  if (admin.id === userId) return { error: "You cannot change your own role." };
+  await db.user.update({ where: { id: userId }, data: { role } });
+  revalidatePath(`${BASE}/settings`);
+  return {};
+}
+
 export async function sendPlatformInvite(
   _: unknown,
   formData: FormData
