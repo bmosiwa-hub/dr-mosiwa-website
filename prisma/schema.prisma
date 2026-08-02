@@ -233,16 +233,18 @@ model Task {
   priority      Priority   @default(MEDIUM)
   startDate     DateTime?
   dueDate       DateTime?
-  reminderDate  DateTime?
-  estimatedTime Float?
-  actualTime    Float?
-  completionPct Int        @default(0)
-  order         Int        @default(0)
-  projectId     String
-  assigneeId    String?
-  parentTaskId  String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  reminderDate        DateTime?
+  estimatedTime       Float?
+  actualTime          Float?
+  completionPct       Int                  @default(0)
+  order               Int                  @default(0)
+  projectId           String
+  assigneeId          String?
+  parentTaskId        String?
+  recurrenceFrequency RecurrenceFrequency?
+  recurrenceEndsAt    DateTime?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
 
   project    Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   assignee   User?           @relation("TaskAssignee", fields: [assigneeId], references: [id])

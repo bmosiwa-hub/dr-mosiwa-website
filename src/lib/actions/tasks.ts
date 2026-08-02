@@ -18,6 +18,12 @@ export async function createTask(projectId: string, _: unknown, formData: FormDa
   if (!startDateRaw) return { error: "Start date is required" };
   if (!dueDateRaw) return { error: "Due date is required" };
 
+  const recurrenceFrequencyRaw = formData.get("recurrenceFrequency") as string | null;
+  const recurrenceFrequency = recurrenceFrequencyRaw
+    ? (recurrenceFrequencyRaw as "DAILY" | "WEEKLY" | "BIWEEKLY" | "MONTHLY")
+    : null;
+  const recurrenceEndsAtRaw = formData.get("recurrenceEndsAt") as string;
+
   await db.task.create({
     data: {
       title: title.trim(),
@@ -26,6 +32,8 @@ export async function createTask(projectId: string, _: unknown, formData: FormDa
       priority: ((formData.get("priority") as string) || "MEDIUM") as "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
       startDate: startDateRaw ? new Date(startDateRaw) : null,
       dueDate: dueDateRaw ? new Date(dueDateRaw) : null,
+      recurrenceFrequency,
+      recurrenceEndsAt: recurrenceEndsAtRaw ? new Date(recurrenceEndsAtRaw) : null,
       projectId,
       assigneeId: session.user.id,
     },
@@ -69,6 +77,12 @@ export async function updateTask(taskId: string, projectId: string, _: unknown, 
   if (!startDateRaw) return { error: "Start date is required" };
   if (!dueDateRaw) return { error: "Due date is required" };
 
+  const recurrenceFrequencyRaw = formData.get("recurrenceFrequency") as string | null;
+  const recurrenceFrequency = recurrenceFrequencyRaw
+    ? (recurrenceFrequencyRaw as "DAILY" | "WEEKLY" | "BIWEEKLY" | "MONTHLY")
+    : null;
+  const recurrenceEndsAtRaw = formData.get("recurrenceEndsAt") as string;
+
   await db.task.update({
     where: { id: taskId },
     data: {
@@ -78,6 +92,8 @@ export async function updateTask(taskId: string, projectId: string, _: unknown, 
       priority: (formData.get("priority") as string) as "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
       startDate: startDateRaw ? new Date(startDateRaw) : null,
       dueDate: dueDateRaw ? new Date(dueDateRaw) : null,
+      recurrenceFrequency,
+      recurrenceEndsAt: recurrenceEndsAtRaw ? new Date(recurrenceEndsAtRaw) : null,
     },
   });
 

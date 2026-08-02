@@ -69,20 +69,52 @@ export default async function TodayPage() {
       take: 5,
       select: { id: true, name: true, status: true, priority: true, colorLabel: true, progress: true, endDate: true },
     }),
-    db.recurringTask.findMany({
+    db.task.findMany({
       where: {
         project: { leadId: userId },
-        active: true,
-        OR: [{ endsAt: null }, { endsAt: { gt: now } }],
+        recurrenceFrequency: { not: null },
+        startDate: { not: null },
+        status: { notIn: ["DONE", "CANCELLED"] },
+        OR: [{ recurrenceEndsAt: null }, { recurrenceEndsAt: { gt: now } }],
       },
       select: {
         id: true, title: true, priority: true,
-        frequency: true, durationDays: true, startingFrom: true, endsAt: true,
+        recurrenceFrequency: true, startDate: true, dueDate: true, recurrenceEndsAt: true,
         project: { select: { id: true, name: true, colorLabel: true } },
       },
     }),
     db.project.count({ where: { leadId: userId, status: "ACTIVE" } }),
   ]);
+
+  // Convert recurring tasks to RecurringTaskInput starting from the SECOND occurrence
+  // so the original task occurrence (already in upcoming/today) isn't shown twice.
+  function advanceDate(d: Date, freq: string) {
+    switch (freq) {
+      case "DAILY":    d.setDate(d.getDate() + 1); break;
+      case "WEEKLY":   d.setDate(d.getDate() + 7); break;
+      case "BIWEEKLY": d.setDate(d.getDate() + 14); break;
+      case "MONTHLY":  d.setMonth(d.getMonth() + 1); break;
+    }
+  }
+  const recurringInputs = recurringTasksRaw
+    .filter(t => t.startDate)
+    .map(t => {
+      const s = new Date(t.startDate!);
+      const e = t.dueDate ? new Date(t.dueDate) : new Date(s);
+      const durationDays = Math.max(1, Math.round((e.getTime() - s.getTime()) / 86400000) + 1);
+      const nextStart = new Date(s);
+      advanceDate(nextStart, t.recurrenceFrequency!);
+      return {
+        id: t.id,
+        title: t.title,
+        priority: t.priority as string,
+        frequency: t.recurrenceFrequency as string,
+        durationDays,
+        startingFrom: nextStart,
+        endsAt: t.recurrenceEndsAt,
+        project: t.project,
+      };
+    });
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -117,7 +149,7 @@ export default async function TodayPage() {
         <div className="lg:col-span-2 space-y-5">
           <OverduePanel tasks={overdueTasksRaw} />
           <TodayPanel tasks={tasksDueToday} />
-          <UpcomingPanel tasks={upcomingTasksRaw} recurringTasks={recurringTasksRaw} />
+          <UpcomingPanel tasks={upcomingTasksRaw} recurringTasks={recurringInputs} />
         </div>
 
         <div className="space-y-5">
