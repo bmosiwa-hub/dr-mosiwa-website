@@ -5,7 +5,6 @@ import { db } from "@/lib/db";
 import { registerSchema } from "@/lib/validations/auth";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
-import { isRedirectError } from "next/dist/client/components/redirect";
 import { revalidatePath } from "next/cache";
 
 export async function login(formData: FormData) {
@@ -16,7 +15,12 @@ export async function login(formData: FormData) {
       redirectTo: "/astelpo_26/today",
     });
   } catch (error) {
-    if (isRedirectError(error)) throw error;
+    if (
+      error !== null &&
+      typeof error === "object" &&
+      "digest" in error &&
+      String((error as { digest: unknown }).digest).startsWith("NEXT_REDIRECT")
+    ) throw error;
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
