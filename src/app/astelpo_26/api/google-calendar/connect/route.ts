@@ -2,11 +2,10 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { google } from "googleapis";
 
-const BASE_URL =
-  process.env.NODE_ENV === "development"
-    ? (process.env.AUTH_URL ?? "http://localhost:3000")
-    : (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.azariahmosiwa.com");
-const REDIRECT_URI = `${BASE_URL}/astelpo_26/api/google-calendar/callback`;
+const REDIRECT_URI =
+  process.env.GOOGLE_CALENDAR_REDIRECT_URI ??
+  `${process.env.NEXT_PUBLIC_APP_URL ?? "https://www.azariahmosiwa.com"}/astelpo_26/api/google-calendar/callback`;
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.azariahmosiwa.com";
 
 export async function GET() {
   const session = await auth();
