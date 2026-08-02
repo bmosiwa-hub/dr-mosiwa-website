@@ -22,6 +22,7 @@ export async function GET() {
     prompt: "consent",
     scope: ["https://www.googleapis.com/auth/calendar.events"],
     state: session.user.id,
+    redirect_uri: REDIRECT_URI,
   });
 
   return NextResponse.redirect(url);
