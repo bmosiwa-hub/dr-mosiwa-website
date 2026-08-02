@@ -15,6 +15,8 @@ export async function createTask(projectId: string, _: unknown, formData: FormDa
 
   const startDateRaw = formData.get("startDate") as string;
   const dueDateRaw = formData.get("dueDate") as string;
+  if (!startDateRaw) return { error: "Start date is required" };
+  if (!dueDateRaw) return { error: "Due date is required" };
 
   await db.task.create({
     data: {
@@ -64,6 +66,8 @@ export async function updateTask(taskId: string, projectId: string, _: unknown, 
 
   const startDateRaw = formData.get("startDate") as string;
   const dueDateRaw = formData.get("dueDate") as string;
+  if (!startDateRaw) return { error: "Start date is required" };
+  if (!dueDateRaw) return { error: "Due date is required" };
 
   await db.task.update({
     where: { id: taskId },

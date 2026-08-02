@@ -68,14 +68,14 @@ function TaskForm({
           {PRIORITY_OPTS.map(p => <option key={p} value={p}>{p[0] + p.slice(1).toLowerCase()}</option>)}
         </select>
         <div className="flex flex-col gap-0.5">
-          <label className="text-xs text-slate-500 px-1">Start date</label>
-          <input type="date" name="startDate"
+          <label className="text-xs text-slate-500 px-1">Start date *</label>
+          <input type="date" name="startDate" required
             defaultValue={defaultValues?.startDate ? new Date(defaultValues.startDate).toISOString().split("T")[0] : ""}
             className="h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white text-sm focus:outline-none focus:border-indigo-500" />
         </div>
         <div className="flex flex-col gap-0.5">
-          <label className="text-xs text-slate-500 px-1">Due date</label>
-          <input type="date" name="dueDate"
+          <label className="text-xs text-slate-500 px-1">Due date *</label>
+          <input type="date" name="dueDate" required
             defaultValue={defaultValues?.dueDate ? new Date(defaultValues.dueDate).toISOString().split("T")[0] : ""}
             className="h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white text-sm focus:outline-none focus:border-indigo-500" />
         </div>
@@ -119,14 +119,14 @@ function EditTaskForm({
           {PRIORITY_OPTS.map(p => <option key={p} value={p}>{p[0] + p.slice(1).toLowerCase()}</option>)}
         </select>
         <div className="flex flex-col gap-0.5">
-          <label className="text-xs text-slate-500 px-1">Start date</label>
-          <input type="date" name="startDate"
+          <label className="text-xs text-slate-500 px-1">Start date *</label>
+          <input type="date" name="startDate" required
             defaultValue={task.startDate ? new Date(task.startDate).toISOString().split("T")[0] : ""}
             className="h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white text-sm focus:outline-none focus:border-indigo-500" />
         </div>
         <div className="flex flex-col gap-0.5">
-          <label className="text-xs text-slate-500 px-1">Due date</label>
-          <input type="date" name="dueDate"
+          <label className="text-xs text-slate-500 px-1">Due date *</label>
+          <input type="date" name="dueDate" required
             defaultValue={task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : ""}
             className="h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white text-sm focus:outline-none focus:border-indigo-500" />
         </div>

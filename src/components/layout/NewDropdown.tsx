@@ -12,6 +12,8 @@ export function NewDropdown() {
   const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
   const [selectedProject, setSelectedProject] = useState("");
   const [title, setTitle] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [saving, setSaving] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -34,14 +36,18 @@ export function NewDropdown() {
 
   async function handleCreateTask(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim() || !selectedProject) return;
+    if (!title.trim() || !selectedProject || !startDate || !dueDate) return;
     setSaving(true);
     const fd = new FormData();
     fd.set("title", title);
+    fd.set("startDate", startDate);
+    fd.set("dueDate", dueDate);
     await createTask(selectedProject, null, fd);
     setSaving(false);
     setTaskModal(false);
     setTitle("");
+    setStartDate("");
+    setDueDate("");
     setSelectedProject("");
     router.push(`/astelpo_26/projects/${selectedProject}/tasks`);
     router.refresh();
@@ -106,12 +112,34 @@ export function NewDropdown() {
                 <option value="">Select project *</option>
                 {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-0.5">
+                  <label className="text-xs text-slate-500">Start date *</label>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={e => setStartDate(e.target.value)}
+                    required
+                    className="h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white text-sm focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <label className="text-xs text-slate-500">Due date *</label>
+                  <input
+                    type="date"
+                    value={dueDate}
+                    onChange={e => setDueDate(e.target.value)}
+                    required
+                    className="h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white text-sm focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+              </div>
               <div className="flex gap-2 justify-end pt-1">
                 <button type="button" onClick={() => setTaskModal(false)}
                   className="h-9 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-lg transition-colors">
                   Cancel
                 </button>
-                <button type="submit" disabled={saving || !title.trim() || !selectedProject}
+                <button type="submit" disabled={saving || !title.trim() || !selectedProject || !startDate || !dueDate}
                   className="h-9 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors">
                   {saving ? "Adding…" : "Add Task"}
                 </button>
