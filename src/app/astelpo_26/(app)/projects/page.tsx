@@ -16,7 +16,7 @@ export default async function ProjectsPage() {
       _count: { select: { tasks: true } },
       tags: { include: { tag: true } },
     },
-    orderBy: [{ status: "asc" }, { updatedAt: "desc" }],
+    orderBy: { name: "asc" },
   });
 
   type P = typeof projects[number];

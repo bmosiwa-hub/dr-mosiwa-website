@@ -65,7 +65,7 @@ export default async function TodayPage() {
     }),
     db.project.findMany({
       where: { leadId: userId },
-      orderBy: { updatedAt: "desc" },
+      orderBy: { name: "asc" },
       take: 5,
       select: { id: true, name: true, status: true, priority: true, colorLabel: true, progress: true, endDate: true },
     }),
