@@ -28,17 +28,27 @@ export async function inviteCollaborator(
   });
   if (!project) return { error: "Project not found." };
 
-  const existing = await db.projectMember.findFirst({
-    where: { projectId, email, status: { notIn: ["REVOKED"] } },
-  });
-  if (existing) return { error: "This person already has access to this project." };
-
   const token = randomBytes(32).toString("hex");
   const tokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
-  await db.projectMember.create({
-    data: { projectId, email, role, status: "PENDING", inviteToken: token, tokenExpiry },
+  const existing = await db.projectMember.findFirst({
+    where: { projectId, email, status: { notIn: ["REVOKED"] } },
   });
+
+  let memberId: string;
+  if (existing) {
+    // Resend: refresh token and reset to PENDING
+    await db.projectMember.update({
+      where: { id: existing.id },
+      data: { role, status: "PENDING", inviteToken: token, tokenExpiry },
+    });
+    memberId = existing.id;
+  } else {
+    const created = await db.projectMember.create({
+      data: { projectId, email, role, status: "PENDING", inviteToken: token, tokenExpiry },
+    });
+    memberId = created.id;
+  }
 
   try {
     if (role === "EDITOR") {
@@ -49,11 +59,8 @@ export async function inviteCollaborator(
         token,
       });
     } else {
-      const member = await db.projectMember.findFirst({ where: { projectId, email, role: "VIEWER" } });
-      if (member) {
-        const viewLink = `${BASE_URL}${BASE}/view/${member.id}`;
-        await sendViewerAccessGranted({ email, projectName: project.name, viewLink });
-      }
+      const viewLink = `${BASE_URL}${BASE}/view/${memberId}`;
+      await sendViewerAccessGranted({ email, projectName: project.name, viewLink });
     }
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
