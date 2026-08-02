@@ -30,7 +30,7 @@ export default async function TodayPage() {
 
   const taskInclude = { project: { select: { id: true, name: true, colorLabel: true } } } as const;
 
-  const [tasksDueToday, upcomingTasksRaw, overdueTasksRaw, recentProjects, activeProjects] = await Promise.all([
+  const [tasksDueToday, upcomingTasksRaw, overdueTasksRaw, recentProjects, recurringTasksRaw, activeProjects] = await Promise.all([
     db.task.findMany({
       where: {
         project: { leadId: userId },
@@ -69,6 +69,18 @@ export default async function TodayPage() {
       take: 5,
       select: { id: true, name: true, status: true, priority: true, colorLabel: true, progress: true, endDate: true },
     }),
+    db.recurringTask.findMany({
+      where: {
+        project: { leadId: userId },
+        active: true,
+        OR: [{ endsAt: null }, { endsAt: { gt: now } }],
+      },
+      select: {
+        id: true, title: true, priority: true,
+        frequency: true, durationDays: true, startingFrom: true, endsAt: true,
+        project: { select: { id: true, name: true, colorLabel: true } },
+      },
+    }),
     db.project.count({ where: { leadId: userId, status: "ACTIVE" } }),
   ]);
 
@@ -105,7 +117,7 @@ export default async function TodayPage() {
         <div className="lg:col-span-2 space-y-5">
           <OverduePanel tasks={overdueTasksRaw} />
           <TodayPanel tasks={tasksDueToday} />
-          <UpcomingPanel tasks={upcomingTasksRaw} />
+          <UpcomingPanel tasks={upcomingTasksRaw} recurringTasks={recurringTasksRaw} />
         </div>
 
         <div className="space-y-5">

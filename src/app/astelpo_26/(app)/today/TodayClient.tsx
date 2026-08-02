@@ -4,7 +4,9 @@ import { useState, useMemo, useTransition } from "react";
 import Link from "next/link";
 import { updateTaskStatus, postponeTask } from "@/lib/actions/tasks";
 import { cn, formatDate, isOverdue } from "@/lib/utils";
-import { CheckCircle2, Clock, SkipForward, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, RefreshCw, SkipForward, XCircle } from "lucide-react";
+import { computeOccurrences } from "@/lib/recurrence";
+import type { RecurringTaskInput } from "@/lib/recurrence";
 
 export type DashTask = {
   id: string;
@@ -14,6 +16,8 @@ export type DashTask = {
   startDate: Date | null;
   dueDate: Date | null;
   project: { id: string; name: string; colorLabel: string | null };
+  isRecurring?: boolean;
+  recurringTaskId?: string;
 };
 
 type Timeline = "week" | "14d" | "month" | "quarter";
@@ -96,8 +100,18 @@ function TaskRow({ task, showDates }: { task: DashTask; showDates?: boolean }) {
         "w-2 h-2 rounded-full flex-shrink-0",
         task.priority === "CRITICAL" ? "bg-red-600" : task.priority === "HIGH" ? "bg-amber-500" : "bg-indigo-500"
       )} />
-      <Link href={`/astelpo_26/projects/${task.project.id}/tasks/${task.id}`} className="flex-1 min-w-0 hover:opacity-80 transition-opacity">
-        <p className="text-slate-300 text-sm truncate">{task.title}</p>
+      <Link
+        href={
+          task.isRecurring
+            ? `/astelpo_26/projects/${task.project.id}/tasks`
+            : `/astelpo_26/projects/${task.project.id}/tasks/${task.id}`
+        }
+        className="flex-1 min-w-0 hover:opacity-80 transition-opacity"
+      >
+        <div className="flex items-center gap-1.5">
+          {task.isRecurring && <RefreshCw className="w-3 h-3 text-indigo-400 flex-shrink-0" />}
+          <p className="text-slate-300 text-sm truncate">{task.title}</p>
+        </div>
         <p className="text-slate-600 text-xs truncate">{task.project.name}</p>
       </Link>
       {showDates && (
@@ -112,7 +126,13 @@ function TaskRow({ task, showDates }: { task: DashTask; showDates?: boolean }) {
           )}
         </div>
       )}
-      <TaskActions task={task} />
+      {task.isRecurring ? (
+        <span className="flex items-center gap-1 text-xs text-indigo-400/80 bg-indigo-900/20 border border-indigo-800/30 rounded-md px-2 h-6 flex-shrink-0">
+          <RefreshCw className="w-2.5 h-2.5" /> Recurring
+        </span>
+      ) : (
+        <TaskActions task={task} />
+      )}
     </div>
   );
 }
@@ -147,7 +167,13 @@ export function TodayPanel({ tasks }: { tasks: DashTask[] }) {
   );
 }
 
-export function UpcomingPanel({ tasks }: { tasks: DashTask[] }) {
+export function UpcomingPanel({
+  tasks,
+  recurringTasks,
+}: {
+  tasks: DashTask[];
+  recurringTasks: RecurringTaskInput[];
+}) {
   const [timeline, setTimeline] = useState<Timeline>("week");
 
   const cutoff = useMemo(() => {
@@ -158,12 +184,38 @@ export function UpcomingPanel({ tasks }: { tasks: DashTask[] }) {
   }, [timeline]);
 
   const visible = useMemo(() => {
-    return tasks.filter(t => {
+    const tomorrow = new Date();
+    tomorrow.setHours(0, 0, 0, 0);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const regular = tasks.filter(t => {
       const startInPeriod = t.startDate && new Date(t.startDate) <= cutoff;
       const dueInPeriod = t.dueDate && new Date(t.dueDate) <= cutoff;
       return startInPeriod || dueInPeriod;
     });
-  }, [tasks, cutoff]);
+
+    const recurring: DashTask[] = recurringTasks.flatMap(rt =>
+      computeOccurrences(rt, tomorrow, cutoff).map(o => ({
+        id: o.id,
+        title: o.title,
+        priority: o.priority,
+        status: o.status,
+        startDate: o.startDate,
+        dueDate: o.dueDate,
+        project: o.project,
+        isRecurring: true as const,
+        recurringTaskId: o.recurringTaskId,
+      }))
+    );
+
+    return [...regular, ...recurring].sort((a, b) => {
+      const aDate = a.startDate ?? a.dueDate;
+      const bDate = b.startDate ?? b.dueDate;
+      if (!aDate) return 1;
+      if (!bDate) return -1;
+      return new Date(aDate).getTime() - new Date(bDate).getTime();
+    });
+  }, [tasks, recurringTasks, cutoff]);
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
