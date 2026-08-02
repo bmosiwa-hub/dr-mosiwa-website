@@ -20,7 +20,7 @@ export async function sendEditorInvite({
   token: string;
 }) {
   const link = `${BASE_URL}/astelpo_26/join/${token}`;
-  await getResend().emails.send({
+  const { data, error } = await getResend().emails.send({
     from: FROM,
     to: email,
     subject: `You've been invited to collaborate on "${projectName}"`,
@@ -32,6 +32,11 @@ export async function sendEditorInvite({
       <p style="color:#888;font-size:12px;">If you didn't expect this, you can ignore this email.</p>
     `,
   });
+  if (error) {
+    console.error("[Resend] sendEditorInvite error:", JSON.stringify(error));
+    throw new Error(error.message);
+  }
+  console.log("[Resend] sendEditorInvite sent, id:", data?.id);
 }
 
 export async function sendViewerApprovalRequest({
@@ -45,7 +50,7 @@ export async function sendViewerApprovalRequest({
   projectName: string;
   approvalLink: string;
 }) {
-  await getResend().emails.send({
+  const { data, error } = await getResend().emails.send({
     from: FROM,
     to: ownerEmail,
     subject: `Access request for "${projectName}"`,
@@ -57,6 +62,11 @@ export async function sendViewerApprovalRequest({
       <p style="color:#888;font-size:12px;">If you don't recognize this request, ignore this email.</p>
     `,
   });
+  if (error) {
+    console.error("[Resend] sendViewerApprovalRequest error:", JSON.stringify(error));
+    throw new Error(error.message);
+  }
+  console.log("[Resend] sendViewerApprovalRequest sent, id:", data?.id);
 }
 
 export async function sendViewerAccessGranted({
@@ -68,7 +78,7 @@ export async function sendViewerAccessGranted({
   projectName: string;
   viewLink: string;
 }) {
-  await getResend().emails.send({
+  const { data, error } = await getResend().emails.send({
     from: FROM,
     to: email,
     subject: `Your access to "${projectName}" has been approved`,
@@ -78,4 +88,9 @@ export async function sendViewerAccessGranted({
       <p><a href="${viewLink}" style="background:#4f46e5;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;">View Project</a></p>
     `,
   });
+  if (error) {
+    console.error("[Resend] sendViewerAccessGranted error:", JSON.stringify(error));
+    throw new Error(error.message);
+  }
+  console.log("[Resend] sendViewerAccessGranted sent, id:", data?.id);
 }

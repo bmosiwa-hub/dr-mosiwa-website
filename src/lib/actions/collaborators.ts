@@ -40,21 +40,25 @@ export async function inviteCollaborator(
     data: { projectId, email, role, status: "PENDING", inviteToken: token, tokenExpiry },
   });
 
-  if (role === "EDITOR") {
-    await sendEditorInvite({
-      email,
-      projectName: project.name,
-      inviterName: session.user.name ?? "The project owner",
-      token,
-    });
-  } else {
-    // For viewers we store the memberId; they'll request access via the view link
-    const member = await db.projectMember.findFirst({ where: { projectId, email, role: "VIEWER" } });
-    if (member) {
-      // Send them the viewer link directly so they know where to go
-      const viewLink = `${BASE_URL}${BASE}/view/${member.id}`;
-      await sendViewerAccessGranted({ email, projectName: project.name, viewLink });
+  try {
+    if (role === "EDITOR") {
+      await sendEditorInvite({
+        email,
+        projectName: project.name,
+        inviterName: session.user.name ?? "The project owner",
+        token,
+      });
+    } else {
+      const member = await db.projectMember.findFirst({ where: { projectId, email, role: "VIEWER" } });
+      if (member) {
+        const viewLink = `${BASE_URL}${BASE}/view/${member.id}`;
+        await sendViewerAccessGranted({ email, projectName: project.name, viewLink });
+      }
     }
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[inviteCollaborator] email failed:", msg);
+    return { error: `Collaborator saved, but email failed to send: ${msg}` };
   }
 
   revalidatePath(`${BASE}/invite`);
