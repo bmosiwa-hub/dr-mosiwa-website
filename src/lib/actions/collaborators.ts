@@ -7,7 +7,7 @@ import { sendEditorInvite, sendViewerInvite, sendNewAccountNotification } from "
 import { randomBytes } from "crypto";
 
 const BASE = "/astelpo_26";
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.azariah.ca";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.azariahmosiwa.com";
 
 export async function inviteCollaborator(
   _: unknown,
@@ -89,10 +89,15 @@ export async function acceptEditorInvite(token: string, formData: FormData): Pro
 
   const existingUser = await db.user.findUnique({ where: { email: member.email } });
   if (existingUser) {
-    // Link existing user to member
+    if (existingUser.accountStatus === "SUSPENDED") {
+      return { error: "This account has been suspended. Contact the platform administrator." };
+    }
+    // Grant ACTIVE membership only if the user's account is already approved.
+    // If they're still PENDING, their membership stays PENDING until admin approves.
+    const memberStatus = existingUser.accountStatus === "ACTIVE" ? "ACTIVE" : "PENDING";
     await db.projectMember.update({
       where: { id: member.id },
-      data: { userId: existingUser.id, status: "ACTIVE", inviteToken: null, tokenExpiry: null },
+      data: { userId: existingUser.id, status: memberStatus, inviteToken: null, tokenExpiry: null },
     });
     return {};
   }
@@ -104,9 +109,14 @@ export async function acceptEditorInvite(token: string, formData: FormData): Pro
     data: { name, email: member.email, password: hashed, role: "VIEWER", accountStatus: "PENDING" },
   });
 
+  // Link user to membership — status stays PENDING until admin approves the account.
+  await db.projectMember.update({
+    where: { id: member.id },
+    data: { userId: user.id, status: "PENDING", inviteToken: null, tokenExpiry: null },
+  });
+
   // Notify admin of new account
   const admin = await db.user.findFirst({ where: { role: "ADMIN" } });
-  const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.azariahmosiwa.com";
   if (admin?.email) {
     sendNewAccountNotification({
       adminEmail: admin.email,
@@ -115,11 +125,6 @@ export async function acceptEditorInvite(token: string, formData: FormData): Pro
       settingsLink: `${BASE_URL}/astelpo_26/settings`,
     }).catch(() => {});
   }
-
-  await db.projectMember.update({
-    where: { id: member.id },
-    data: { userId: user.id, status: "ACTIVE", inviteToken: null, tokenExpiry: null },
-  });
 
   return {};
 }

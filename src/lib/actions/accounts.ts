@@ -23,6 +23,11 @@ export async function approveAccount(userId: string): Promise<{ error?: string }
     return { error: "Unauthorized" };
   }
   await db.user.update({ where: { id: userId }, data: { accountStatus: "ACTIVE" } });
+  // Activate any project memberships that were waiting on account approval.
+  await db.projectMember.updateMany({
+    where: { userId, status: "PENDING" },
+    data: { status: "ACTIVE" },
+  });
   revalidatePath(`${BASE}/settings`);
   return {};
 }

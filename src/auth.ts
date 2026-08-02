@@ -30,23 +30,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           data: { userId: user.id, status: "ACTIVE" },
         });
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.image,
-          role: user.role,
-          accountStatus: user.accountStatus,
-        };
+        // Only return id — role and accountStatus are read from DB in the jwt callback
+        // so that approval/suspension takes effect immediately without re-login.
+        return { id: user.id, email: user.email, name: user.name, image: user.image };
       },
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user }) {
       if (user) {
+        // Initial sign-in: user object is from authorize()
         token.id = user.id;
-        token.role = (user as { role?: string }).role;
-        token.accountStatus = (user as { accountStatus?: string }).accountStatus;
+      }
+      // Always re-read role and accountStatus from DB so changes take effect immediately.
+      // This runs on every JWT access (every request in JWT strategy).
+      if (token.id) {
+        const dbUser = await db.user.findUnique({
+          where: { id: token.id as string },
+          select: { role: true, accountStatus: true },
+        });
+        if (!dbUser) {
+          // User was deleted — invalidate the token
+          return {} as typeof token;
+        }
+        token.role = dbUser.role;
+        token.accountStatus = dbUser.accountStatus;
       }
       return token;
     },

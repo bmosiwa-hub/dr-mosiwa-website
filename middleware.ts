@@ -23,19 +23,41 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const accountStatus = (req.auth?.user as { accountStatus?: string } | undefined)?.accountStatus;
   const userRole = (req.auth?.user as { role?: string } | undefined)?.role;
+  const isAdmin = userRole === "ADMIN";
+  // Treat missing/undefined accountStatus as non-ACTIVE — never grant access by default.
+  const isActive = accountStatus === "ACTIVE";
 
-  if (!isLoggedIn && !isPublic) {
+  // ── Unauthenticated ───────────────────────────────────────────────────────
+  if (!isLoggedIn) {
+    if (isPublic) return NextResponse.next();
     return NextResponse.redirect(new URL(`${BASE}/login`, req.url));
   }
-  if (isLoggedIn && pathname === `${BASE}/login`) {
-    return NextResponse.redirect(new URL(`${BASE}/today`, req.url));
+
+  // ── Authenticated admin: full access, no status checks ───────────────────
+  if (isAdmin) {
+    if (pathname === `${BASE}/login`) return NextResponse.redirect(new URL(`${BASE}/today`, req.url));
+    if (pathname === BASE) return NextResponse.redirect(new URL(`${BASE}/today`, req.url));
+    return NextResponse.next();
   }
-  if (isLoggedIn && pathname === BASE) {
-    return NextResponse.redirect(new URL(`${BASE}/today`, req.url));
+
+  // ── Authenticated non-admin ───────────────────────────────────────────────
+
+  // Redirect away from login/root once authenticated.
+  if (pathname === `${BASE}/login` || pathname === BASE) {
+    const dest = isActive ? `${BASE}/today` : PENDING_PAGE;
+    return NextResponse.redirect(new URL(dest, req.url));
   }
-  // Redirect pending (non-admin) users to the approval waiting room
-  if (isLoggedIn && accountStatus === "PENDING" && userRole !== "ADMIN" && pathname !== PENDING_PAGE) {
+
+  // Non-ACTIVE users may only reach public routes or the pending-approval page.
+  // This catches accountStatus === "PENDING", "SUSPENDED", or undefined.
+  if (!isActive) {
+    if (isPublic || pathname === PENDING_PAGE) return NextResponse.next();
     return NextResponse.redirect(new URL(PENDING_PAGE, req.url));
+  }
+
+  // Active non-admin: no need to stay on the waiting room.
+  if (pathname === PENDING_PAGE) {
+    return NextResponse.redirect(new URL(`${BASE}/today`, req.url));
   }
 
   return NextResponse.next();

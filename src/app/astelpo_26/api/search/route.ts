@@ -4,7 +4,10 @@ import { db } from "@/lib/db";
 
 export async function GET(req: Request) {
   const session = await auth();
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const accountStatus = (session?.user as { accountStatus?: string } | undefined)?.accountStatus;
+  if (!session?.user || accountStatus !== "ACTIVE") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q")?.trim();

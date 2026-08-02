@@ -35,7 +35,10 @@ Rules:
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const accountStatus = (session?.user as { accountStatus?: string } | undefined)?.accountStatus;
+  if (!session?.user || accountStatus !== "ACTIVE") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const formData = await req.formData();
   const file = formData.get("file") as File | null;

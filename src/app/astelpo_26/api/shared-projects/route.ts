@@ -4,7 +4,8 @@ import { db } from "@/lib/db";
 
 export async function GET() {
   const session = await auth();
-  if (!session?.user?.email) return NextResponse.json([], { status: 401 });
+  const accountStatus = (session?.user as { accountStatus?: string } | undefined)?.accountStatus;
+  if (!session?.user?.email || accountStatus !== "ACTIVE") return NextResponse.json([], { status: 401 });
 
   const members = await db.projectMember.findMany({
     where: {
