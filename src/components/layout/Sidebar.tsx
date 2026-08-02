@@ -91,7 +91,7 @@ export function Sidebar() {
 
         {/* Projects section */}
         {!collapsed && projects.length > 0 && (
-          <div className="px-2 pb-3">
+          <div className="px-2 pb-3 border-t border-slate-800 pt-3">
             <button
               onClick={() => setProjectsOpen(o => !o)}
               className="w-full flex items-center justify-between px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-300 transition-colors rounded-lg hover:bg-slate-800/50"
