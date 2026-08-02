@@ -4,8 +4,8 @@ import { PROJECT_STATUS_COLORS, PROJECT_STATUS_LABELS, cn } from "@/lib/utils";
 import { format, addDays } from "date-fns";
 import { Clock, FolderKanban } from "lucide-react";
 import Link from "next/link";
-import { OverduePanel, TodayPanel, UpcomingPanel } from "./TodayClient";
-import type { DashTask } from "./TodayClient";
+import { OverduePanel, TodayPanel, UpcomingPanel, MilestonesPanel } from "./TodayClient";
+import type { DashTask, DashMilestone } from "./TodayClient";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Home" };
@@ -30,7 +30,10 @@ export default async function TodayPage() {
 
   const taskInclude = { project: { select: { id: true, name: true, colorLabel: true } } } as const;
 
-  const [tasksDueToday, upcomingTasksRaw, overdueTasksRaw, recentProjects, recurringTasksRaw, activeProjects] = await Promise.all([
+  const currentUser = await db.user.findUnique({ where: { id: userId }, select: { name: true } });
+  const firstName = currentUser?.name?.split(" ")[0] ?? "there";
+
+  const [tasksDueToday, upcomingTasksRaw, overdueTasksRaw, recentProjects, recurringTasksRaw, activeProjects, upcomingMilestones] = await Promise.all([
     db.task.findMany({
       where: {
         project: { leadId: userId },
@@ -84,6 +87,19 @@ export default async function TodayPage() {
       },
     }),
     db.project.count({ where: { leadId: userId, status: "ACTIVE" } }),
+    db.milestone.findMany({
+      where: {
+        project: { leadId: userId },
+        status: { notIn: ["COMPLETED", "MISSED"] },
+        targetDate: { gte: todayStart, lte: addDays(now, 60) },
+      },
+      select: {
+        id: true, name: true, targetDate: true, status: true,
+        project: { select: { id: true, name: true, colorLabel: true } },
+      },
+      orderBy: { targetDate: "asc" },
+      take: 10,
+    }),
   ]);
 
   // Convert recurring tasks to RecurringTaskInput starting from the SECOND occurrence
@@ -126,7 +142,7 @@ export default async function TodayPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div>
-        <h2 className="text-3xl font-bold text-white">{greeting()}, Azariah.</h2>
+        <h2 className="text-3xl font-bold text-white">{greeting()}, {firstName}.</h2>
         <p className="text-slate-400 mt-1">
           {format(new Date(), "EEEE, MMMM d")} · {activeProjects} active project{activeProjects !== 1 ? "s" : ""}
         </p>
@@ -150,6 +166,11 @@ export default async function TodayPage() {
           <OverduePanel tasks={overdueTasksRaw} />
           <TodayPanel tasks={tasksDueToday} />
           <UpcomingPanel tasks={upcomingTasksRaw} recurringTasks={recurringInputs} />
+          <MilestonesPanel milestones={upcomingMilestones.map((m): DashMilestone => ({
+            id: m.id, name: m.name, status: m.status as string,
+            targetDate: m.targetDate?.toISOString() ?? null,
+            project: m.project,
+          }))} />
         </div>
 
         <div className="space-y-5">

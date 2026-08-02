@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, AlertCircle, Clock, CheckCircle2 } from "lucide-react";
+import { Bell, AlertCircle, Clock, CheckCircle2, Flag } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { updateTaskStatus } from "@/lib/actions/tasks";
 import { cn } from "@/lib/utils";
 
 type NotifTask = { id: string; title: string; dueDate: string | null; projectId: string; project: { name: string } };
-type Data = { overdue: NotifTask[]; dueToday: NotifTask[] };
+type NotifMilestone = { id: string; name: string; targetDate: string | null; project: { id: string; name: string } };
+type Data = { overdue: NotifTask[]; dueToday: NotifTask[]; upcomingMilestones: NotifMilestone[] };
 
 export function NotificationsPanel() {
   const [open, setOpen] = useState(false);
@@ -38,13 +39,14 @@ export function NotificationsPanel() {
   async function markDone(taskId: string, projectId: string) {
     await updateTaskStatus(taskId, "DONE", projectId);
     setData(prev => prev ? {
+      ...prev,
       overdue: prev.overdue.filter(t => t.id !== taskId),
       dueToday: prev.dueToday.filter(t => t.id !== taskId),
     } : prev);
     router.refresh();
   }
 
-  const total = (data?.overdue.length ?? 0) + (data?.dueToday.length ?? 0);
+  const total = (data?.overdue.length ?? 0) + (data?.dueToday.length ?? 0) + (data?.upcomingMilestones.length ?? 0);
 
   return (
     <div ref={ref} className="relative">
@@ -92,6 +94,28 @@ export function NotificationsPanel() {
                 </p>
                 {data.dueToday.map(t => (
                   <TaskRow key={t.id} task={t} onDone={() => markDone(t.id, t.projectId)} onNavigate={() => { router.push(`/astelpo_26/projects/${t.projectId}/tasks/${t.id}`); setOpen(false); }} />
+                ))}
+              </div>
+            )}
+
+            {data && data.upcomingMilestones.length > 0 && (
+              <div>
+                <p className="px-4 pt-3 pb-1 text-xs text-purple-400 font-medium flex items-center gap-1">
+                  <Flag className="w-3 h-3" /> Milestones This Week
+                </p>
+                {data.upcomingMilestones.map(m => (
+                  <div key={m.id}
+                    onClick={() => { router.push(`/astelpo_26/projects/${m.project.id}/milestones`); setOpen(false); }}
+                    className="flex items-start gap-2 px-4 py-2.5 hover:bg-slate-800/50 transition-colors cursor-pointer"
+                  >
+                    <Flag className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-slate-200 text-xs leading-snug line-clamp-2">{m.name}</p>
+                      <p className="text-purple-400/70 text-xs mt-0.5">
+                        {m.project.name}{m.targetDate ? ` · ${formatDate(new Date(m.targetDate))}` : ""}
+                      </p>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}

@@ -4,7 +4,7 @@ import { useState, useMemo, useTransition } from "react";
 import Link from "next/link";
 import { updateTaskStatus, postponeTask } from "@/lib/actions/tasks";
 import { cn, formatDate, isOverdue } from "@/lib/utils";
-import { CheckCircle2, Clock, RefreshCw, SkipForward, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, Flag, RefreshCw, SkipForward, XCircle } from "lucide-react";
 import { computeOccurrences } from "@/lib/recurrence";
 import type { RecurringTaskInput } from "@/lib/recurrence";
 
@@ -18,6 +18,14 @@ export type DashTask = {
   project: { id: string; name: string; colorLabel: string | null };
   isRecurring?: boolean;
   recurringTaskId?: string;
+};
+
+export type DashMilestone = {
+  id: string;
+  name: string;
+  status: string;
+  targetDate: string | null;
+  project: { id: string; name: string; colorLabel: string | null };
 };
 
 type Timeline = "week" | "14d" | "month" | "quarter";
@@ -244,6 +252,45 @@ export function UpcomingPanel({
       ) : (
         <div>{visible.map(t => <TaskRow key={t.id} task={t} showDates />)}</div>
       )}
+    </div>
+  );
+}
+
+const MS_STATUS_COLOR: Record<string, string> = {
+  NOT_STARTED: "text-slate-500",
+  IN_PROGRESS: "text-indigo-400",
+  MISSED: "text-red-400",
+};
+
+export function MilestonesPanel({ milestones }: { milestones: DashMilestone[] }) {
+  if (milestones.length === 0) return null;
+
+  return (
+    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
+      <h3 className="text-white font-semibold text-sm flex items-center gap-2 mb-3">
+        <Flag className="w-4 h-4 text-purple-400" />
+        Upcoming Milestones
+        <span className="text-slate-500 font-normal">({milestones.length})</span>
+      </h3>
+      <div className="space-y-0">
+        {milestones.map((m) => (
+          <div key={m.id} className="flex items-center gap-3 py-2.5 border-b border-slate-800 last:border-0">
+            <Flag className="w-3 h-3 text-purple-500 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-slate-300 text-sm truncate">{m.name}</p>
+              <p className="text-slate-600 text-xs truncate">{m.project.name}</p>
+            </div>
+            <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
+              {m.targetDate && (
+                <span className="text-xs text-slate-500">{formatDate(new Date(m.targetDate))}</span>
+              )}
+              <span className={cn("text-xs font-medium", MS_STATUS_COLOR[m.status] ?? "text-slate-500")}>
+                {m.status.replace("_", " ")}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

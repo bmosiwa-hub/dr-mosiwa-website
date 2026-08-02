@@ -12,8 +12,9 @@ export async function GET() {
   const userId = session.user.id!;
   const todayEnd = new Date(); todayEnd.setHours(23, 59, 59, 999);
   const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+  const sevenDaysOut = new Date(todayStart); sevenDaysOut.setDate(sevenDaysOut.getDate() + 7);
 
-  const [overdue, dueToday] = await Promise.all([
+  const [overdue, dueToday, upcomingMilestones] = await Promise.all([
     db.task.findMany({
       where: { project: { leadId: userId }, dueDate: { lt: todayStart }, status: { notIn: ["DONE", "CANCELLED"] } },
       select: { id: true, title: true, dueDate: true, projectId: true, project: { select: { name: true } } },
@@ -26,7 +27,17 @@ export async function GET() {
       orderBy: { priority: "desc" },
       take: 5,
     }),
+    db.milestone.findMany({
+      where: {
+        project: { leadId: userId },
+        targetDate: { gte: todayStart, lte: sevenDaysOut },
+        status: { notIn: ["COMPLETED", "MISSED"] },
+      },
+      select: { id: true, name: true, targetDate: true, project: { select: { id: true, name: true } } },
+      orderBy: { targetDate: "asc" },
+      take: 5,
+    }),
   ]);
 
-  return NextResponse.json({ overdue, dueToday });
+  return NextResponse.json({ overdue, dueToday, upcomingMilestones });
 }

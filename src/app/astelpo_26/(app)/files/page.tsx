@@ -1,11 +1,30 @@
+import { auth } from "@/auth";
+import { db } from "@/lib/db";
+import { redirect } from "next/navigation";
+import { FilesClient } from "./FilesClient";
 import type { Metadata } from "next";
+
 export const metadata: Metadata = { title: "Files" };
 
-export default function FilesPage() {
+export default async function FilesPage() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/astelpo_26/login");
+  const userId = session.user.id;
+
+  const files = await db.projectFile.findMany({
+    where: { project: { leadId: userId } },
+    select: {
+      id: true, name: true, originalName: true, url: true,
+      size: true, mimeType: true, category: true, description: true,
+      createdAt: true,
+      project: { select: { id: true, name: true, colorLabel: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
   return (
-    <div className="max-w-6xl mx-auto">
-      <h2 className="text-2xl font-bold text-white mb-2">Files</h2>
-      <p className="text-slate-400 text-sm">Coming in Phase 5 — Vercel Blob file management across all projects.</p>
-    </div>
+    <FilesClient
+      files={files.map((f) => ({ ...f, createdAt: f.createdAt.toISOString() }))}
+    />
   );
 }
