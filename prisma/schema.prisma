@@ -27,6 +27,7 @@ model User {
   tasks         Task[]         @relation("TaskAssignee")
   activities    Activity[]
   notifications Notification[]
+  memberships   ProjectMember[]
 }
 
 model Account {
@@ -69,6 +70,17 @@ model VerificationToken {
 enum Role {
   ADMIN
   VIEWER
+}
+
+enum MemberRole {
+  VIEWER
+  EDITOR
+}
+
+enum MemberStatus {
+  PENDING
+  ACTIVE
+  REVOKED
 }
 
 enum ProjectCategory {
@@ -183,7 +195,7 @@ model Project {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
-  lead         User?         @relation("ProjectLead", fields: [leadId], references: [id])
+  lead         User?           @relation("ProjectLead", fields: [leadId], references: [id])
   tasks        Task[]
   milestones   Milestone[]
   deliverables Deliverable[]
@@ -193,6 +205,7 @@ model Project {
   activities   Activity[]
   contacts     Contact[]
   tags         TagOnProject[]
+  members      ProjectMember[]
 }
 
 // ─── Tasks ───────────────────────────────────────────────────────────────────
@@ -445,4 +458,35 @@ model TagOnResource {
   tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([resourceId, tagId])
+}
+
+// ─── Collaborators ────────────────────────────────────────────────────────────
+
+model ProjectMember {
+  id          String       @id @default(cuid())
+  projectId   String
+  userId      String?
+  email       String
+  role        MemberRole
+  status      MemberStatus @default(PENDING)
+  inviteToken String?      @unique
+  tokenExpiry DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  project  Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user     User?           @relation(fields: [userId], references: [id])
+  sessions ViewerSession[]
+}
+
+model ViewerSession {
+  id             String        @id @default(cuid())
+  memberId       String
+  requesterEmail String
+  token          String        @unique @default(cuid())
+  expiresAt      DateTime?
+  approvedAt     DateTime?
+  createdAt      DateTime      @default(now())
+
+  member ProjectMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
 }

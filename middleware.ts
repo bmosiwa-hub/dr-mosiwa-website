@@ -3,7 +3,13 @@ import { authConfig } from "@/auth.config";
 import { NextResponse } from "next/server";
 
 const BASE = "/astelpo_26";
-const PUBLIC = [`${BASE}/login`, `${BASE}/forgot-password`];
+const PUBLIC = [
+  `${BASE}/login`,
+  `${BASE}/forgot-password`,
+  `${BASE}/join`,
+  `${BASE}/view`,
+  `${BASE}/api/approve-viewer`,
+];
 
 const { auth } = NextAuth(authConfig);
 

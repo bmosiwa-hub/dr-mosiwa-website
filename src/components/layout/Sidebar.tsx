@@ -13,6 +13,7 @@ import {
   ChevronRight,
   ChevronDown,
   Briefcase,
+  UserPlus,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -30,19 +31,25 @@ const bottomItems = [
 ];
 
 type Project = { id: string; name: string; colorLabel: string | null };
+type SharedProject = { id: string; name: string; colorLabel: string | null; role: string };
 
 export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [projectsOpen, setProjectsOpen] = useState(true);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [sharedProjects, setSharedProjects] = useState<SharedProject[]>([]);
 
   useEffect(() => {
     fetch("/astelpo_26/api/projects-list-full")
       .then(r => r.json())
       .then(data => { if (Array.isArray(data)) setProjects(data); })
       .catch(() => {});
-  }, [pathname]); // refresh when navigating (e.g. after creating a project)
+    fetch("/astelpo_26/api/shared-projects")
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setSharedProjects(data); })
+      .catch(() => {});
+  }, [pathname]);
 
   return (
     <aside
@@ -87,6 +94,36 @@ export function Sidebar() {
               </Link>
             );
           })}
+
+          {/* Invite Collaborator — shown below Files */}
+          {!collapsed && (
+            <Link
+              href={`${BASE}/invite`}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                pathname.startsWith(`${BASE}/invite`)
+                  ? "bg-indigo-600/20 text-indigo-400 border border-indigo-600/30"
+                  : "text-slate-400 hover:text-slate-100 hover:bg-slate-800"
+              )}
+            >
+              <UserPlus className="w-4 h-4 flex-shrink-0" />
+              <span>Invite Collaborator</span>
+            </Link>
+          )}
+          {collapsed && (
+            <Link
+              href={`${BASE}/invite`}
+              title="Invite Collaborator"
+              className={cn(
+                "flex items-center justify-center px-2 py-2 rounded-lg text-sm font-medium transition-colors",
+                pathname.startsWith(`${BASE}/invite`)
+                  ? "bg-indigo-600/20 text-indigo-400 border border-indigo-600/30"
+                  : "text-slate-400 hover:text-slate-100 hover:bg-slate-800"
+              )}
+            >
+              <UserPlus className="w-4 h-4 flex-shrink-0" />
+            </Link>
+          )}
         </nav>
 
         {/* Projects section */}
@@ -146,6 +183,38 @@ export function Sidebar() {
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: p.colorLabel ?? "#6366f1" }} />
               </Link>
             ))}
+          </div>
+        )}
+
+        {/* Shared Projects section */}
+        {!collapsed && sharedProjects.length > 0 && (
+          <div className="px-2 pb-3 border-t border-slate-800 pt-3">
+            <p className="px-3 py-1.5 text-xs font-medium text-slate-500 uppercase tracking-wider">Shared with me</p>
+            <div className="mt-0.5 space-y-0.5">
+              {sharedProjects.map(p => {
+                const active = pathname.startsWith(`${BASE}/projects/${p.id}`);
+                return (
+                  <Link
+                    key={p.id}
+                    href={`${BASE}/projects/${p.id}`}
+                    className={cn(
+                      "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-colors",
+                      active
+                        ? "bg-indigo-600/15 text-indigo-300"
+                        : "text-slate-400 hover:text-slate-100 hover:bg-slate-800"
+                    )}
+                    title={p.name}
+                  >
+                    <div
+                      className="w-2 h-2 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: p.colorLabel ?? "#6366f1" }}
+                    />
+                    <span className="truncate">{p.name}</span>
+                    <span className="ml-auto text-slate-600 text-[10px] uppercase">{p.role === "EDITOR" ? "Ed" : "View"}</span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
