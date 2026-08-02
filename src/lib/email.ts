@@ -90,6 +90,30 @@ export async function sendNewAccountNotification({
   else console.log("[Resend] sendNewAccountNotification sent, id:", data?.id);
 }
 
+export async function sendAccountApprovedEmail({
+  email,
+  name,
+  loginLink,
+}: {
+  email: string;
+  name: string;
+  loginLink: string;
+}) {
+  const { data, error } = await getResend().emails.send({
+    from: FROM,
+    to: email,
+    subject: "Your AstelPO account has been approved",
+    html: `
+      <p>Hi ${name},</p>
+      <p>Your AstelPO account has been approved. You can now sign in and get started.</p>
+      <p><a href="${loginLink}" style="background:#4f46e5;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;">Sign In</a></p>
+      <p style="color:#888;font-size:12px;">If you didn't create an account on AstelPO, you can ignore this email.</p>
+    `,
+  });
+  if (error) console.error("[Resend] sendAccountApprovedEmail error:", JSON.stringify(error));
+  else console.log("[Resend] sendAccountApprovedEmail sent, id:", data?.id);
+}
+
 export async function sendViewerInvite({
   email,
   projectName,

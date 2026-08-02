@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { randomBytes } from "crypto";
-import { sendPlatformInviteEmail, sendNewAccountNotification } from "@/lib/email";
+import { sendPlatformInviteEmail, sendNewAccountNotification, sendAccountApprovedEmail } from "@/lib/email";
 
 const BASE = "/astelpo_26";
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.azariahmosiwa.com";
@@ -22,12 +22,26 @@ export async function approveAccount(userId: string): Promise<{ error?: string }
   } catch {
     return { error: "Unauthorized" };
   }
-  await db.user.update({ where: { id: userId }, data: { accountStatus: "ACTIVE" } });
-  // Activate any project memberships that were waiting on account approval.
+
+  const user = await db.user.update({
+    where: { id: userId },
+    data: { accountStatus: "ACTIVE" },
+    select: { email: true, name: true },
+  });
+
   await db.projectMember.updateMany({
     where: { userId, status: "PENDING" },
     data: { status: "ACTIVE" },
   });
+
+  if (user.email) {
+    sendAccountApprovedEmail({
+      email: user.email,
+      name: user.name ?? "there",
+      loginLink: `${BASE_URL}${BASE}/login`,
+    }).catch(() => {});
+  }
+
   revalidatePath(`${BASE}/settings`);
   return {};
 }
