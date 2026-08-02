@@ -16,7 +16,9 @@ const PAGE_TITLES: Record<string, string> = {
   settings: "Settings",
 };
 
-export function Header() {
+type CurrentUser = { id: string; name: string; email: string; image: string | null; role: string };
+
+export function Header({ currentUser }: { currentUser: CurrentUser }) {
   const pathname = usePathname();
   const segment = pathname.split("/")[2] ?? "";
   const title = PAGE_TITLES[segment] ?? "AstelPO";
@@ -49,7 +51,7 @@ export function Header() {
 
           <NewDropdown />
           <NotificationsPanel />
-          <UserMenu />
+          <UserMenu currentUser={currentUser} />
         </div>
       </header>
 
