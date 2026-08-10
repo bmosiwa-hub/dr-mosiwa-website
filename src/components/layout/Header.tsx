@@ -34,15 +34,16 @@ export function Header({ currentUser }: { currentUser: CurrentUser }) {
 
   return (
     <>
-      <header className="h-14 flex items-center justify-between px-6 border-b border-slate-800 bg-slate-900 flex-shrink-0">
+      <header className="h-14 flex items-center justify-between px-4 md:px-6 border-b border-slate-800 bg-slate-900 flex-shrink-0">
         <h1 className="text-white font-semibold text-base">{title}</h1>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 md:gap-2">
+          {/* Search — icon only on mobile, full button on desktop */}
           <button
             onClick={() => setSearchOpen(true)}
-            className="flex items-center gap-2 h-8 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-400 hover:text-slate-200 text-sm transition-colors"
+            className="flex items-center gap-2 h-8 px-2 md:px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-400 hover:text-slate-200 text-sm transition-colors"
           >
-            <Search className="w-3.5 h-3.5" />
+            <Search className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="hidden sm:inline">Search…</span>
             <kbd className="hidden sm:inline text-xs text-slate-500 bg-slate-700 px-1.5 py-0.5 rounded border border-slate-600">
               ⌘K

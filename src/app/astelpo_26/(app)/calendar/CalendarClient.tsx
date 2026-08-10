@@ -346,7 +346,7 @@ export function CalendarClient({ tasks, milestones, isGoogleConnected }: Props) 
                   key={key}
                   onClick={() => setSelectedDay(isSelected ? null : day)}
                   className={cn(
-                    "border-b border-r border-slate-800/50 min-h-[90px] p-1.5 cursor-pointer transition-colors",
+                    "border-b border-r border-slate-800/50 min-h-[60px] md:min-h-[90px] p-1 md:p-1.5 cursor-pointer transition-colors",
                     !inMonth && "opacity-40",
                     isSelected && "bg-indigo-900/20 border-indigo-600/30",
                     !isSelected && hasEvents && "hover:bg-slate-800/50",
@@ -359,7 +359,13 @@ export function CalendarClient({ tasks, milestones, isGoogleConnected }: Props) 
                   )}>
                     {format(day, "d")}
                   </div>
-                  <DayEvents tasks={dayTasks} milestones={dayMilestones} max={2} />
+                  <div className="hidden sm:block"><DayEvents tasks={dayTasks} milestones={dayMilestones} max={2} /></div>
+                  {/* Mobile: just show dot indicators */}
+                  <div className="sm:hidden flex gap-0.5 mt-0.5 flex-wrap">
+                    {dayMilestones.map((_, i) => <div key={`m${i}`} className="w-1.5 h-1.5 rounded-full bg-purple-500" />)}
+                    {dayTasks.slice(0, 3).map((t, i) => <div key={`t${i}`} className={cn("w-1.5 h-1.5 rounded-full", PRIORITY_COLOR[t.priority] ?? "bg-blue-600")} />)}
+                    {(dayTasks.length + dayMilestones.length) > 3 && <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />}
+                  </div>
                 </div>
               );
             })}
