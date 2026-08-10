@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { TaskDetailClient } from "./TaskDetailClient";
+import { TaskEditInline } from "./TaskEditInline";
 import { updateTaskStatus, deleteTask } from "@/lib/actions/tasks";
 import { cn, formatDate } from "@/lib/utils";
 import { ArrowLeft, Calendar, CalendarClock, Flag } from "lucide-react";
@@ -47,10 +48,22 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
 
       {/* Task header card */}
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-        <div className="flex items-start gap-4">
+        <div className="flex items-start gap-3">
           <h2 className={cn("text-xl font-bold flex-1", task.status === "DONE" || task.status === "CANCELLED" ? "line-through text-slate-500" : "text-white")}>
             {task.title}
           </h2>
+          <TaskEditInline
+            taskId={taskId}
+            projectId={projectId}
+            title={task.title}
+            description={task.description}
+            status={task.status}
+            priority={task.priority}
+            startDate={task.startDate?.toISOString().split("T")[0] ?? null}
+            dueDate={task.dueDate?.toISOString().split("T")[0] ?? null}
+            recurrenceFrequency={task.recurrenceFrequency}
+            recurrenceEndsAt={task.recurrenceEndsAt?.toISOString().split("T")[0] ?? null}
+          />
         </div>
 
         {task.description && (

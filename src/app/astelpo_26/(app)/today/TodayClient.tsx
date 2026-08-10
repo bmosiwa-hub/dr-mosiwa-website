@@ -243,14 +243,13 @@ export function UpcomingPanel({
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-5">
-      <div className="flex items-center justify-between gap-2 mb-4">
-        <h3 className="text-white font-semibold text-sm flex items-center gap-2 flex-shrink-0">
+      <div className="mb-3">
+        <h3 className="text-white font-semibold text-sm flex items-center gap-2 mb-2">
           <Clock className="w-4 h-4 text-amber-400" />
-          Upcoming
+          Upcoming Tasks
           {visible.length > 0 && <span className="text-slate-500 font-normal">({visible.length})</span>}
         </h3>
-        {/* Scrollable filter row — no wrapping */}
-        <div className="flex items-center gap-1 overflow-x-auto scrollbar-none flex-shrink-0">
+        <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
           {TIMELINE_OPTS.map(o => (
             <button key={o.key} onClick={() => setTimeline(o.key)}
               className={cn(
