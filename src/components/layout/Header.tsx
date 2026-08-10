@@ -13,6 +13,8 @@ const PAGE_TITLES: Record<string, string> = {
   projects: "Projects",
   calendar: "Calendar",
   files: "Files",
+  reports: "Reports",
+  invite: "Invite Collaborator",
   settings: "Settings",
 };
 

@@ -50,6 +50,7 @@ type Props = {
   tasks: CalTask[];
   milestones: CalMilestone[];
   isGoogleConnected: boolean;
+  initMessage?: string | null;
 };
 
 // ─── Priority colors ──────────────────────────────────────────────────────────
@@ -171,13 +172,13 @@ function DayPanel({
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
-export function CalendarClient({ tasks, milestones, isGoogleConnected }: Props) {
+export function CalendarClient({ tasks, milestones, isGoogleConnected, initMessage }: Props) {
   const router = useRouter();
   const [currentMonth, setCurrentMonth] = useState(() => startOfMonth(new Date()));
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [syncing, startSync] = useTransition();
   const [disconnecting, startDisconnect] = useTransition();
-  const [syncMsg, setSyncMsg] = useState<string | null>(null);
+  const [syncMsg, setSyncMsg] = useState<string | null>(initMessage ?? null);
 
   // Build day grid
   const days = useMemo(() => {
@@ -240,34 +241,36 @@ export function CalendarClient({ tasks, milestones, isGoogleConnected }: Props) 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold text-white">Calendar</h2>
           <p className="text-slate-400 text-sm mt-1">
-            {tasks.length} task{tasks.length !== 1 ? "s" : ""} and {milestones.length} milestone{milestones.length !== 1 ? "s" : ""} with dates
+            {tasks.length} task{tasks.length !== 1 ? "s" : ""} · {milestones.length} milestone{milestones.length !== 1 ? "s" : ""} with dates
           </p>
         </div>
 
         {/* Google Calendar */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-wrap">
           {isGoogleConnected ? (
             <>
-              <div className="flex items-center gap-1.5 text-green-400 text-sm">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Google Connected</span>
+              <div className="flex items-center gap-1.5 text-green-400 text-xs sm:text-sm">
+                <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Google Connected</span>
+                <span className="sm:hidden">Connected</span>
               </div>
               <button
                 onClick={handleSync}
                 disabled={syncing || disconnecting}
-                className="flex items-center gap-2 h-9 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-lg text-white text-sm font-medium transition-colors"
+                className="flex items-center gap-1.5 h-8 sm:h-9 px-3 sm:px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-lg text-white text-xs sm:text-sm font-medium transition-colors"
               >
-                {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CalendarDays className="w-4 h-4" />}
-                {syncing ? "Syncing…" : "Sync to Google"}
+                {syncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CalendarDays className="w-3.5 h-3.5" />}
+                <span className="hidden sm:inline">{syncing ? "Syncing…" : "Sync to Google"}</span>
+                <span className="sm:hidden">{syncing ? "…" : "Sync"}</span>
               </button>
               <button
                 onClick={handleDisconnect}
                 disabled={syncing || disconnecting}
-                className="h-9 px-3 bg-slate-800 hover:bg-red-900/30 border border-slate-700 hover:border-red-700/50 rounded-lg text-slate-400 hover:text-red-400 text-sm transition-colors disabled:opacity-50"
+                className="h-8 sm:h-9 px-3 bg-slate-800 hover:bg-red-900/30 border border-slate-700 hover:border-red-700/50 rounded-lg text-slate-400 hover:text-red-400 text-xs sm:text-sm transition-colors disabled:opacity-50"
               >
                 {disconnecting ? "…" : "Disconnect"}
               </button>
@@ -275,10 +278,11 @@ export function CalendarClient({ tasks, milestones, isGoogleConnected }: Props) 
           ) : (
             <a
               href="/astelpo_26/api/google-calendar/connect"
-              className="flex items-center gap-2 h-9 px-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm font-medium transition-colors"
+              className="flex items-center gap-1.5 h-8 sm:h-9 px-3 sm:px-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-xs sm:text-sm font-medium transition-colors"
             >
-              <CalendarDays className="w-4 h-4" />
-              Connect Google Calendar
+              <CalendarDays className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Connect Google Calendar</span>
+              <span className="sm:hidden">Connect Google</span>
             </a>
           )}
         </div>

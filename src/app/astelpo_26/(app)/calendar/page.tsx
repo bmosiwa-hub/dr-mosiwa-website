@@ -6,7 +6,12 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Calendar" };
 
-export default async function CalendarPage() {
+export default async function CalendarPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; detail?: string; connected?: string }>;
+}) {
+  const params = await searchParams;
   const session = await auth();
   if (!session?.user?.id) redirect("/astelpo_26/login");
   const userId = session.user.id;
@@ -56,11 +61,18 @@ export default async function CalendarPage() {
     status: m.status as string,
   }));
 
+  const initMsg = params.connected === "true"
+    ? "Google Calendar connected!"
+    : params.error
+    ? `OAuth error: ${params.error}${params.detail ? ` — ${decodeURIComponent(params.detail)}` : ""}`
+    : null;
+
   return (
     <CalendarClient
       tasks={serializedTasks}
       milestones={serializedMilestones}
       isGoogleConnected={!!googleAccount}
+      initMessage={initMsg}
     />
   );
 }

@@ -254,12 +254,12 @@ function RecurringSection({
                 )}
                 <button
                   onClick={() => onEdit(rt.id)}
-                  className="text-slate-600 hover:text-indigo-400 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
+                  className="text-slate-600 hover:text-indigo-400 transition-colors sm:opacity-0 sm:group-hover:opacity-100 flex-shrink-0"
                 >
                   <Pencil className="w-3.5 h-3.5" />
                 </button>
                 <form action={deleteTask.bind(null, rt.id, projectId)}>
-                  <button type="submit" className="text-slate-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0">
+                  <button type="submit" className="text-slate-600 hover:text-red-400 transition-colors sm:opacity-0 sm:group-hover:opacity-100 flex-shrink-0">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </form>
@@ -364,42 +364,64 @@ export function TasksClient({ projectId, initialTasks }: { projectId: string; in
               <EditTaskForm key={task.id} task={task} projectId={projectId} onDone={() => setEditingId(null)} />
             ) : (
               <div key={task.id}
-                className="flex items-center gap-3 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl px-4 py-3 group transition-colors">
-                <div className="flex-shrink-0">{STATUS_ICON[task.status] ?? <Circle className="w-4 h-4 text-slate-500" />}</div>
-                <Link href={`/astelpo_26/projects/${projectId}/tasks/${task.id}`} className="flex-1 min-w-0 hover:opacity-80 transition-opacity">
-                  <div className="flex items-center gap-1.5">
-                    {task.recurrenceFrequency && <RefreshCw className="w-3 h-3 text-indigo-400 flex-shrink-0" />}
-                    <span className={cn("text-sm", task.status === "DONE" || task.status === "CANCELLED" ? "line-through text-slate-500" : "text-white")}>
-                      {task.title}
-                    </span>
+                className="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl px-3 sm:px-4 py-2.5 group transition-colors">
+                {/* Row 1: icon + title + actions */}
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex-shrink-0">{STATUS_ICON[task.status] ?? <Circle className="w-4 h-4 text-slate-500" />}</div>
+                  <Link href={`/astelpo_26/projects/${projectId}/tasks/${task.id}`} className="flex-1 min-w-0 hover:opacity-80 transition-opacity">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      {task.recurrenceFrequency && <RefreshCw className="w-3 h-3 text-indigo-400 flex-shrink-0" />}
+                      <span className={cn("text-sm truncate", task.status === "DONE" || task.status === "CANCELLED" ? "line-through text-slate-500" : "text-white")}>
+                        {task.title}
+                      </span>
+                    </div>
+                  </Link>
+                  {/* Actions: always visible on mobile, hover-reveal on desktop */}
+                  <div className="flex items-center gap-1 flex-shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                    <select value={task.status}
+                      onChange={(e) => updateTaskStatus(task.id, e.target.value, projectId)}
+                      className="h-7 bg-slate-800 border border-slate-700 rounded-md px-1 text-slate-300 text-xs focus:outline-none hidden sm:block">
+                      {STATUS_OPTS.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
+                    </select>
+                    <button onClick={() => { setEditingId(task.id); setShowForm(false); }}
+                      className="h-7 w-7 flex items-center justify-center rounded-md bg-slate-800 hover:bg-slate-700 text-slate-500 hover:text-indigo-400 transition-colors">
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <form action={deleteTask.bind(null, task.id, projectId)}>
+                      <button type="submit"
+                        className="h-7 w-7 flex items-center justify-center rounded-md bg-slate-800 hover:bg-red-900/30 text-slate-500 hover:text-red-400 transition-colors">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </form>
                   </div>
-                  {task.description && <p className="text-xs text-slate-500 mt-0.5 truncate">{task.description}</p>}
-                </Link>
-                <span className={cn("text-xs font-medium flex-shrink-0", PRIORITY_COLORS[task.priority])}>{task.priority}</span>
-                {task.startDate && (
-                  <span className="text-xs text-slate-600 flex-shrink-0">
-                    Start {new Date(task.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                  </span>
-                )}
-                {task.dueDate && (
-                  <span className="text-xs text-slate-500 flex-shrink-0">
-                    Due {new Date(task.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                  </span>
-                )}
-                <select value={task.status}
-                  onChange={(e) => updateTaskStatus(task.id, e.target.value, projectId)}
-                  className="h-7 bg-slate-800 border border-slate-700 rounded-md px-1.5 text-slate-300 text-xs focus:outline-none opacity-0 group-hover:opacity-100 transition-opacity">
-                  {STATUS_OPTS.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
-                </select>
-                <button onClick={() => { setEditingId(task.id); setShowForm(false); }}
-                  className="text-slate-600 hover:text-indigo-400 transition-colors opacity-0 group-hover:opacity-100">
-                  <Pencil className="w-3.5 h-3.5" />
-                </button>
-                <form action={deleteTask.bind(null, task.id, projectId)}>
-                  <button type="submit" className="text-slate-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100">
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </form>
+                </div>
+                {/* Row 2: description + priority + dates */}
+                <div className="flex items-center gap-2 mt-0.5 pl-6 min-w-0">
+                  {task.description && (
+                    <p className="text-xs text-slate-500 truncate flex-1 min-w-0">{task.description}</p>
+                  )}
+                  <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
+                    <span className={cn("text-xs font-medium", PRIORITY_COLORS[task.priority])}>{task.priority[0] + task.priority.slice(1).toLowerCase()}</span>
+                    {task.startDate && (
+                      <span className="text-xs text-slate-600 hidden sm:inline whitespace-nowrap">
+                        Start {new Date(task.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      </span>
+                    )}
+                    {task.dueDate && (
+                      <span className="text-xs text-slate-500 whitespace-nowrap">
+                        Due {new Date(task.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {/* Mobile-only status select */}
+                <div className="mt-1.5 pl-6 sm:hidden">
+                  <select value={task.status}
+                    onChange={(e) => updateTaskStatus(task.id, e.target.value, projectId)}
+                    className="h-7 bg-slate-800 border border-slate-700 rounded-md px-1.5 text-slate-300 text-xs focus:outline-none">
+                    {STATUS_OPTS.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
+                  </select>
+                </div>
               </div>
             )
           ))}

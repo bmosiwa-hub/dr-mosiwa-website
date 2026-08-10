@@ -93,7 +93,8 @@ export function ResourcesClient({ projectId, initialResources }: { projectId: st
                     <ExternalLink className="w-4 h-4" />
                   </a>
                   <form action={deleteResource.bind(null, r.id, projectId)}>
-                    <button type="submit" className="text-slate-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100">
+                    <button type="submit"
+                      className="h-7 w-7 flex items-center justify-center rounded-md bg-slate-800 hover:bg-red-900/30 text-slate-600 hover:text-red-400 transition-colors sm:opacity-0 sm:group-hover:opacity-100">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </form>

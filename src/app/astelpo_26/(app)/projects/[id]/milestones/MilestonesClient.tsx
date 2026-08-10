@@ -76,17 +76,18 @@ export function MilestonesClient({ projectId, initialMilestones }: { projectId: 
       ) : (
         <div className="space-y-2">
           {initialMilestones.map((m) => (
-            <div key={m.id} className="flex items-center gap-4 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl px-4 py-3 group transition-colors">
+            <div key={m.id} className="flex items-center gap-3 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl px-4 py-3 group transition-colors">
+              <Flag className="w-3.5 h-3.5 text-purple-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-white text-sm font-medium truncate">{m.name}</p>
                 {m.description && <p className="text-slate-500 text-xs mt-0.5 truncate">{m.description}</p>}
                 {m.targetDate && (
-                  <p className="text-slate-600 text-xs mt-1">
-                    Target: {new Date(m.targetDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  <p className="text-slate-600 text-xs mt-0.5">
+                    {new Date(m.targetDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                   </p>
                 )}
               </div>
-              <div className="w-24 hidden sm:block">
+              <div className="w-20 hidden sm:block flex-shrink-0">
                 <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
                   <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${m.completionPct}%` }} />
                 </div>
@@ -94,11 +95,12 @@ export function MilestonesClient({ projectId, initialMilestones }: { projectId: 
               </div>
               <select value={m.status}
                 onChange={(e) => updateMilestoneStatus(m.id, e.target.value, projectId)}
-                className={cn("h-7 border-0 rounded-full px-2 text-xs font-medium focus:outline-none cursor-pointer", STATUS_COLORS[m.status])}>
+                className={cn("h-7 border-0 rounded-full px-2 text-xs font-medium focus:outline-none cursor-pointer flex-shrink-0", STATUS_COLORS[m.status])}>
                 {STATUSES.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
               </select>
               <form action={deleteMilestone.bind(null, m.id, projectId)}>
-                <button type="submit" className="text-slate-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100">
+                <button type="submit"
+                  className="h-7 w-7 flex items-center justify-center rounded-md bg-slate-800 hover:bg-red-900/30 text-slate-600 hover:text-red-400 transition-colors sm:opacity-0 sm:group-hover:opacity-100 flex-shrink-0">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </form>

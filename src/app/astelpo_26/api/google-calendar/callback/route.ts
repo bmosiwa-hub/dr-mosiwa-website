@@ -34,8 +34,9 @@ export async function GET(req: NextRequest) {
   try {
     const resp = await oauth2.getToken(code);
     tokens = resp.tokens;
-  } catch {
-    return NextResponse.redirect(`${CALENDAR_PAGE}?error=token_exchange_failed`);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? encodeURIComponent(err.message.slice(0, 200)) : "unknown";
+    return NextResponse.redirect(`${CALENDAR_PAGE}?error=token_exchange_failed&detail=${msg}`);
   }
 
   if (!tokens.access_token) {

@@ -1,15 +1,32 @@
-import { FolderOpen } from "lucide-react";
+import { db } from "@/lib/db";
+import { notFound } from "next/navigation";
+import { ProjectFilesClient } from "./ProjectFilesClient";
 
 export default async function FilesPage({ params }: { params: Promise<{ id: string }> }) {
-  await params;
+  const { id } = await params;
 
-  return (
-    <div className="text-center py-20 text-slate-500">
-      <FolderOpen className="w-10 h-10 mx-auto mb-3 text-slate-700" />
-      <p className="font-medium text-slate-400">File uploads coming soon</p>
-      <p className="text-sm mt-1 max-w-xs mx-auto">
-        File storage requires an external provider (e.g. S3, Cloudflare R2). Link your documents via Resources in the meantime.
-      </p>
-    </div>
-  );
+  const project = await db.project.findUnique({
+    where: { id },
+    select: { id: true },
+  });
+  if (!project) notFound();
+
+  const files = await db.projectFile.findMany({
+    where: { projectId: id },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true, originalName: true, url: true, size: true,
+      mimeType: true, description: true, category: true, version: true,
+      createdAt: true,
+      deliverable: { select: { id: true, name: true } },
+    },
+  });
+
+  const serialized = files.map((f) => ({
+    ...f,
+    createdAt: f.createdAt.toISOString(),
+    deliverable: f.deliverable ?? null,
+  }));
+
+  return <ProjectFilesClient projectId={id} files={serialized} />;
 }

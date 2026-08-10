@@ -47,14 +47,10 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
 
       {/* Task header card */}
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start gap-4">
           <h2 className={cn("text-xl font-bold flex-1", task.status === "DONE" || task.status === "CANCELLED" ? "line-through text-slate-500" : "text-white")}>
             {task.title}
           </h2>
-          <Link href={backHref}
-            className="h-7 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 hover:text-slate-200 text-xs rounded-lg transition-colors flex-shrink-0 flex items-center">
-            Edit
-          </Link>
         </div>
 
         {task.description && (

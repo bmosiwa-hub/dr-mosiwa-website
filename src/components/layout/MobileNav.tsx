@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sun, FolderKanban, CalendarDays, Files, Settings, MoreHorizontal } from "lucide-react";
+import { Sun, FolderKanban, CalendarDays, Files, Settings, MoreHorizontal, User, UserPlus, BarChart2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useRef, useEffect } from "react";
 
@@ -13,6 +13,7 @@ const NAV = [
   { label: "Projects", href: `${BASE}/projects`,  icon: FolderKanban },
   { label: "Calendar", href: `${BASE}/calendar`,  icon: CalendarDays },
   { label: "Files",    href: `${BASE}/files`,     icon: Files },
+  { label: "Reports",  href: `${BASE}/reports`,   icon: BarChart2 },
 ];
 
 export function MobileNav({ isAdmin }: { isAdmin: boolean }) {
@@ -62,13 +63,39 @@ export function MobileNav({ isAdmin }: { isAdmin: boolean }) {
 
         {moreOpen && (
           <div className="absolute bottom-16 right-0 w-48 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden">
+            <Link
+              href={`${BASE}/settings/profile`}
+              onClick={() => setMoreOpen(false)}
+              className={cn(
+                "flex items-center gap-3 px-4 py-3 text-sm transition-colors",
+                pathname === `${BASE}/settings/profile`
+                  ? "text-indigo-400 bg-indigo-900/20"
+                  : "text-slate-300 hover:bg-slate-800"
+              )}
+            >
+              <User className="w-4 h-4" />
+              Profile
+            </Link>
+            <Link
+              href={`${BASE}/invite`}
+              onClick={() => setMoreOpen(false)}
+              className={cn(
+                "flex items-center gap-3 px-4 py-3 text-sm transition-colors border-t border-slate-800",
+                pathname.startsWith(`${BASE}/invite`)
+                  ? "text-indigo-400 bg-indigo-900/20"
+                  : "text-slate-300 hover:bg-slate-800"
+              )}
+            >
+              <UserPlus className="w-4 h-4" />
+              Invite Collaborator
+            </Link>
             {isAdmin && (
               <Link
                 href={`${BASE}/settings`}
                 onClick={() => setMoreOpen(false)}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 text-sm transition-colors",
-                  pathname.startsWith(`${BASE}/settings`)
+                  "flex items-center gap-3 px-4 py-3 text-sm transition-colors border-t border-slate-800",
+                  pathname.startsWith(`${BASE}/settings`) && pathname !== `${BASE}/settings/profile`
                     ? "text-indigo-400 bg-indigo-900/20"
                     : "text-slate-300 hover:bg-slate-800"
                 )}
@@ -77,14 +104,6 @@ export function MobileNav({ isAdmin }: { isAdmin: boolean }) {
                 Settings
               </Link>
             )}
-            <Link
-              href={`${BASE}/settings/profile`}
-              onClick={() => setMoreOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 transition-colors"
-            >
-              <span className="w-4 h-4 text-center text-xs">👤</span>
-              Profile
-            </Link>
           </div>
         )}
       </div>

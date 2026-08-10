@@ -8,6 +8,7 @@ import {
   FolderKanban,
   CalendarDays,
   Files,
+  BarChart2,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -24,6 +25,7 @@ const navItems = [
   { label: "Projects", href: `${BASE}/projects`, icon: FolderKanban },
   { label: "Calendar", href: `${BASE}/calendar`, icon: CalendarDays },
   { label: "Files", href: `${BASE}/files`, icon: Files },
+  { label: "Reports", href: `${BASE}/reports`, icon: BarChart2 },
 ];
 
 const bottomItems = [

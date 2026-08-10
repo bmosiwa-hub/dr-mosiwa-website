@@ -37,8 +37,8 @@ export function ProjectGrid({ projects }: Props) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex gap-1 bg-slate-800 border border-slate-700 rounded-lg p-1">
+      <div className="flex items-center justify-between mb-5 gap-2">
+        <div className="flex gap-1 bg-slate-800 border border-slate-700 rounded-lg p-1 overflow-x-auto scrollbar-none flex-1 max-w-fit">
           {statuses.map((s) => (
             <button
               key={s}

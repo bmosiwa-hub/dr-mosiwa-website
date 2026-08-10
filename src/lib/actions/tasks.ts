@@ -6,6 +6,17 @@ import { revalidatePath } from "next/cache";
 
 const base = (projectId: string) => `/astelpo_26/projects/${projectId}`;
 
+async function syncProgress(projectId: string) {
+  const tasks = await db.task.findMany({
+    where: { projectId, recurrenceFrequency: null },
+    select: { status: true },
+  });
+  const active = tasks.filter(t => t.status !== "CANCELLED");
+  const done = active.filter(t => t.status === "DONE").length;
+  const progress = active.length === 0 ? 0 : Math.round((done / active.length) * 100);
+  await db.project.update({ where: { id: projectId }, data: { progress } });
+}
+
 export async function createTask(projectId: string, _: unknown, formData: FormData) {
   const session = await auth();
   if (!session?.user) return { error: "Unauthorized" };
@@ -39,24 +50,30 @@ export async function createTask(projectId: string, _: unknown, formData: FormDa
     },
   });
 
+  await syncProgress(projectId);
   revalidatePath(`${base(projectId)}/tasks`);
   revalidatePath(base(projectId));
   revalidatePath("/astelpo_26/today");
+  revalidatePath("/astelpo_26/projects");
   return null;
 }
 
 export async function updateTaskStatus(taskId: string, status: string, projectId: string) {
   await db.task.update({ where: { id: taskId }, data: { status: status as "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "BLOCKED" | "DONE" | "CANCELLED" } });
+  await syncProgress(projectId);
   revalidatePath(`${base(projectId)}/tasks`);
   revalidatePath(base(projectId));
   revalidatePath("/astelpo_26/today");
+  revalidatePath("/astelpo_26/projects");
 }
 
 export async function deleteTask(taskId: string, projectId: string) {
   await db.task.delete({ where: { id: taskId } });
+  await syncProgress(projectId);
   revalidatePath(`${base(projectId)}/tasks`);
   revalidatePath(base(projectId));
   revalidatePath("/astelpo_26/today");
+  revalidatePath("/astelpo_26/projects");
 }
 
 export async function postponeTask(taskId: string, projectId: string, newDate: string) {
@@ -97,8 +114,10 @@ export async function updateTask(taskId: string, projectId: string, _: unknown, 
     },
   });
 
+  await syncProgress(projectId);
   revalidatePath(`${base(projectId)}/tasks`);
   revalidatePath(base(projectId));
   revalidatePath("/astelpo_26/today");
+  revalidatePath("/astelpo_26/projects");
   return null;
 }

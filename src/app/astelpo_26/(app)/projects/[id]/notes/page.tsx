@@ -47,7 +47,8 @@ export default async function NotesPage({ params }: { params: Promise<{ id: stri
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <span className="text-xs text-slate-600">{formatRelative(note.updatedAt)}</span>
                   <form action={deleteNote.bind(null, note.id, id)}>
-                    <button type="submit" className="text-slate-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100">
+                    <button type="submit"
+                      className="h-7 w-7 flex items-center justify-center rounded-md hover:bg-red-900/30 text-slate-600 hover:text-red-400 transition-colors sm:opacity-0 sm:group-hover:opacity-100">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </form>

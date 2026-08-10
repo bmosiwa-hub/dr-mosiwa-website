@@ -67,7 +67,7 @@ function NotesSection({ taskId, projectId, notes }: { taskId: string; projectId:
               </div>
               <form action={() => startTransition(() => deleteTaskNote(note.id, taskId, projectId))}>
                 <button type="submit"
-                  className="mt-1 text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all">
+                  className="mt-1 h-7 w-7 flex items-center justify-center rounded-md bg-slate-800 hover:bg-red-900/30 text-slate-600 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-all flex-shrink-0">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </form>
@@ -131,7 +131,7 @@ function LinksSection({ taskId, projectId, links }: { taskId: string; projectId:
               </span>
               <form action={() => startTransition(() => deleteTaskLink(link.id, taskId, projectId))}>
                 <button type="submit"
-                  className="text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all">
+                  className="h-7 w-7 flex items-center justify-center rounded-md hover:bg-red-900/30 text-slate-600 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-all flex-shrink-0">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </form>
