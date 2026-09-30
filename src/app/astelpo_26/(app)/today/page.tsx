@@ -1,7 +1,8 @@
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
 import { PROJECT_STATUS_COLORS, PROJECT_STATUS_LABELS, cn } from "@/lib/utils";
-import { format, addDays } from "date-fns";
+import { addDaysToKey, dayEnd, formatDayKey, hourIn } from "@/lib/dates";
+import { resolveDayWindow } from "@/lib/dates.server";
 import { Clock, FolderKanban } from "lucide-react";
 import Link from "next/link";
 import { OverduePanel, TodayPanel, UpcomingPanel, MilestonesPanel } from "./TodayClient";
@@ -24,20 +25,28 @@ export default async function TodayPage() {
   const session = await auth();
   const userId = session?.user?.id!;
   const now = new Date();
-  const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);
-  const ninetyDaysOut = addDays(now, 90);
 
   const taskInclude = { project: { select: { id: true, name: true, colorLabel: true } } } as const;
 
-  const currentUser = await db.user.findUnique({ where: { id: userId }, select: { name: true } });
+  const currentUser = await db.user.findUnique({
+    where: { id: userId },
+    select: { name: true, timezone: true },
+  });
   const firstName = currentUser?.name?.split(" ")[0] ?? "there";
+
+  // Due dates are calendar dates stored at UTC midnight, so "today" has to be
+  // the viewer's calendar day — not a window cut from the server's clock,
+  // which on Vercel is UTC and runs hours behind anyone east of Greenwich.
+  const { todayKey, start: todayStart, end: tomorrowStart, timezone } =
+    await resolveDayWindow(currentUser?.timezone);
+  const ninetyDaysOut = dayEnd(addDaysToKey(todayKey, 90));
+  const sixtyDaysOut = dayEnd(addDaysToKey(todayKey, 60));
 
   const [tasksDueToday, upcomingTasksRaw, overdueTasksRaw, recentProjects, recurringTasksRaw, activeProjects, upcomingMilestones] = await Promise.all([
     db.task.findMany({
       where: {
         project: { leadId: userId },
-        dueDate: { gte: todayStart, lte: todayEnd },
+        dueDate: { gte: todayStart, lt: tomorrowStart },
         status: { notIn: ["DONE", "CANCELLED"] },
       },
       include: taskInclude,
@@ -48,8 +57,8 @@ export default async function TodayPage() {
         project: { leadId: userId },
         status: { notIn: ["DONE", "CANCELLED"] },
         OR: [
-          { startDate: { gt: todayEnd, lte: ninetyDaysOut } },
-          { dueDate: { gt: todayEnd, lte: ninetyDaysOut } },
+          { startDate: { gte: tomorrowStart, lt: ninetyDaysOut } },
+          { dueDate: { gte: tomorrowStart, lt: ninetyDaysOut } },
         ],
       },
       include: taskInclude,
@@ -91,7 +100,7 @@ export default async function TodayPage() {
       where: {
         project: { leadId: userId },
         status: { notIn: ["COMPLETED", "MISSED"] },
-        targetDate: { gte: todayStart, lte: addDays(now, 60) },
+        targetDate: { gte: todayStart, lt: sixtyDaysOut },
       },
       select: {
         id: true, name: true, targetDate: true, status: true,
@@ -133,7 +142,7 @@ export default async function TodayPage() {
     });
 
   const greeting = () => {
-    const h = new Date().getHours();
+    const h = hourIn(timezone, now);
     if (h < 12) return "Good morning";
     if (h < 17) return "Good afternoon";
     return "Good evening";
@@ -144,7 +153,7 @@ export default async function TodayPage() {
       <div>
         <h2 className="text-3xl font-bold text-white">{greeting()}, {firstName}.</h2>
         <p className="text-slate-400 mt-1">
-          {format(new Date(), "EEEE, MMMM d")} · {activeProjects} active project{activeProjects !== 1 ? "s" : ""}
+          {formatDayKey(todayKey)} · {activeProjects} active project{activeProjects !== 1 ? "s" : ""}
         </p>
       </div>
 

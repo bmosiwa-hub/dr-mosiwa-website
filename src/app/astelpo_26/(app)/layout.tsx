@@ -1,9 +1,12 @@
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
+import { TimezoneSync } from "@/components/layout/TimezoneSync";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { TIMEZONE_COOKIE } from "@/lib/dates";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -17,6 +20,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!user) redirect("/astelpo_26/login");
 
   const isAdmin = user.role === "ADMIN";
+  const knownTimezone = (await cookies()).get(TIMEZONE_COOKIE)?.value ?? null;
 
   return (
     <div className="h-screen flex overflow-hidden bg-slate-950">
@@ -34,6 +38,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
       {/* Bottom nav — mobile only */}
       <MobileNav isAdmin={isAdmin} />
+
+      {/* Keeps "today" anchored to the viewer's clock, not the server's */}
+      <TimezoneSync current={knownTimezone} />
     </div>
   );
 }

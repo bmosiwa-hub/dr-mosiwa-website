@@ -16,7 +16,7 @@ export default async function CalendarPage({
   if (!session?.user?.id) redirect("/astelpo_26/login");
   const userId = session.user.id;
 
-  const [tasks, milestones, googleAccount] = await Promise.all([
+  const [tasks, milestones, projects, googleAccount] = await Promise.all([
     db.task.findMany({
       where: {
         project: { leadId: userId },
@@ -41,6 +41,20 @@ export default async function CalendarPage({
         project: { select: { id: true, name: true } },
       },
     }),
+    // Projects that are actually running — they occupy every day of their run,
+    // the same way a task does, rather than only appearing on an end date.
+    db.project.findMany({
+      where: {
+        leadId: userId,
+        status: { in: ["ACTIVE", "PLANNING", "ON_HOLD"] },
+        startDate: { not: null },
+      },
+      select: {
+        id: true, name: true, colorLabel: true, status: true,
+        startDate: true, endDate: true,
+      },
+      orderBy: { startDate: "asc" },
+    }),
     db.account.findFirst({
       where: { userId, provider: "google-calendar" },
       select: { id: true },
@@ -61,6 +75,13 @@ export default async function CalendarPage({
     status: m.status as string,
   }));
 
+  const serializedProjects = projects.map((p) => ({
+    ...p,
+    startDate: p.startDate?.toISOString() ?? null,
+    endDate: p.endDate?.toISOString() ?? null,
+    status: p.status as string,
+  }));
+
   const initMsg = params.connected === "true"
     ? "Google Calendar connected!"
     : params.error
@@ -71,6 +92,7 @@ export default async function CalendarPage({
     <CalendarClient
       tasks={serializedTasks}
       milestones={serializedMilestones}
+      projects={serializedProjects}
       isGoogleConnected={!!googleAccount}
       initMessage={initMsg}
     />
