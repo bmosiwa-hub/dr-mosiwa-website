@@ -4,6 +4,7 @@ import { useState, useMemo, useTransition } from "react";
 import Link from "next/link";
 import { updateTaskStatus, postponeTask } from "@/lib/actions/tasks";
 import { cn, formatDate, isOverdue } from "@/lib/utils";
+import { toDayKey } from "@/lib/dates";
 import { CheckCircle2, Clock, Flag, RefreshCw, SkipForward, XCircle } from "lucide-react";
 import { computeOccurrences } from "@/lib/recurrence";
 import type { RecurringTaskInput } from "@/lib/recurrence";
@@ -309,6 +310,89 @@ export function MilestonesPanel({ milestones }: { milestones: DashMilestone[] })
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+// ─── Tasks for today ──────────────────────────────────────────────────────────
+
+/**
+ * Everything that has started and has not finished — the day's actual working
+ * set. Deliberately not the same question as "what is due today": a task that
+ * started last week and is due next Friday is work you have on your plate now,
+ * and a task past its deadline is still on it until it is done.
+ */
+export function InProgressPanel({ tasks, todayKey }: { tasks: DashTask[]; todayKey: string }) {
+  const rows = tasks
+    .map((t) => {
+      const dueKey = t.dueDate ? toDayKey(new Date(t.dueDate)) : null;
+      const state: "overdue" | "due" | "running" =
+        dueKey && dueKey < todayKey ? "overdue" : dueKey === todayKey ? "due" : "running";
+      return { task: t, state, dueKey };
+    })
+    // Late first, then what lands today, then the rest by deadline.
+    .sort((a, b) => {
+      const weight = { overdue: 0, due: 1, running: 2 };
+      if (weight[a.state] !== weight[b.state]) return weight[a.state] - weight[b.state];
+      if (a.dueKey && b.dueKey) return a.dueKey.localeCompare(b.dueKey);
+      return a.dueKey ? -1 : b.dueKey ? 1 : 0;
+    });
+
+  return (
+    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-white font-semibold text-sm flex items-center gap-2">
+          <Clock className="w-4 h-4 text-indigo-400" />
+          Tasks for Today
+          {rows.length > 0 && <span className="text-slate-500 font-normal">({rows.length})</span>}
+        </h3>
+        <Link href="/astelpo_26/calendar" className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
+          Calendar
+        </Link>
+      </div>
+
+      {rows.length === 0 ? (
+        <p className="text-slate-500 text-xs">
+          Nothing has started yet. Tasks appear here from their start date until they are done.
+        </p>
+      ) : (
+        <div className="space-y-2 max-h-96 overflow-y-auto -mr-1 pr-1">
+          {rows.map(({ task: t, state, dueKey }) => (
+            <Link key={t.id} href={`/astelpo_26/projects/${t.project.id}/tasks/${t.id}`}>
+              <div className="flex items-start gap-2.5 py-2 border-b border-slate-800 last:border-0 hover:opacity-80 transition-opacity">
+                <div
+                  className={cn(
+                    "w-2 h-2 rounded-full flex-shrink-0 mt-1",
+                    PRIORITY_DOT[t.priority] ?? "bg-indigo-500"
+                  )}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-slate-200 text-xs font-medium truncate">{t.title}</p>
+                  <p className="text-slate-600 text-xs truncate">{t.project.name}</p>
+                </div>
+                <span
+                  className={cn(
+                    "text-xs whitespace-nowrap flex-shrink-0",
+                    state === "overdue"
+                      ? "text-red-400 font-medium"
+                      : state === "due"
+                        ? "text-indigo-300"
+                        : "text-slate-600"
+                  )}
+                >
+                  {state === "overdue"
+                    ? "Overdue"
+                    : state === "due"
+                      ? "Due today"
+                      : dueKey
+                        ? `Due ${formatDate(t.dueDate)}`
+                        : "No deadline"}
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

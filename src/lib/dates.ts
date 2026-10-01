@@ -58,6 +58,12 @@ export function formatDayKey(
   return new Intl.DateTimeFormat("en-US", { ...options, timeZone: "UTC" }).format(dayStart(dateKey));
 }
 
+/** A stored date back to its yyyy-MM-dd key, read in UTC the way it was written. */
+export function toDayKey(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return d.toISOString().slice(0, 10);
+}
+
 /** UTC midnight of a yyyy-MM-dd key, i.e. how that date is stored. */
 export function dayStart(dateKey: string): Date {
   const [y, m, d] = dateKey.split("-").map(Number);

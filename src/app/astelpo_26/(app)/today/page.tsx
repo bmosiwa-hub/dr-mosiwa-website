@@ -1,25 +1,15 @@
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
-import { PROJECT_STATUS_COLORS, PROJECT_STATUS_LABELS, cn } from "@/lib/utils";
 import { addDaysToKey, dayEnd, formatDayKey, hourIn } from "@/lib/dates";
 import { resolveDayWindow } from "@/lib/dates.server";
-import { Clock, FolderKanban } from "lucide-react";
+import { FolderKanban } from "lucide-react";
 import Link from "next/link";
-import { OverduePanel, TodayPanel, UpcomingPanel, MilestonesPanel } from "./TodayClient";
+import { OverduePanel, TodayPanel, UpcomingPanel, MilestonesPanel, InProgressPanel } from "./TodayClient";
 import type { DashTask, DashMilestone } from "./TodayClient";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Home" };
 
-type ProjectItem = {
-  id: string;
-  name: string;
-  status: string;
-  priority: string;
-  colorLabel: string | null;
-  progress: number;
-  endDate: Date | null;
-};
 
 export default async function TodayPage() {
   const session = await auth();
@@ -42,7 +32,7 @@ export default async function TodayPage() {
   const ninetyDaysOut = dayEnd(addDaysToKey(todayKey, 90));
   const sixtyDaysOut = dayEnd(addDaysToKey(todayKey, 60));
 
-  const [tasksDueToday, upcomingTasksRaw, overdueTasksRaw, recentProjects, recurringTasksRaw, activeProjects, upcomingMilestones] = await Promise.all([
+  const [tasksDueToday, upcomingTasksRaw, overdueTasksRaw, inProgressTasks, recurringTasksRaw, activeProjects, upcomingMilestones] = await Promise.all([
     db.task.findMany({
       where: {
         project: { leadId: userId },
@@ -75,11 +65,20 @@ export default async function TodayPage() {
       orderBy: { dueDate: "asc" },
       take: 5,
     }),
-    db.project.findMany({
-      where: { leadId: userId },
-      orderBy: { name: "asc" },
-      take: 5,
-      select: { id: true, name: true, status: true, priority: true, colorLabel: true, progress: true, endDate: true },
+    // Started and not finished — the day's working set. A task counts as
+    // started once its start date has arrived (or, with no start date, once it
+    // is due), and stays here until it is actually done.
+    db.task.findMany({
+      where: {
+        project: { leadId: userId },
+        status: { notIn: ["DONE", "CANCELLED"] },
+        OR: [
+          { startDate: { lt: tomorrowStart } },
+          { startDate: null, dueDate: { lt: tomorrowStart } },
+        ],
+      },
+      include: taskInclude,
+      orderBy: [{ dueDate: "asc" }, { priority: "desc" }],
     }),
     db.task.findMany({
       where: {
@@ -195,36 +194,7 @@ export default async function TodayPage() {
             </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-white font-semibold text-sm flex items-center gap-2">
-                <Clock className="w-4 h-4 text-indigo-400" />
-                Recent Projects
-              </h3>
-              <Link href="/astelpo_26/projects" className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">All</Link>
-            </div>
-            <div className="space-y-2">
-              {recentProjects.map((p: ProjectItem) => (
-                <Link key={p.id} href={`/astelpo_26/projects/${p.id}`}>
-                  <div className="flex items-center gap-3 py-2 border-b border-slate-800 last:border-0 hover:opacity-80 transition-opacity">
-                    {p.colorLabel ? (
-                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: p.colorLabel }} />
-                    ) : (
-                      <div className="w-2 h-2 rounded-full bg-slate-700 flex-shrink-0" />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-slate-300 text-xs font-medium truncate">{p.name}</p>
-                      <span className={cn("text-xs px-1.5 py-0 rounded font-medium", PROJECT_STATUS_COLORS[p.status])}>
-                        {PROJECT_STATUS_LABELS[p.status]}
-                      </span>
-                    </div>
-                    <span className="text-xs text-slate-600">{p.progress}%</span>
-                  </div>
-                </Link>
-              ))}
-              {recentProjects.length === 0 && <p className="text-slate-500 text-xs">No projects yet.</p>}
-            </div>
-          </div>
+          <InProgressPanel tasks={inProgressTasks as DashTask[]} todayKey={todayKey} />
         </div>
       </div>
     </div>
