@@ -4,7 +4,7 @@ import { addDaysToKey, dayEnd, formatDayKey, hourIn } from "@/lib/dates";
 import { resolveDayWindow } from "@/lib/dates.server";
 import { FolderKanban } from "lucide-react";
 import Link from "next/link";
-import { OverduePanel, TodayPanel, UpcomingPanel, MilestonesPanel, InProgressPanel } from "./TodayClient";
+import { OverduePanel, UpcomingPanel, MilestonesPanel, InProgressPanel } from "./TodayClient";
 import type { DashTask, DashMilestone } from "./TodayClient";
 import type { Metadata } from "next";
 
@@ -32,23 +32,15 @@ export default async function TodayPage() {
   const ninetyDaysOut = dayEnd(addDaysToKey(todayKey, 90));
   const sixtyDaysOut = dayEnd(addDaysToKey(todayKey, 60));
 
-  const [tasksDueToday, upcomingTasksRaw, overdueTasksRaw, inProgressTasks, recurringTasksRaw, activeProjects, upcomingMilestones] = await Promise.all([
-    db.task.findMany({
-      where: {
-        project: { leadId: userId },
-        dueDate: { gte: todayStart, lt: tomorrowStart },
-        status: { notIn: ["DONE", "CANCELLED"] },
-      },
-      include: taskInclude,
-      orderBy: { priority: "desc" },
-    }),
+  const [upcomingTasksRaw, overdueTasksRaw, inProgressTasks, recurringTasksRaw, activeProjects, upcomingMilestones] = await Promise.all([
     db.task.findMany({
       where: {
         project: { leadId: userId },
         status: { notIn: ["DONE", "CANCELLED"] },
+        // Not started yet — work already in flight belongs to Tasks for Today.
         OR: [
           { startDate: { gte: tomorrowStart, lt: ninetyDaysOut } },
-          { dueDate: { gte: tomorrowStart, lt: ninetyDaysOut } },
+          { startDate: null, dueDate: { gte: tomorrowStart, lt: ninetyDaysOut } },
         ],
       },
       include: taskInclude,
@@ -72,10 +64,13 @@ export default async function TodayPage() {
       where: {
         project: { leadId: userId },
         status: { notIn: ["DONE", "CANCELLED"] },
+        // Started already...
         OR: [
           { startDate: { lt: tomorrowStart } },
           { startDate: null, dueDate: { lt: tomorrowStart } },
         ],
+        // ...but not yet late: overdue work is listed once, in its own panel.
+        NOT: { dueDate: { lt: todayStart } },
       },
       include: taskInclude,
       orderBy: [{ dueDate: "asc" }, { priority: "desc" }],
@@ -158,8 +153,8 @@ export default async function TodayPage() {
 
       <div className="flex gap-3 flex-wrap">
         {[
-          { label: "Due Today", value: tasksDueToday.length, color: tasksDueToday.length > 0 ? "bg-indigo-900/30 text-indigo-300 border-indigo-700/30" : "bg-slate-800 text-slate-400 border-slate-700" },
           { label: "Overdue", value: overdueTasksRaw.length, color: overdueTasksRaw.length > 0 ? "bg-red-900/30 text-red-400 border-red-800/30" : "bg-slate-800 text-slate-400 border-slate-700" },
+          { label: "For Today", value: inProgressTasks.length, color: inProgressTasks.length > 0 ? "bg-indigo-900/30 text-indigo-300 border-indigo-700/30" : "bg-slate-800 text-slate-400 border-slate-700" },
           { label: "Upcoming", value: upcomingTasksRaw.length, color: "bg-amber-900/20 text-amber-400 border-amber-800/20" },
         ].map((s) => (
           <div key={s.label} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium ${s.color}`}>
@@ -172,7 +167,7 @@ export default async function TodayPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div className="lg:col-span-2 space-y-5">
           <OverduePanel tasks={overdueTasksRaw} />
-          <TodayPanel tasks={tasksDueToday} />
+          <InProgressPanel tasks={inProgressTasks as DashTask[]} todayKey={todayKey} />
           <UpcomingPanel tasks={upcomingTasksRaw} recurringTasks={recurringInputs} />
           <MilestonesPanel milestones={upcomingMilestones.map((m): DashMilestone => ({
             id: m.id, name: m.name, status: m.status as string,
@@ -194,7 +189,6 @@ export default async function TodayPage() {
             </div>
           </div>
 
-          <InProgressPanel tasks={inProgressTasks as DashTask[]} todayKey={todayKey} />
         </div>
       </div>
     </div>
