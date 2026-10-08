@@ -9,15 +9,29 @@ const PUBLIC = [
   `${BASE}/join`,
   `${BASE}/view`,
   `${BASE}/register`,
+  // The service worker precaches this at install time, before anyone signs in,
+  // and serves it with no network — so it must never redirect to login.
+  `${BASE}/offline`,
 ];
 const PENDING_PAGE = `${BASE}/pending-approval`;
 
 const { auth } = NextAuth(authConfig);
 
+// Static files the browser fetches without a session: the manifest and the
+// service worker are requested before sign-in (and the worker is fetched with
+// no credentials at all), so redirecting them to login makes the app
+// uninstallable rather than merely unauthenticated.
+const PUBLIC_ASSETS = [
+  `${BASE}/sw.js`,
+  `${BASE}/manifest.webmanifest`,
+  `${BASE}/icons/`,
+];
+
 export default auth((req) => {
   const { pathname } = req.nextUrl;
 
   if (!pathname.startsWith(BASE)) return NextResponse.next();
+  if (PUBLIC_ASSETS.some((p) => pathname.startsWith(p))) return NextResponse.next();
 
   const isPublic = PUBLIC.some((p) => pathname.startsWith(p));
   const isLoggedIn = !!req.auth;

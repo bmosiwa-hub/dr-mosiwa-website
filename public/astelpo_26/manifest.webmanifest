@@ -1,0 +1,59 @@
+{
+  "id": "/astelpo_26/",
+  "name": "AstelPO — Astellic Project Office",
+  "short_name": "AstelPO",
+  "description": "Personal project office: projects, tasks, deadlines and the day's working set.",
+  "start_url": "/astelpo_26/today",
+  "scope": "/astelpo_26/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#020617",
+  "theme_color": "#0f172a",
+  "categories": ["productivity", "business"],
+  "icons": [
+    {
+      "src": "/astelpo_26/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/astelpo_26/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/astelpo_26/icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/astelpo_26/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Today",
+      "short_name": "Today",
+      "description": "The day's working set",
+      "url": "/astelpo_26/today"
+    },
+    {
+      "name": "Calendar",
+      "short_name": "Calendar",
+      "description": "Work in progress by day",
+      "url": "/astelpo_26/calendar"
+    },
+    {
+      "name": "Projects",
+      "short_name": "Projects",
+      "description": "All projects",
+      "url": "/astelpo_26/projects"
+    }
+  ]
+}
