@@ -1,13 +1,14 @@
 import { db } from "@/lib/db";
+import { viewerLinkWhere } from "@/lib/viewer-access";
 import { notFound } from "next/navigation";
 import { formatRelative } from "@/lib/utils";
 import { Activity } from "lucide-react";
 
-export default async function ViewerActivityPage({ params }: { params: Promise<{ memberId: string }> }) {
-  const { memberId } = await params;
+export default async function ViewerActivityPage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params;
 
-  const member = await db.projectMember.findUnique({
-    where: { id: memberId },
+  const member = await db.projectMember.findFirst({
+    where: viewerLinkWhere(token),
     select: {
       project: {
         select: {

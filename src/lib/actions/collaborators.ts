@@ -30,7 +30,7 @@ export async function inviteCollaborator(
 
   const token = randomBytes(32).toString("hex");
   const editorExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days for editors
-  const viewerExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour for viewers
+  const viewerExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days for viewers
   const tokenExpiry = role === "VIEWER" ? viewerExpiry : editorExpiry;
 
   const existing = await db.projectMember.findFirst({
@@ -62,7 +62,8 @@ export async function inviteCollaborator(
         token,
       });
     } else {
-      const viewLink = `${BASE_URL}${BASE}/view/${memberId}`;
+      // The token is the credential: the link is unusable without it.
+      const viewLink = `${BASE_URL}${BASE}/view/${token}`;
       await sendViewerInvite({ email, projectName: project.name, viewLink });
     }
   } catch (e: unknown) {

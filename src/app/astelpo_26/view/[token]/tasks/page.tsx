@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { viewerLinkWhere } from "@/lib/viewer-access";
 import { notFound } from "next/navigation";
 import { formatDate, cn } from "@/lib/utils";
 import { CheckSquare, Flag } from "lucide-react";
@@ -22,11 +23,11 @@ const STATUS_COLOR: Record<string, string> = {
 
 const STATUS_ORDER = ["TODO", "IN_PROGRESS", "IN_REVIEW", "BLOCKED", "DONE", "CANCELLED"];
 
-export default async function ViewerTasksPage({ params }: { params: Promise<{ memberId: string }> }) {
-  const { memberId } = await params;
+export default async function ViewerTasksPage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params;
 
-  const member = await db.projectMember.findUnique({
-    where: { id: memberId },
+  const member = await db.projectMember.findFirst({
+    where: viewerLinkWhere(token),
     select: {
       project: {
         select: {
@@ -64,7 +65,7 @@ export default async function ViewerTasksPage({ params }: { params: Promise<{ me
           {active.length > 0 && (
             <div className="space-y-2">
               {active.map((task) => (
-                <Link key={task.id} href={`/astelpo_26/view/${memberId}/tasks/${task.id}`}>
+                <Link key={task.id} href={`/astelpo_26/view/${token}/tasks/${task.id}`}>
                   <div className="bg-slate-900 border border-slate-800 rounded-lg px-4 py-3 flex items-center gap-3 hover:border-slate-700 transition-colors">
                     <Flag className={cn("w-3.5 h-3.5 flex-shrink-0", PRIORITY_COLOR[task.priority])} />
                     <div className="flex-1 min-w-0">
@@ -87,7 +88,7 @@ export default async function ViewerTasksPage({ params }: { params: Promise<{ me
             <div className="space-y-2">
               <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Completed / Cancelled</p>
               {done.map((task) => (
-                <Link key={task.id} href={`/astelpo_26/view/${memberId}/tasks/${task.id}`}>
+                <Link key={task.id} href={`/astelpo_26/view/${token}/tasks/${task.id}`}>
                   <div className="bg-slate-900/50 border border-slate-800 rounded-lg px-4 py-3 flex items-center gap-3 opacity-60 hover:opacity-80 transition-opacity">
                     <Flag className="w-3.5 h-3.5 flex-shrink-0 text-slate-600" />
                     <p className="text-slate-400 text-sm flex-1 truncate line-through">{task.title}</p>

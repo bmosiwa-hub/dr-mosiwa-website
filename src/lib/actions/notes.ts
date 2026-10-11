@@ -1,11 +1,13 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { requireProjectWrite, requireNoteWrite } from "@/lib/authz";
 import { revalidatePath } from "next/cache";
 
 const base = (projectId: string) => `/astelpo_26/projects/${projectId}`;
 
 export async function createNote(projectId: string, _: unknown, formData: FormData) {
+  await requireProjectWrite(projectId);
   const content = formData.get("content") as string;
   if (!content?.trim()) return { error: "Content is required" };
 
@@ -22,6 +24,7 @@ export async function createNote(projectId: string, _: unknown, formData: FormDa
 }
 
 export async function updateNote(noteId: string, projectId: string, _: unknown, formData: FormData) {
+  await requireNoteWrite(noteId);
   const content = formData.get("content") as string;
   if (!content?.trim()) return { error: "Content is required" };
 
@@ -38,6 +41,7 @@ export async function updateNote(noteId: string, projectId: string, _: unknown, 
 }
 
 export async function deleteNote(noteId: string, projectId: string) {
+  await requireNoteWrite(noteId);
   await db.projectNote.delete({ where: { id: noteId } });
   revalidatePath(`${base(projectId)}/notes`);
 }

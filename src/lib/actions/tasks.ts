@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { requireProjectWrite, requireTaskWrite } from "@/lib/authz";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
@@ -18,6 +19,7 @@ async function syncProgress(projectId: string) {
 }
 
 export async function createTask(projectId: string, _: unknown, formData: FormData) {
+  await requireProjectWrite(projectId);
   const session = await auth();
   if (!session?.user) return { error: "Unauthorized" };
 
@@ -59,6 +61,7 @@ export async function createTask(projectId: string, _: unknown, formData: FormDa
 }
 
 export async function updateTaskStatus(taskId: string, status: string, projectId: string) {
+  await requireTaskWrite(taskId);
   await db.task.update({ where: { id: taskId }, data: { status: status as "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "BLOCKED" | "DONE" | "CANCELLED" } });
   await syncProgress(projectId);
   revalidatePath(`${base(projectId)}/tasks`);
@@ -68,6 +71,7 @@ export async function updateTaskStatus(taskId: string, status: string, projectId
 }
 
 export async function deleteTask(taskId: string, projectId: string) {
+  await requireTaskWrite(taskId);
   await db.task.delete({ where: { id: taskId } });
   await syncProgress(projectId);
   revalidatePath(`${base(projectId)}/tasks`);
@@ -77,12 +81,14 @@ export async function deleteTask(taskId: string, projectId: string) {
 }
 
 export async function postponeTask(taskId: string, projectId: string, newDate: string) {
+  await requireTaskWrite(taskId);
   await db.task.update({ where: { id: taskId }, data: { dueDate: new Date(newDate) } });
   revalidatePath("/astelpo_26/today");
   revalidatePath(`${base(projectId)}/tasks`);
 }
 
 export async function updateTask(taskId: string, projectId: string, _: unknown, formData: FormData) {
+  await requireTaskWrite(taskId);
   const session = await auth();
   if (!session?.user) return { error: "Unauthorized" };
 

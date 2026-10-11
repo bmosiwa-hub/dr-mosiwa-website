@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { viewerLinkWhere } from "@/lib/viewer-access";
 import { notFound } from "next/navigation";
 import { formatDate, cn } from "@/lib/utils";
 import { Target } from "lucide-react";
@@ -10,11 +11,11 @@ const STATUS_COLOR: Record<string, string> = {
   MISSED: "bg-red-900/50 text-red-300",
 };
 
-export default async function ViewerMilestonesPage({ params }: { params: Promise<{ memberId: string }> }) {
-  const { memberId } = await params;
+export default async function ViewerMilestonesPage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params;
 
-  const member = await db.projectMember.findUnique({
-    where: { id: memberId },
+  const member = await db.projectMember.findFirst({
+    where: viewerLinkWhere(token),
     select: {
       project: {
         select: {

@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { readableProjectWhere, requireUserId } from "@/lib/authz";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { formatDate, PROJECT_STATUS_LABELS, PROJECT_STATUS_COLORS, PRIORITY_LABELS, PRIORITY_COLORS, PROJECT_CATEGORY_LABELS, cn } from "@/lib/utils";
@@ -13,9 +14,10 @@ interface Props {
 
 export default async function ProjectLayout({ params, children }: Props) {
   const { id } = await params;
+  const userId = await requireUserId();
 
-  const project = await db.project.findUnique({
-    where: { id },
+  const project = await db.project.findFirst({
+    where: { id, ...readableProjectWhere(userId) },
     include: {
       _count: { select: { tasks: true, files: true, resources: true, milestones: true } },
     },

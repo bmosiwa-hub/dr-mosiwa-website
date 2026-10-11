@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { viewerLinkWhere } from "@/lib/viewer-access";
 import { notFound } from "next/navigation";
 import { formatDate, formatRelative, cn } from "@/lib/utils";
 import { ArrowLeft, Flag, ExternalLink, FileText } from "lucide-react";
@@ -23,12 +24,12 @@ const STATUS_COLOR: Record<string, string> = {
 export default async function ViewerTaskDetailPage({
   params,
 }: {
-  params: Promise<{ memberId: string; taskId: string }>;
+  params: Promise<{ token: string; taskId: string }>;
 }) {
-  const { memberId, taskId } = await params;
+  const { token, taskId } = await params;
 
-  const member = await db.projectMember.findUnique({
-    where: { id: memberId },
+  const member = await db.projectMember.findFirst({
+    where: viewerLinkWhere(token),
     select: { project: { select: { id: true } } },
   });
   if (!member) notFound();
@@ -46,7 +47,7 @@ export default async function ViewerTaskDetailPage({
   return (
     <div className="max-w-3xl space-y-6">
       <Link
-        href={`/astelpo_26/view/${memberId}/tasks`}
+        href={`/astelpo_26/view/${token}/tasks`}
         className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
       >
         <ArrowLeft className="w-3.5 h-3.5" />

@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { requireProjectWrite, requireRecurringWrite } from "@/lib/authz";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
@@ -21,6 +22,7 @@ export async function createRecurringTask(
   formData: FormData,
 ): Promise<{ error?: string } | null> {
   try { await requireAuth(); } catch { return { error: "Unauthorized" }; }
+  try { await requireProjectWrite(projectId); } catch { return { error: "Not authorized" }; }
 
   const title = (formData.get("title") as string)?.trim();
   if (!title) return { error: "Title is required" };
@@ -59,6 +61,7 @@ export async function updateRecurringTask(
   formData: FormData,
 ): Promise<{ error?: string } | null> {
   try { await requireAuth(); } catch { return { error: "Unauthorized" }; }
+  try { await requireRecurringWrite(id); } catch { return { error: "Not authorized" }; }
 
   const title = (formData.get("title") as string)?.trim();
   if (!title) return { error: "Title is required" };
@@ -91,12 +94,14 @@ export async function updateRecurringTask(
 }
 
 export async function deleteRecurringTask(id: string, projectId: string) {
+  await requireRecurringWrite(id);
   await db.recurringTask.delete({ where: { id } });
   revalidatePath(`${base(projectId)}/tasks`);
   revalidatePath("/astelpo_26/today");
 }
 
 export async function toggleRecurringTask(id: string, projectId: string, active: boolean) {
+  await requireRecurringWrite(id);
   await db.recurringTask.update({ where: { id }, data: { active } });
   revalidatePath(`${base(projectId)}/tasks`);
   revalidatePath("/astelpo_26/today");

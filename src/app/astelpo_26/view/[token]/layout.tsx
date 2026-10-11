@@ -1,10 +1,11 @@
 import { db } from "@/lib/db";
+import { viewerLinkWhere } from "@/lib/viewer-access";
 import { formatDate, PROJECT_STATUS_LABELS, PROJECT_STATUS_COLORS, PRIORITY_LABELS, PRIORITY_COLORS, PROJECT_CATEGORY_LABELS, cn } from "@/lib/utils";
 import { Calendar, Building2, Globe, DollarSign, Briefcase } from "lucide-react";
 import { ViewerTabBar } from "./ViewerTabBar";
 
 interface Props {
-  params: Promise<{ memberId: string }>;
+  params: Promise<{ token: string }>;
   children: React.ReactNode;
 }
 
@@ -23,10 +24,10 @@ function AccessError({ title, message }: { title: string; message: string }) {
 }
 
 export default async function ViewerLayout({ params, children }: Props) {
-  const { memberId } = await params;
+  const { token } = await params;
 
-  const member = await db.projectMember.findUnique({
-    where: { id: memberId },
+  const member = await db.projectMember.findFirst({
+    where: viewerLinkWhere(token),
     include: {
       project: {
         include: {
@@ -128,7 +129,7 @@ export default async function ViewerLayout({ params, children }: Props) {
           )}
         </div>
 
-        <ViewerTabBar memberId={memberId} />
+        <ViewerTabBar token={token} />
 
         <div>{children}</div>
       </div>

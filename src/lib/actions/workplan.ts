@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { requireProjectWrite } from "@/lib/authz";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
@@ -22,6 +23,7 @@ export async function bulkCreateFromWorkplan(
   tasks: ExtractedTask[],
   milestones: ExtractedMilestone[]
 ) {
+  await requireProjectWrite(projectId);
   const session = await auth();
   if (!session?.user) throw new Error("Unauthorized");
 

@@ -14,9 +14,9 @@ const TABS = [
   { label: "Activity", segment: "activity" },
 ];
 
-export function ViewerTabBar({ memberId }: { memberId: string }) {
+export function ViewerTabBar({ token }: { token: string }) {
   const pathname = usePathname();
-  const base = `/astelpo_26/view/${memberId}`;
+  const base = `/astelpo_26/view/${token}`;
 
   return (
     <div className="border-b border-slate-800 overflow-x-auto">

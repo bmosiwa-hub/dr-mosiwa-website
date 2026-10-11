@@ -1,11 +1,13 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { requireProjectWrite, requireMilestoneWrite } from "@/lib/authz";
 import { revalidatePath } from "next/cache";
 
 const base = (projectId: string) => `/astelpo_26/projects/${projectId}`;
 
 export async function createMilestone(projectId: string, _: unknown, formData: FormData) {
+  await requireProjectWrite(projectId);
   const name = formData.get("name") as string;
   if (!name?.trim()) return { error: "Name is required" };
 
@@ -26,6 +28,7 @@ export async function createMilestone(projectId: string, _: unknown, formData: F
 }
 
 export async function updateMilestoneStatus(milestoneId: string, status: string, projectId: string) {
+  await requireMilestoneWrite(milestoneId);
   const completionPct = status === "COMPLETED" ? 100 : status === "IN_PROGRESS" ? 50 : 0;
   await db.milestone.update({
     where: { id: milestoneId },
@@ -35,6 +38,7 @@ export async function updateMilestoneStatus(milestoneId: string, status: string,
 }
 
 export async function deleteMilestone(milestoneId: string, projectId: string) {
+  await requireMilestoneWrite(milestoneId);
   await db.milestone.delete({ where: { id: milestoneId } });
   revalidatePath(`${base(projectId)}/milestones`);
 }

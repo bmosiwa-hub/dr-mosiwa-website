@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { viewerLinkWhere } from "@/lib/viewer-access";
 import { notFound } from "next/navigation";
 import { formatDate, cn } from "@/lib/utils";
 import { CheckSquare, Clock } from "lucide-react";
@@ -13,11 +14,11 @@ const TASK_STATUS_COLOR: Record<string, string> = {
   CANCELLED: "bg-slate-800 text-slate-500",
 };
 
-export default async function ViewerOverviewPage({ params }: { params: Promise<{ memberId: string }> }) {
-  const { memberId } = await params;
+export default async function ViewerOverviewPage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params;
 
-  const member = await db.projectMember.findUnique({
-    where: { id: memberId },
+  const member = await db.projectMember.findFirst({
+    where: viewerLinkWhere(token),
     select: {
       project: {
         select: {
@@ -36,7 +37,7 @@ export default async function ViewerOverviewPage({ params }: { params: Promise<{
 
   if (!member) notFound();
   const project = member.project;
-  const base = `/astelpo_26/view/${memberId}`;
+  const base = `/astelpo_26/view/${token}`;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">

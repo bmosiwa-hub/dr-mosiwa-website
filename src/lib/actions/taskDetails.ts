@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { requireTaskWrite } from "@/lib/authz";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
@@ -11,6 +12,7 @@ function taskPath(projectId: string, taskId: string) {
 // ── Notes (TaskComment) ───────────────────────────────────────────────────────
 
 export async function addTaskNote(taskId: string, projectId: string, _: unknown, formData: FormData) {
+  await requireTaskWrite(taskId);
   const session = await auth();
   if (!session?.user) return { error: "Unauthorized" };
 
@@ -26,6 +28,7 @@ export async function addTaskNote(taskId: string, projectId: string, _: unknown,
 }
 
 export async function deleteTaskNote(noteId: string, taskId: string, projectId: string) {
+  await requireTaskWrite(taskId);
   await db.taskComment.delete({ where: { id: noteId } });
   revalidatePath(taskPath(projectId, taskId));
 }
@@ -33,6 +36,7 @@ export async function deleteTaskNote(noteId: string, taskId: string, projectId: 
 // ── Links (TaskLink) ──────────────────────────────────────────────────────────
 
 export async function addTaskLink(taskId: string, projectId: string, _: unknown, formData: FormData) {
+  await requireTaskWrite(taskId);
   const session = await auth();
   if (!session?.user) return { error: "Unauthorized" };
 
@@ -51,6 +55,7 @@ export async function addTaskLink(taskId: string, projectId: string, _: unknown,
 }
 
 export async function deleteTaskLink(linkId: string, taskId: string, projectId: string) {
+  await requireTaskWrite(taskId);
   await db.taskLink.delete({ where: { id: linkId } });
   revalidatePath(taskPath(projectId, taskId));
 }

@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { viewerLinkWhere } from "@/lib/viewer-access";
 import { notFound } from "next/navigation";
 import { ExternalLink, BookOpen } from "lucide-react";
 
@@ -15,11 +16,11 @@ const CATEGORY_LABEL: Record<string, string> = {
   OTHER: "Other",
 };
 
-export default async function ViewerResourcesPage({ params }: { params: Promise<{ memberId: string }> }) {
-  const { memberId } = await params;
+export default async function ViewerResourcesPage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params;
 
-  const member = await db.projectMember.findUnique({
-    where: { id: memberId },
+  const member = await db.projectMember.findFirst({
+    where: viewerLinkWhere(token),
     select: {
       project: {
         select: {

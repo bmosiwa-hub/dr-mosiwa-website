@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { readableProjectWhere, requireUserId } from "@/lib/authz";
 import { notFound } from "next/navigation";
 import { formatDate, cn } from "@/lib/utils";
 import { CheckSquare, Clock } from "lucide-react";
@@ -6,9 +7,10 @@ import Link from "next/link";
 
 export default async function ProjectOverviewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const userId = await requireUserId();
 
-  const project = await db.project.findUnique({
-    where: { id },
+  const project = await db.project.findFirst({
+    where: { id, ...readableProjectWhere(userId) },
     include: {
       tasks: { orderBy: { createdAt: "desc" }, take: 5 },
       milestones: { orderBy: { targetDate: "asc" }, take: 5 },

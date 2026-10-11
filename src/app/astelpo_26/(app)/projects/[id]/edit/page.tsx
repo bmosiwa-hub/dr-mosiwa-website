@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { readableProjectWhere, requireUserId } from "@/lib/authz";
 import { notFound } from "next/navigation";
 import { ProjectForm } from "@/components/projects/ProjectForm";
 import { updateProject } from "@/lib/actions/projects";
@@ -12,7 +13,8 @@ export const metadata: Metadata = { title: "Edit Project" };
 
 export default async function EditProjectPage({ params }: Props) {
   const { id } = await params;
-  const project = await db.project.findUnique({ where: { id } });
+  const userId = await requireUserId();
+  const project = await db.project.findFirst({ where: { id, ...readableProjectWhere(userId) } });
   if (!project) notFound();
 
   const boundUpdate = updateProject.bind(null, id);

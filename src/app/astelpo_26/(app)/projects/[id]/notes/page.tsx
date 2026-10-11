@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { readableProjectWhere, requireUserId } from "@/lib/authz";
 import { notFound } from "next/navigation";
 import { formatRelative } from "@/lib/utils";
 import { createNote, deleteNote } from "@/lib/actions/notes";
@@ -7,9 +8,10 @@ import { InlineNoteForm } from "./NoteForm";
 
 export default async function NotesPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const userId = await requireUserId();
 
-  const project = await db.project.findUnique({
-    where: { id },
+  const project = await db.project.findFirst({
+    where: { id, ...readableProjectWhere(userId) },
     select: {
       id: true,
       projectNotes: { orderBy: { updatedAt: "desc" } },
