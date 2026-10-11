@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { ProfileClient } from "./ProfileClient";
+import { InstallAppCard } from "@/components/layout/InstallAppCard";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Profile" };
@@ -24,6 +25,7 @@ export default async function ProfilePage() {
         <p className="text-slate-400 text-sm mt-1">Manage your personal information and password.</p>
       </div>
       <ProfileClient user={user} />
+      <InstallAppCard />
     </div>
   );
 }
