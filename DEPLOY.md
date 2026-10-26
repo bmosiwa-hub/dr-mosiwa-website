@@ -87,6 +87,16 @@ setFormState("success");
 
 ---
 
+## Page View Tracking
+
+The `/clicks-tracker` page shows anonymous page-open counts. To enable collection and persistent counts:
+
+1. Create a Redis database in [Upstash](https://upstash.com/).
+2. Add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from the database's REST API section to the Vercel project's environment variables (or to `.env.local` for local development).
+3. Redeploy the site. New page opens will be counted after the deployment has those variables.
+
+The collector records page paths and aggregate counts only. It doesn't store names, IP addresses, or other visitor details. The tracker page itself and API routes are excluded from the counts.
+
 ## Project Structure
 
 ```

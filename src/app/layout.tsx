@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import PageViewTracker from "@/components/PageViewTracker";
 import "./globals.css";
 
 const DOMAIN = "https://www.azariahmosiwa.com";
@@ -100,6 +101,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
       </head>
       <body className="h-full">
+        <PageViewTracker />
         {children}
       </body>
     </html>
