@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 
 const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign"] as const;
 const ATTRIBUTION_KEY = "site-analytics-attribution";
+const VISITOR_ID_KEY = "site-analytics-visitor-id";
 
 type Attribution = Partial<Record<(typeof UTM_KEYS)[number], string>>;
 
@@ -38,6 +39,20 @@ function getExternalReferrer() {
   }
 }
 
+function getVisitorId() {
+  try {
+    const existing = localStorage.getItem(VISITOR_ID_KEY);
+    if (existing && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(existing)) {
+      return existing;
+    }
+    const visitorId = crypto.randomUUID();
+    localStorage.setItem(VISITOR_ID_KEY, visitorId);
+    return visitorId;
+  } catch {
+    return undefined;
+  }
+}
+
 export default function PageViewTracker() {
   const pathname = usePathname();
   const lastTrackedPath = useRef("");
@@ -55,6 +70,7 @@ export default function PageViewTracker() {
       body: JSON.stringify({
         path: pathname,
         referrer: isInitialPage ? getExternalReferrer() ?? "direct / unknown" : undefined,
+        visitorId: getVisitorId(),
         ...getAttribution(),
       }),
       keepalive: true,

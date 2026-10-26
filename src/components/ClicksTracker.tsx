@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Activity, ArrowDownToLine, ArrowUpRight, CalendarDays, Clock3, Eye, Globe2, MonitorSmartphone, RefreshCw, Search, Settings2, Share2, Tag } from "lucide-react";
+import { Activity, ArrowDownToLine, ArrowUpRight, CalendarDays, Clock3, Eye, Globe2, MonitorSmartphone, RefreshCw, Search, Settings2, Share2, Tag, Users } from "lucide-react";
 
 type DimensionRow = { label: string; views: number };
 type Dimensions = {
@@ -26,10 +26,14 @@ type AnalyticsData = {
   chartMode: "hourly" | "daily";
   periodLabel: string;
   dimensions: Dimensions;
+  visitorStats?: {
+    firstTimeBrowsers: number;
+    returningVisits: number;
+  };
   filters?: {
     page: string;
     country: string;
-    availablePages: string[];
+    availablePages: { path: string; views: number }[];
     availableCountries: DimensionRow[];
     pageTotalViews?: number;
   };
@@ -231,7 +235,7 @@ export default function ClicksTracker() {
               Page
               <select value={selectedPage} onChange={(event) => { setSelectedPage(event.target.value); setSelectedCountry(""); }} className="mt-1.5 h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-navy-900 outline-none transition focus:border-navy-400 focus:ring-2 focus:ring-navy-100">
                 <option value="">All pages</option>
-                {(data?.filters?.availablePages ?? []).map((path) => <option key={path} value={path}>{pageLabel(path)}</option>)}
+                {(data?.filters?.availablePages ?? []).map((page) => <option key={page.path} value={page.path}>{pageLabel(page.path)} · {formatNumber(page.views)} {selectedCountry ? "views for this country" : "views"}</option>)}
               </select>
             </label>
             <label className="block text-xs font-medium text-gray-600">
@@ -255,6 +259,19 @@ export default function ClicksTracker() {
           <SummaryCard label={pageOnlyFilter ? "All-time page opens" : countryFilter ? "Matching page opens" : "Total page opens"} value={data?.totalViews ?? 0} detail={pageOnlyFilter ? "Historical total for selected page" : countryFilter ? "Since country tracking began" : data?.unlistedPageViews ? `Includes ${formatNumber(data.unlistedPageViews)} retired page view(s), hidden from the list` : "Across all tracked pages"} icon={<Eye size={18} />} />
           <SummaryCard label="Today" value={data?.todayViews ?? 0} detail="Since midnight UTC" icon={<Activity size={18} />} />
           <SummaryCard label={data?.periodLabel ?? (range === "24h" ? "Last 24 hours" : `Last ${range} days`)} value={data?.periodViews ?? 0} detail="Page opens in selected range" icon={<CalendarDays size={18} />} />
+        </section>
+
+        <section className="mt-6" aria-labelledby="visitor-returning-heading">
+          <div className="mb-4">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-gold-600">Visitor continuity</p>
+            <h2 id="visitor-returning-heading" className="mt-1 font-display text-2xl font-bold text-navy-900">First-time and returning</h2>
+            <p className="mt-1 text-sm text-gray-500">All-time counts, independent of the page and country filters.</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <SummaryCard label="First-time browsers" value={data?.visitorStats?.firstTimeBrowsers ?? 0} detail="Browsers first recorded since this feature launched" icon={<Users size={18} />} />
+            <SummaryCard label="Returning visits" value={data?.visitorStats?.returningVisits ?? 0} detail="New visits from browsers seen before, after 30 minutes of inactivity" icon={<RefreshCw size={18} />} />
+          </div>
+          <p className="mt-3 text-xs leading-5 text-gray-400">A random ID stays in the browser; the server stores only its hash for up to 400 days. Clearing browser storage or switching browsers/devices counts as first-time. Earlier page views can’t be classified.</p>
         </section>
 
         <section className="mt-6 grid gap-6 xl:grid-cols-[1.35fr_0.8fr]">
@@ -346,7 +363,7 @@ export default function ClicksTracker() {
           <div className="mb-4">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-gold-600">Visitor context</p>
             <h2 id="traffic-insights-heading" className="mt-1 font-display text-2xl font-bold text-navy-900">Overall visitor context</h2>
-            <p className="mt-1 text-sm text-gray-500">{data?.filtered ? "These summaries cover all views, independently of the filters above." : "Aggregate patterns from page opens; no individual visitor profiles."}</p>
+            <p className="mt-1 text-sm text-gray-500">{data?.filtered ? "These summaries cover all views, independently of the filters above." : "Aggregate patterns from page opens and browser visits."}</p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <BreakdownPanel
@@ -434,7 +451,7 @@ export default function ClicksTracker() {
         </section>
 
         <p className="mt-5 flex items-center justify-center gap-1 text-center text-xs text-gray-400">
-          Aggregate analytics only. No names, raw IP addresses, or individual visitor profiles are stored.
+          No names or raw IP addresses are stored. A random browser ID is used only to count first-time browsers and returning visits.
         </p>
       </main>
     </div>

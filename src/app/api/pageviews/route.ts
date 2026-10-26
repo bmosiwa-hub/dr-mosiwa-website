@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createHash } from "node:crypto";
 import { dayKey, isAnalyticsConfigured, pageKey, runRedisCommands, utcDay } from "@/lib/page-analytics";
 
 export const runtime = "nodejs";
@@ -6,7 +7,20 @@ export const dynamic = "force-dynamic";
 
 const DIMENSIONS = ["countries", "regions", "devices", "browsers", "referrers", "utm_sources", "utm_mediums", "utm_campaigns"] as const;
 const HOUR_TTL_SECONDS = 60 * 60 * 24 * 90;
+const VISITOR_TTL_SECONDS = 60 * 60 * 24 * 400;
+const VISIT_IDLE_SECONDS = 30 * 60;
 const EXCLUDED_PATHS = new Set(["/fm-financing-prototype"]);
+const TRACK_VISITOR_SCRIPT = `
+local isNewVisitor = redis.call("SET", KEYS[1], "1", "NX", "EX", ARGV[1])
+local isNewVisit = redis.call("SET", KEYS[2], "1", "NX", "EX", ARGV[2])
+if isNewVisitor then redis.call("INCR", KEYS[3]) end
+if isNewVisit then
+  if not isNewVisitor then redis.call("INCR", KEYS[4]) end
+else
+  redis.call("EXPIRE", KEYS[2], ARGV[2])
+end
+return {isNewVisitor and 1 or 0, isNewVisit and 1 or 0}
+`;
 
 function segmentKey(period: "total" | "daily" | "hourly", time: string | undefined, kind: "page" | "country" | "country-page", path: string | undefined, country: string | undefined) {
   const pathId = path ? pageKey(path).replace("pageviews:", "") : "";
@@ -125,6 +139,10 @@ export async function POST(request: NextRequest) {
   const utmSource = safeLabel(payload.utm_source);
   const utmMedium = safeLabel(payload.utm_medium);
   const utmCampaign = safeLabel(payload.utm_campaign);
+  const visitorId = typeof payload.visitorId === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(payload.visitorId)
+    ? payload.visitorId.toLowerCase()
+    : undefined;
+  const visitorHash = visitorId ? createHash("sha256").update(visitorId).digest("hex") : undefined;
   const commands = [
     ["INCR", `pageviews:total:${encoded}`],
     ["INCR", `pageviews:daily:${today}:total`],
@@ -144,6 +162,17 @@ export async function POST(request: NextRequest) {
     ...(utmSource ? [["HINCRBY", "pageviews:utm_sources", utmSource, "1"]] : []),
     ...(utmMedium ? [["HINCRBY", "pageviews:utm_mediums", utmMedium, "1"]] : []),
     ...(utmCampaign ? [["HINCRBY", "pageviews:utm_campaigns", utmCampaign, "1"]] : []),
+    ...(visitorHash ? [[
+      "EVAL",
+      TRACK_VISITOR_SCRIPT,
+      "4",
+      `pageviews:visitor:${visitorHash}`,
+      `pageviews:visit-session:${visitorHash}`,
+      "pageviews:visitors:first_time_browsers",
+      "pageviews:visitors:returning_visits",
+      String(VISITOR_TTL_SECONDS),
+      String(VISIT_IDLE_SECONDS),
+    ]] : []),
   ];
 
   try {
@@ -188,12 +217,19 @@ export async function GET(request: NextRequest) {
       ...timeline.map(({ key }) => ["GET", `pageviews:${isHourly ? "hourly" : "daily"}:${key}:total`]),
       ["GET", `pageviews:daily:${today}:total`],
       ...DIMENSIONS.map((dimension) => ["HGETALL", `pageviews:${dimension}`]),
+      ["GET", "pageviews:visitors:first_time_browsers"],
+      ["GET", "pageviews:visitors:returning_visits"],
     ];
     const values = await runRedisCommands(commands);
     const pageValues = values.slice(0, allPaths.length);
     const timelineValues = values.slice(allPaths.length, allPaths.length + timeline.length);
     const todayViews = Number(values[allPaths.length + timeline.length] ?? 0);
     const dimensionValues = values.slice(allPaths.length + timeline.length + 1);
+    const visitorValues = values.slice(allPaths.length + timeline.length + 1 + DIMENSIONS.length);
+    const visitorStats = {
+      firstTimeBrowsers: Number(visitorValues[0] ?? 0),
+      returningVisits: Number(visitorValues[1] ?? 0),
+    };
     const pages = paths
       .map((path) => ({ path, views: Number(pageValues[allPaths.indexOf(path)] ?? 0) }))
       .sort((a, b) => b.views - a.views || a.path.localeCompare(b.path));
@@ -257,10 +293,11 @@ export async function GET(request: NextRequest) {
         chartMode: isHourly ? "hourly" : "daily",
         periodLabel: isHourly ? "Last 24 hours" : `Last ${days} days`,
         dimensions,
+        visitorStats,
         filters: {
           page: selectedPath ?? "",
           country: selectedCountry ?? "",
-          availablePages: paths,
+          availablePages: selectedCountry ? filteredPages : pages,
           availableCountries: pageCountries,
           ...(selectedPath ? { pageTotalViews: Number(pageValues[allPaths.indexOf(selectedPath)] ?? 0) } : {}),
         },
@@ -279,7 +316,8 @@ export async function GET(request: NextRequest) {
       chartMode: isHourly ? "hourly" : "daily",
       periodLabel: isHourly ? "Last 24 hours" : `Last ${days} days`,
       dimensions,
-      filters: { page: "", country: "", availablePages: paths, availableCountries: allCountries },
+      visitorStats,
+      filters: { page: "", country: "", availablePages: pages, availableCountries: allCountries },
       filtered: false,
     });
   } catch {
