@@ -158,6 +158,72 @@ export const services = [
 
 export const projects = [
   {
+    id: "stc-cholera-ewars",
+    title: "Climate-Informed Cholera Early Warning and Response System (EWARS)",
+    role: "Lead Consultant",
+    client: "Save the Children / Alisios | Southern Malawi",
+    period: "Aug 2026 – Present",
+    partners: ["Save the Children", "Alisios", "Malawi Ministry of Health", "Public Health Institute of Malawi", "DCCMS"],
+    tags: ["Climate & Health", "Surveillance", "Modelling"],
+    summary:
+      "Leading the design of a climate-informed methodology to develop district-specific cholera and diarrhoeal disease early warning thresholds for Southern Malawi, combining quantitative modelling of routine surveillance and climate data with field validation across six districts.",
+    problem:
+      "Cholera and diarrhoeal disease outbreaks in Southern Malawi are shaped by weather-related shocks, but district-specific, validated early warning thresholds that integrate climate and routine surveillance data were not in place to trigger timely response.",
+    approach:
+      "Directs analyses integrating DHIS2/HMIS surveillance data, climate datasets (DCCMS, CHIRPS, ERA5) and historical outbreak records, using time-series analysis, Generalised Additive Models (GAMs), changepoint detection and ROC analysis to build and validate prediction models. Leads data governance, quality assurance, harmonisation and data-readiness assessments across the Ministry of Health, Public Health Institute of Malawi, DCCMS, district health offices and academic partners. Leads field validation through facility mapping, service disruption assessments and key informant interviews across six districts so the model reflects local epidemiological and operational realities.",
+    results: [
+      "District-specific cholera and diarrhoeal disease early warning thresholds for Southern Malawi",
+      "Prediction models built and validated against historical outbreak records",
+      "Validated thresholds integrated into Malawi's DHIS2/Open Health Service Platform (dashboard design, alert logic, pilot implementation)",
+      "National consultations and validation workshops facilitated",
+      "Technical reports, implementation roadmaps and policy recommendations",
+    ],
+  },
+  {
+    id: "jhpiego-supreme-lifelines",
+    title: "SUPREME LIFELINES Implementation Research",
+    role: "Principal Investigator",
+    client: "Jhpiego / Unitaid | Malawi",
+    period: "Jul 2026 – Present",
+    partners: ["Jhpiego", "Unitaid", "Malawi Ministry of Health", "Amref", "WHO", "Johns Hopkins University"],
+    tags: ["Implementation Research", "MNCH", "Mixed Methods"],
+    summary:
+      "Leading the design and implementation of a national mixed-methods implementation research programme evaluating innovative models of care for pre-eclampsia and maternal anaemia across primary and secondary levels of Malawi's health system, with fidelity, costing, feasibility, acceptability and scalability outcomes.",
+    problem:
+      "Malawi needs evidence on the feasibility, acceptability, scalability and resource requirements of antenatal care service delivery models for the prevention, early detection and management of pre-eclampsia and maternal anaemia to inform national scale-up.",
+    approach:
+      "Directs development of Malawi's Learning Agenda, the implementation research protocol and data collection tools with the Ministry of Health, Jhpiego, Amref, Community Advisory Boards and national stakeholders. Contributed to the global multi-country protocol and governance framework, supporting ethical review by WHO, Johns Hopkins University and Malawian national ethics committees. Oversees study design, implementation fidelity assessment, implementation costing, qualitative and quantitative data collection, data quality assurance and advanced analysis, and supports the Ministry of Health to co-design, implement and evaluate Group ANC, midwifery-led care and networks of care. Provides scientific leadership on research governance, data management, digital data collection and capacity strengthening of multidisciplinary research teams.",
+    results: [
+      "Malawi Learning Agenda, implementation research protocol and data collection tools",
+      "Contribution to the global multi-country implementation research protocol and governance framework",
+      "Policy and health-systems analyses mapping maternal health service delivery models, barriers and enabling conditions",
+      "Climate and health equity scorecard for maternal and child health services developed and validated",
+      "Policy briefs, scientific publications and national validation workshops",
+      "Methods harmonised with PIs in four other countries for comparative evidence",
+    ],
+  },
+  {
+    id: "frontline-aids-hf-landscape",
+    title: "Health Financing Landscape Analysis",
+    role: "Health Financing & Political Economy Consultant",
+    client: "Frontline AIDS",
+    period: "2026 – Present",
+    partners: ["Frontline AIDS"],
+    tags: ["Health Financing", "Political Economy", "Multi-Country"],
+    summary:
+      "Conducting a global health-financing landscape analysis with eight priority sub-Saharan African countries (Angola, Côte d'Ivoire, Kenya, Malawi, Mozambique, Nigeria, Uganda and Zimbabwe), analysing domestic resource mobilisation, fiscal space, financing reforms, donor transition and sustainability.",
+    problem:
+      "Donor transition is exposing new resource needs across the eight priority countries, requiring clear intelligence on where strategic influence and resource mobilisation are feasible and which alternative financing mechanisms are accessible.",
+    approach:
+      "Applies political economy analysis to map the actors, interests, incentives, institutional dynamics, power relations and policy windows shaping health-financing decisions. Assesses the feasibility and accessibility of alternative and emerging financing mechanisms, including social contracting, domestic public financing, insurance, results-based financing and development-bank financing, and models the resource needs exposed by donor transition. Developed and applied a strategic prioritisation framework to identify where financing analysis can most effectively influence policy, mobilise resources and strengthen sustainable financing.",
+    results: [
+      "Global-to-country Health Financing Intelligence Hub integrating financing trends, actors, mechanisms, policy developments and funding opportunities",
+      "Strategic prioritisation framework for financing influence and resource mobilisation",
+      "Country-level financing roadmaps and actionable recommendations through 2030",
+      "Financing objectives, partnership opportunities and advocacy entry points for each country",
+    ],
+  },
+  {
     id: "nca-srhr-policy",
     title: "SRHR Policy Evaluation & Update for Faith-Based Institutions",
     role: "SRHR Policy Specialist",
@@ -442,6 +508,27 @@ export const projects = [
       "TMA feasibility report informing national condom programming strategy",
       "Market segmentation analysis across public, private, and social marketing tiers",
       "Strategic recommendations for sustainable financing and allocation of condom supply",
+    ],
+  },
+  {
+    id: "hea-srmcah-financing",
+    title: "SRMCAH Financing Landscape Analysis",
+    role: "Consultant",
+    client: "Health Equity Access | Commuters for Health (C4H) Project",
+    period: "Jun 2023 – Oct 2023",
+    partners: ["Health Equity Access", "C4H"],
+    tags: ["Health Financing", "SRHR", "Multi-Country"],
+    summary:
+      "Led a multi-country Sexual, Reproductive, Maternal, Child and Adolescent Health (SRMCAH) financing landscape analysis across Malawi, Zambia, DRC and Ethiopia to generate country-specific and cross-country evidence on financing flows, gaps, opportunities and policy levers.",
+    problem:
+      "Financing gaps and bottlenecks were affecting equitable access to SRMCAH services, particularly for underserved populations and hard-to-reach communities.",
+    approach:
+      "Mapped SRMCAH financing architecture (public budgets, donor investments, pooled funds, private-sector contributions and community-based mechanisms) and reviewed national SRMCAH, health financing, UHC, primary health care and community health policies, strategies, investment cases and budget documents. Engaged government, donor, civil society and implementing partners through interviews, consultations and validation sessions. Identified practical opportunities for improved resource mobilisation, allocation, tracking, accountability and sustainability.",
+    results: [
+      "Four country briefs (Malawi, Zambia, DRC, Ethiopia)",
+      "Consolidated SRMCAH financing landscape analysis report and executive summary",
+      "Comparative regional synthesis with actionable recommendations for Health Equity Access and C4H partners",
+      "Presentation deck supporting project planning, advocacy and stakeholder engagement",
     ],
   },
   {
