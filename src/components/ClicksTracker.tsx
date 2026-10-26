@@ -225,7 +225,7 @@ export default function ClicksTracker() {
               Page
               <select value={selectedPage} onChange={(event) => { setSelectedPage(event.target.value); setSelectedCountry(""); }} className="mt-1.5 h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-navy-900 outline-none transition focus:border-navy-400 focus:ring-2 focus:ring-navy-100">
                 <option value="">All pages</option>
-                {(data?.filters?.availablePages ?? []).map((path) => <option key={path} value={path}>{pageLabel(path)} · {path}</option>)}
+                {(data?.filters?.availablePages ?? []).map((path) => <option key={path} value={path}>{pageLabel(path)}</option>)}
               </select>
             </label>
             <label className="block text-xs font-medium text-gray-600">
