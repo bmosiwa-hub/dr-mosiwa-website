@@ -242,14 +242,29 @@ export async function GET(request: NextRequest) {
     const requestedPath = request.nextUrl.searchParams.get("page");
     const selectedPath = requestedPath && paths.includes(requestedPath) ? requestedPath : undefined;
     const allCountries = dimensions.countries as { label: string; views: number }[];
+    const excludedPaths = [...EXCLUDED_PATHS];
     const filterCountryCounts = allCountries.length
-      ? await runRedisCommands(allCountries.map((row) => [
-          "GET",
-          segmentKey("total", undefined, selectedPath ? "country-page" : "country", selectedPath, row.label),
-        ]))
+      ? await runRedisCommands([
+          ...allCountries.map((row) => ["GET", segmentKey("total", undefined, "country", undefined, row.label)]),
+          ...allCountries.flatMap((row) => excludedPaths.map((path) => [
+            "GET",
+            segmentKey("total", undefined, "country-page", path, row.label),
+          ])),
+          ...(selectedPath
+            ? allCountries.map((row) => ["GET", segmentKey("total", undefined, "country-page", selectedPath, row.label)])
+            : []),
+        ])
       : [];
     const pageCountries = allCountries
-      .map((row, index) => ({ ...row, views: Number(filterCountryCounts[index] ?? 0) }))
+      .map((row, index) => {
+        const excludedViews = excludedPaths.reduce((sum, _path, pathIndex) =>
+          sum + Number(filterCountryCounts[allCountries.length + index * excludedPaths.length + pathIndex] ?? 0), 0);
+        const countryViews = Math.max(0, Number(filterCountryCounts[index] ?? 0) - excludedViews);
+        const pageViews = selectedPath
+          ? Number(filterCountryCounts[allCountries.length * (1 + excludedPaths.length) + index] ?? 0)
+          : countryViews;
+        return { ...row, views: selectedPath ? pageViews : countryViews };
+      })
       .filter((row) => row.views > 0);
     const requestedCountry = request.nextUrl.searchParams.get("country")?.toUpperCase();
     const selectedCountry = requestedCountry && /^[A-Z]{2}$/.test(requestedCountry) && pageCountries.some((row) => row.label === requestedCountry)
