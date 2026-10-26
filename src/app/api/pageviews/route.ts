@@ -7,6 +7,24 @@ export const dynamic = "force-dynamic";
 const DIMENSIONS = ["countries", "regions", "devices", "browsers", "referrers", "utm_sources", "utm_mediums", "utm_campaigns"] as const;
 const HOUR_TTL_SECONDS = 60 * 60 * 24 * 90;
 
+function segmentKey(period: "total" | "daily" | "hourly", time: string | undefined, kind: "page" | "country" | "country-page", path: string | undefined, country: string | undefined) {
+  const pathId = path ? pageKey(path).replace("pageviews:", "") : "";
+  const segment = kind === "page" ? pathId : kind === "country" ? country : `${country}:${pathId}`;
+  return `pageviews:segment:${period}:${time ? `${time}:` : ""}${kind}:${segment}`;
+}
+
+function segmentCommands(kind: "page" | "country" | "country-page", path: string | undefined, country: string | undefined, day: string, hour: string) {
+  const totalKey = segmentKey("total", undefined, kind, path, country);
+  const dailyKey = segmentKey("daily", day, kind, path, country);
+  const hourlyKey = segmentKey("hourly", hour, kind, path, country);
+  return [
+    ["INCR", totalKey],
+    ["INCR", dailyKey],
+    ["INCR", hourlyKey],
+    ["EXPIRE", hourlyKey, String(HOUR_TTL_SECONDS)],
+  ];
+}
+
 function safeLabel(value: unknown) {
   if (typeof value !== "string") return undefined;
   if (/[\w.+-]+@[\w.-]+\.[a-z]{2,}/i.test(value)) return undefined;
@@ -82,7 +100,8 @@ export async function POST(request: NextRequest) {
     path.startsWith("//") ||
     path.length > 500 ||
     path.startsWith("/api/") ||
-    normalizedPath === "/clicks-tracker"
+    normalizedPath === "/clicks-tracker" ||
+    normalizedPath.startsWith("/clicks-tracker/")
   ) {
     return NextResponse.json({ error: "Invalid page path." }, { status: 400 });
   }
@@ -110,6 +129,11 @@ export async function POST(request: NextRequest) {
     ["INCR", `pageviews:hourly:${hour}:total`],
     ["EXPIRE", `pageviews:hourly:${hour}:total`, String(HOUR_TTL_SECONDS)],
     ["SADD", "pageviews:paths", normalizedPath],
+    ...segmentCommands("page", normalizedPath, undefined, today, hour),
+    ...(country ? [
+      ...segmentCommands("country", undefined, country, today, hour),
+      ...segmentCommands("country-page", normalizedPath, country, today, hour),
+    ] : []),
     ["HINCRBY", "pageviews:devices", device, "1"],
     ["HINCRBY", "pageviews:browsers", browser, "1"],
     ...(country ? [["HINCRBY", "pageviews:countries", country, "1"]] : []),
@@ -171,6 +195,50 @@ export async function GET(request: NextRequest) {
     const chart = timeline.map(({ time }, index) => ({ time, views: Number(timelineValues[index] ?? 0) }));
     const dimensions = Object.fromEntries(DIMENSIONS.map((name, index) => [name, dimensionRows(dimensionValues[index])]));
 
+    const requestedPath = request.nextUrl.searchParams.get("page");
+    const selectedPath = requestedPath && paths.includes(requestedPath) ? requestedPath : undefined;
+    const requestedCountry = request.nextUrl.searchParams.get("country")?.toUpperCase();
+    const availableCountries = (dimensions.countries as { label: string; views: number }[]).map((row) => row.label);
+    const selectedCountry = requestedCountry && /^[A-Z]{2}$/.test(requestedCountry) && availableCountries.includes(requestedCountry)
+      ? requestedCountry
+      : undefined;
+    const isFiltered = Boolean(selectedPath || selectedCountry);
+
+    if (isFiltered) {
+      const kind = selectedPath ? (selectedCountry ? "country-page" : "page") : "country";
+      const filteredPaths = selectedPath ? [selectedPath] : paths;
+      const segmentPath = kind === "page" || kind === "country-page" ? selectedPath : undefined;
+      const segmentCountry = selectedCountry;
+      const filteredCommands = [
+        ...filteredPaths.map((path) => ["GET", segmentKey("total", undefined, kind, kind === "country" ? undefined : path, segmentCountry)]),
+        ...timeline.map(({ key }) => ["GET", segmentKey(isHourly ? "hourly" : "daily", key, kind, segmentPath, segmentCountry)]),
+        ["GET", segmentKey("daily", today, kind, segmentPath, segmentCountry)],
+      ];
+      const filteredValues = await runRedisCommands(filteredCommands);
+      const filteredPageValues = filteredValues.slice(0, filteredPaths.length);
+      const filteredTimelineValues = filteredValues.slice(filteredPaths.length, filteredPaths.length + timeline.length);
+      const filteredTodayViews = Number(filteredValues[filteredPaths.length + timeline.length] ?? 0);
+      const filteredPages = filteredPaths
+        .map((path, index) => ({ path, views: Number(filteredPageValues[index] ?? 0) }))
+        .filter((page) => page.views > 0 || page.path === selectedPath)
+        .sort((a, b) => b.views - a.views || a.path.localeCompare(b.path));
+      const filteredChart = timeline.map(({ time }, index) => ({ time, views: Number(filteredTimelineValues[index] ?? 0) }));
+
+      return NextResponse.json({
+        configured: true,
+        totalViews: filteredPages.reduce((sum, page) => sum + page.views, 0),
+        todayViews: filteredTodayViews,
+        periodViews: filteredChart.reduce((sum, item) => sum + item.views, 0),
+        pages: filteredPages,
+        chart: filteredChart,
+        chartMode: isHourly ? "hourly" : "daily",
+        periodLabel: isHourly ? "Last 24 hours" : `Last ${days} days`,
+        dimensions,
+        filters: { page: selectedPath ?? "", country: selectedCountry ?? "", availablePages: paths, availableCountries: dimensions.countries },
+        filtered: true,
+      });
+    }
+
     return NextResponse.json({
       configured: true,
       totalViews: pages.reduce((sum, page) => sum + page.views, 0),
@@ -181,6 +249,8 @@ export async function GET(request: NextRequest) {
       chartMode: isHourly ? "hourly" : "daily",
       periodLabel: isHourly ? "Last 24 hours" : `Last ${days} days`,
       dimensions,
+      filters: { page: "", country: "", availablePages: paths, availableCountries: dimensions.countries },
+      filtered: false,
     });
   } catch {
     return NextResponse.json({ configured: true, error: "Could not load analytics." }, { status: 503 });

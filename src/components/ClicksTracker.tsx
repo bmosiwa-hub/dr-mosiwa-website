@@ -25,6 +25,13 @@ type AnalyticsData = {
   chartMode: "hourly" | "daily";
   periodLabel: string;
   dimensions: Dimensions;
+  filters?: {
+    page: string;
+    country: string;
+    availablePages: string[];
+    availableCountries: DimensionRow[];
+  };
+  filtered?: boolean;
 };
 
 const ranges = ["24h", 7, 30, 90] as const;
@@ -67,6 +74,8 @@ function chartLabel(time: string, hourly: boolean) {
 
 export default function ClicksTracker() {
   const [range, setRange] = useState<(typeof ranges)[number]>(7);
+  const [selectedPage, setSelectedPage] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState("");
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -111,8 +120,10 @@ export default function ClicksTracker() {
     setLoading(true);
     setError("");
     try {
-      const query = range === "24h" ? "period=24h" : `days=${range}`;
-      const response = await fetch(`/api/pageviews?${query}`, { cache: "no-store" });
+      const params = new URLSearchParams(range === "24h" ? { period: "24h" } : { days: String(range) });
+      if (selectedPage) params.set("page", selectedPage);
+      if (selectedCountry) params.set("country", selectedCountry);
+      const response = await fetch(`/api/pageviews?${params.toString()}`, { cache: "no-store" });
       if (!response.ok) throw new Error("Analytics data could not be loaded.");
       const result = await response.json();
       setData(result);
@@ -121,7 +132,7 @@ export default function ClicksTracker() {
     } finally {
       setLoading(false);
     }
-  }, [range]);
+  }, [range, selectedPage, selectedCountry]);
 
   useEffect(() => {
     void loadData();
@@ -199,8 +210,35 @@ export default function ClicksTracker() {
           </div>
         )}
 
+        <section aria-label="Filter page views" className="mb-6 rounded-2xl border border-gray-200/80 bg-white p-5 shadow-sm sm:p-6">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 className="text-sm font-semibold text-navy-900">Filter views</h2>
+              <p className="mt-1 text-xs text-gray-500">Choose a page, a country, or both.</p>
+            </div>
+            {(selectedPage || selectedCountry) && <button type="button" onClick={() => { setSelectedPage(""); setSelectedCountry(""); }} className="text-xs font-semibold text-navy-700 underline underline-offset-2">Clear filters</button>}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block text-xs font-medium text-gray-600">
+              Page
+              <select value={selectedPage} onChange={(event) => setSelectedPage(event.target.value)} className="mt-1.5 h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-navy-900 outline-none transition focus:border-navy-400 focus:ring-2 focus:ring-navy-100">
+                <option value="">All pages</option>
+                {(data?.filters?.availablePages ?? []).map((path) => <option key={path} value={path}>{pageLabel(path)} · {path}</option>)}
+              </select>
+            </label>
+            <label className="block text-xs font-medium text-gray-600">
+              Country
+              <select value={selectedCountry} onChange={(event) => setSelectedCountry(event.target.value)} className="mt-1.5 h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-navy-900 outline-none transition focus:border-navy-400 focus:ring-2 focus:ring-navy-100">
+                <option value="">All countries</option>
+                {(data?.filters?.availableCountries ?? []).map((row) => <option key={row.label} value={row.label}>{locationLabel(row.label)} · {formatNumber(row.views)}</option>)}
+              </select>
+            </label>
+          </div>
+          {data?.filtered && <p className="mt-3 text-xs leading-5 text-gray-400">Filtered totals start accumulating from this update; earlier views cannot be matched to a page and country combination.</p>}
+        </section>
+
         <section aria-label="Page view summary" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          <SummaryCard label="Total page opens" value={data?.totalViews ?? 0} detail="Across all tracked pages" icon={<Eye size={18} />} />
+          <SummaryCard label={data?.filtered ? "Matching page opens" : "Total page opens"} value={data?.totalViews ?? 0} detail={data?.filtered ? "Since filtered tracking began" : "Across all tracked pages"} icon={<Eye size={18} />} />
           <SummaryCard label="Today" value={data?.todayViews ?? 0} detail="Since midnight UTC" icon={<Activity size={18} />} />
           <SummaryCard label={data?.periodLabel ?? (range === "24h" ? "Last 24 hours" : `Last ${range} days`)} value={data?.periodViews ?? 0} detail="Page opens in selected range" icon={<CalendarDays size={18} />} />
         </section>
@@ -210,7 +248,7 @@ export default function ClicksTracker() {
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
               <div>
                 <h2 className="font-display text-xl font-bold text-navy-900">Traffic over time</h2>
-                <p className="mt-1 text-sm text-gray-500">{range === "24h" ? "Hourly page opens · UTC" : "Daily page opens · UTC"}</p>
+                <p className="mt-1 text-sm text-gray-500">{data?.filtered ? "Matching page opens · UTC" : range === "24h" ? "Hourly page opens · UTC" : "Daily page opens · UTC"}</p>
               </div>
               <div className="inline-flex self-start rounded-lg bg-gray-100 p-1" aria-label="Chart date range">
                 {ranges.map((days) => (
@@ -253,7 +291,7 @@ export default function ClicksTracker() {
             <div className="mb-6 flex items-start justify-between">
               <div>
                 <h2 className="font-display text-xl font-bold text-navy-900">Top pages</h2>
-                <p className="mt-1 text-sm text-gray-500">Ranked by total opens</p>
+                <p className="mt-1 text-sm text-gray-500">{data?.filtered ? "Matching views since filters were added" : "Ranked by total opens"}</p>
               </div>
               <div className="rounded-lg bg-gold-50 p-2.5 text-gold-700"><Activity size={18} /></div>
             </div>
@@ -293,8 +331,8 @@ export default function ClicksTracker() {
         <section className="mt-6" aria-labelledby="traffic-insights-heading">
           <div className="mb-4">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-gold-600">Visitor context</p>
-            <h2 id="traffic-insights-heading" className="mt-1 font-display text-2xl font-bold text-navy-900">Traffic insights</h2>
-            <p className="mt-1 text-sm text-gray-500">Aggregate patterns from page opens; no individual visitor profiles.</p>
+            <h2 id="traffic-insights-heading" className="mt-1 font-display text-2xl font-bold text-navy-900">Overall visitor context</h2>
+            <p className="mt-1 text-sm text-gray-500">{data?.filtered ? "These summaries cover all views, independently of the filters above." : "Aggregate patterns from page opens; no individual visitor profiles."}</p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <BreakdownPanel
@@ -341,8 +379,8 @@ export default function ClicksTracker() {
         <section className="mt-6 overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm">
           <div className="flex flex-col justify-between gap-4 border-b border-gray-100 px-5 py-5 sm:flex-row sm:items-center sm:px-7">
             <div>
-              <h2 className="font-display text-xl font-bold text-navy-900">All pages</h2>
-              <p className="mt-1 text-sm text-gray-500">Every page path with recorded activity</p>
+              <h2 className="font-display text-xl font-bold text-navy-900">{data?.filtered ? "Pages matching filters" : "All pages"}</h2>
+              <p className="mt-1 text-sm text-gray-500">{data?.filtered ? "Page opens for the selected country and page" : "Every page path with recorded activity"}</p>
             </div>
             <label className="flex h-10 w-full items-center gap-2 rounded-lg border border-gray-200 px-3 text-gray-400 sm:w-64">
               <Search size={16} />
