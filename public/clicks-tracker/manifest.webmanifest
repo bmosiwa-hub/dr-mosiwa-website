@@ -1,0 +1,19 @@
+{
+  "id": "/clicks-tracker",
+  "name": "Viewcount · Website analytics",
+  "short_name": "Viewcount",
+  "description": "Aggregate page views and traffic insights for azariahmosiwa.com.",
+  "start_url": "/clicks-tracker",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#f5f7fa",
+  "icons": [
+    {
+      "src": "/clicks-tracker/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

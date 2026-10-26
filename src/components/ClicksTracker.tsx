@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Activity, ArrowUpRight, CalendarDays, ChevronRight, Clock3, Eye, Globe2, MonitorSmartphone, RefreshCw, Search, Settings2, Share2, Tag } from "lucide-react";
+import { Activity, ArrowDownToLine, ArrowUpRight, CalendarDays, Clock3, Eye, Globe2, MonitorSmartphone, RefreshCw, Search, Settings2, Share2, Tag } from "lucide-react";
 
 type DimensionRow = { label: string; views: number };
 type Dimensions = {
@@ -29,6 +28,11 @@ type AnalyticsData = {
 };
 
 const ranges = ["24h", 7, 30, 90] as const;
+
+type InstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+};
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("en").format(value);
@@ -67,6 +71,41 @@ export default function ClicksTracker() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
+  const [installed, setInstalled] = useState(false);
+  const [installHelp, setInstallHelp] = useState(false);
+
+  useEffect(() => {
+    setInstalled(window.matchMedia("(display-mode: standalone)").matches || ("standalone" in window.navigator && Boolean((window.navigator as Navigator & { standalone?: boolean }).standalone)));
+    const onBeforeInstall = (event: Event) => {
+      event.preventDefault();
+      setInstallPrompt(event as InstallPromptEvent);
+    };
+    const onInstalled = () => {
+      setInstalled(true);
+      setInstallPrompt(null);
+    };
+    window.addEventListener("beforeinstallprompt", onBeforeInstall);
+    window.addEventListener("appinstalled", onInstalled);
+    if ("serviceWorker" in navigator) {
+      void navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => undefined);
+    }
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onBeforeInstall);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  const installApp = async () => {
+    if (!installPrompt) {
+      setInstallHelp((open) => !open);
+      return;
+    }
+    await installPrompt.prompt();
+    const choice = await installPrompt.userChoice;
+    if (choice.outcome === "accepted") setInstalled(true);
+    setInstallPrompt(null);
+  };
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -97,30 +136,48 @@ export default function ClicksTracker() {
   const peak = Math.max(1, ...(data?.chart.map((item) => item.views) ?? [0]));
 
   return (
-    <div className="min-h-screen bg-[#f5f7fa] pb-20 pt-28 md:pt-36">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
-          <div>
-            <div className="mb-3 flex items-center gap-2 text-sm text-gray-500">
-              <Link href="/" className="transition hover:text-navy-900">Home</Link>
-              <ChevronRight size={14} />
-              <span className="text-navy-900">Clicks tracker</span>
+    <div className="min-h-screen bg-[#f5f7fa] pb-16">
+      <header className="sticky top-0 z-20 border-b border-gray-200/80 bg-white/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3">
+            <div className="flex size-9 items-end justify-center gap-0.5 rounded-xl bg-navy-900 pb-2.5">
+              <span className="h-2 w-1.5 rounded-t-sm bg-gold-500" />
+              <span className="h-4 w-1.5 rounded-t-sm bg-gold-500" />
+              <span className="h-3 w-1.5 rounded-t-sm bg-gold-500" />
             </div>
-            <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-gold-600">Website insights</p>
-            <h1 className="font-display text-4xl font-bold tracking-tight text-navy-900 md:text-5xl">Clicks tracker</h1>
-            <p className="mt-3 max-w-2xl text-base text-gray-600">
-              Page opens across azariahmosiwa.com, updated as visitors browse.
-            </p>
+            <div>
+              <p className="text-sm font-bold leading-4 text-navy-900">Viewcount</p>
+              <p className="mt-0.5 text-[11px] leading-3 text-gray-500">Website analytics</p>
+            </div>
           </div>
-          <button
+          <div className="flex items-center gap-2">
+            {installed && <span className="hidden items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 sm:inline-flex"><span className="size-1.5 rounded-full bg-emerald-500" /> App installed</span>}
+            {!installed && <button type="button" onClick={() => void installApp()} className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 text-xs font-semibold text-navy-900 shadow-sm transition hover:border-navy-200 hover:bg-gray-50">
+              <ArrowDownToLine size={15} /> Install app
+            </button>}
+            <button
             type="button"
             onClick={() => void loadData()}
             disabled={loading}
-            className="inline-flex h-11 items-center justify-center gap-2 self-start rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-navy-900 shadow-sm transition hover:border-navy-200 hover:bg-gray-50 disabled:cursor-wait disabled:opacity-60 sm:self-auto"
+            aria-label="Refresh analytics"
+            className="inline-flex size-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-navy-900 shadow-sm transition hover:border-navy-200 hover:bg-gray-50 disabled:cursor-wait disabled:opacity-60"
           >
             <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
-            Refresh
           </button>
+          </div>
+        </div>
+        {installHelp && <div className="border-t border-gray-100 bg-navy-50/70 px-4 py-3 text-center text-xs text-navy-900">To install, open your browser menu and choose <strong>Install app</strong> or <strong>Add to Home Screen</strong>.<button type="button" onClick={() => setInstallHelp(false)} className="ml-3 font-semibold underline">Got it</button></div>}
+      </header>
+      <main className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 sm:pt-10 lg:px-8">
+        <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+          <div>
+            <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-gold-600">azariahmosiwa.com</p>
+            <h1 className="font-display text-3xl font-bold tracking-tight text-navy-900 md:text-4xl">Page views</h1>
+            <p className="mt-2 max-w-2xl text-sm text-gray-600">
+              Page opens and traffic insights, updated as visitors browse.
+            </p>
+          </div>
+          <div className="inline-flex items-center gap-2 self-start rounded-full bg-white px-3 py-1.5 text-xs font-medium text-gray-500 shadow-sm ring-1 ring-gray-200/80 sm:self-auto"><span className="size-1.5 animate-pulse rounded-full bg-emerald-500" /> Live data</div>
         </div>
 
         {data && !data.configured && (
@@ -327,7 +384,7 @@ export default function ClicksTracker() {
         <p className="mt-5 flex items-center justify-center gap-1 text-center text-xs text-gray-400">
           Aggregate analytics only. No names, raw IP addresses, or individual visitor profiles are stored.
         </p>
-      </div>
+      </main>
     </div>
   );
 }

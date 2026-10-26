@@ -44,7 +44,8 @@ export default function PageViewTracker() {
 
   useEffect(() => {
     const normalizedPath = pathname?.replace(/\/+$/, "") || "/";
-    if (!pathname || normalizedPath === "/clicks-tracker" || pathname.startsWith("/api/") || lastTrackedPath.current === pathname) return;
+    const isTrackerPage = normalizedPath === "/clicks-tracker" || normalizedPath.startsWith("/clicks-tracker/");
+    if (!pathname || isTrackerPage || pathname.startsWith("/api/") || lastTrackedPath.current === pathname) return;
     const isInitialPage = lastTrackedPath.current === "";
     lastTrackedPath.current = pathname;
 
