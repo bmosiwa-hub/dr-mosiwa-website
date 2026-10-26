@@ -242,14 +242,15 @@ export async function GET(request: NextRequest) {
     const requestedPath = request.nextUrl.searchParams.get("page");
     const selectedPath = requestedPath && paths.includes(requestedPath) ? requestedPath : undefined;
     const allCountries = dimensions.countries as { label: string; views: number }[];
-    const pageCountryCounts = selectedPath && allCountries.length
-      ? await runRedisCommands(allCountries.map((row) => ["GET", segmentKey("total", undefined, "country-page", selectedPath, row.label)]))
+    const filterCountryCounts = allCountries.length
+      ? await runRedisCommands(allCountries.map((row) => [
+          "GET",
+          segmentKey("total", undefined, selectedPath ? "country-page" : "country", selectedPath, row.label),
+        ]))
       : [];
-    const pageCountries = selectedPath
-      ? allCountries
-          .map((row, index) => ({ ...row, views: Number(pageCountryCounts[index] ?? 0) }))
-          .filter((row) => row.views > 0)
-      : allCountries;
+    const pageCountries = allCountries
+      .map((row, index) => ({ ...row, views: Number(filterCountryCounts[index] ?? 0) }))
+      .filter((row) => row.views > 0);
     const requestedCountry = request.nextUrl.searchParams.get("country")?.toUpperCase();
     const selectedCountry = requestedCountry && /^[A-Z]{2}$/.test(requestedCountry) && pageCountries.some((row) => row.label === requestedCountry)
       ? requestedCountry
