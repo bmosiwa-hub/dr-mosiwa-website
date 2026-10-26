@@ -257,7 +257,8 @@ export async function GET(request: NextRequest) {
       })
       .filter((row) => row.views > 0);
     const requestedCountry = request.nextUrl.searchParams.get("country")?.toUpperCase();
-    const selectedCountry = requestedCountry && /^[A-Z]{2}$/.test(requestedCountry) && pageCountries.some((row) => row.label === requestedCountry)
+    const countryOptions = selectedPath ? pageCountries : allCountries;
+    const selectedCountry = requestedCountry && /^[A-Z]{2}$/.test(requestedCountry) && countryOptions.some((row) => row.label === requestedCountry)
       ? requestedCountry
       : undefined;
     const isFiltered = Boolean(selectedPath || selectedCountry);
@@ -287,10 +288,28 @@ export async function GET(request: NextRequest) {
         .filter((page) => page.views > 0 || page.path === selectedPath)
         .sort((a, b) => b.views - a.views || a.path.localeCompare(b.path));
       const filteredChart = timeline.map(({ time }, index) => ({ time, views: Number(filteredTimelineValues[index] ?? 0) }));
+      const pageAttributedCountryViews = filteredPages.reduce((sum, page) => sum + page.views, 0);
+      const selectedCountryViews = selectedCountry
+        ? Number(allCountries.find((row) => row.label === selectedCountry)?.views ?? 0)
+        : 0;
+      const countryUnattributedPageViews = selectedCountry && !selectedPath
+        ? Math.max(0, selectedCountryViews - pageAttributedCountryViews)
+        : 0;
+      const filteredTotalViews = selectedCountry && !selectedPath
+        ? pageAttributedCountryViews + countryUnattributedPageViews
+        : pageAttributedCountryViews;
+      const filteredPageOptions = selectedCountry
+        ? [
+            ...filteredPages,
+            ...(countryUnattributedPageViews > 0
+              ? [{ path: "__unattributed__", views: countryUnattributedPageViews, unattributed: true }]
+              : []),
+          ]
+        : pages;
 
       return NextResponse.json({
         configured: true,
-        totalViews: filteredPages.reduce((sum, page) => sum + page.views, 0),
+        totalViews: filteredTotalViews,
         todayViews: filteredTodayViews,
         periodViews: filteredChart.reduce((sum, item) => sum + item.views, 0),
         unlistedPageViews: 0,
@@ -303,9 +322,10 @@ export async function GET(request: NextRequest) {
         filters: {
           page: selectedPath ?? "",
           country: selectedCountry ?? "",
-          availablePages: selectedCountry ? filteredPages : pages,
-          availableCountries: pageCountries,
+          availablePages: filteredPageOptions,
+          availableCountries: countryOptions,
           ...(selectedPath ? { pageTotalViews: Number(pageValues[allPaths.indexOf(selectedPath)] ?? 0) } : {}),
+          ...(selectedCountry ? { countryUnattributedPageViews } : {}),
         },
         filtered: true,
       });

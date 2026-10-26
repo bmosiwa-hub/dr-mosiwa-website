@@ -33,9 +33,10 @@ type AnalyticsData = {
   filters?: {
     page: string;
     country: string;
-    availablePages: { path: string; views: number }[];
+    availablePages: { path: string; views: number; unattributed?: boolean }[];
     availableCountries: DimensionRow[];
     pageTotalViews?: number;
+    countryUnattributedPageViews?: number;
   };
   filtered?: boolean;
 };
@@ -235,7 +236,9 @@ export default function ClicksTracker() {
               Page
               <select value={selectedPage} onChange={(event) => { setSelectedPage(event.target.value); setSelectedCountry(""); }} className="mt-1.5 h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-navy-900 outline-none transition focus:border-navy-400 focus:ring-2 focus:ring-navy-100">
                 <option value="">All pages</option>
-                {(data?.filters?.availablePages ?? []).map((page) => <option key={page.path} value={page.path}>{pageLabel(page.path)} · {formatNumber(page.views)} {selectedCountry ? "views for this country" : "views"}</option>)}
+                {(data?.filters?.availablePages ?? []).map((page) => page.unattributed
+                  ? <option key={page.path} value={page.path} disabled>Not matched to a page · {formatNumber(page.views)} {page.views === 1 ? "view" : "views"}</option>
+                  : <option key={page.path} value={page.path}>{pageLabel(page.path)} · {formatNumber(page.views)} {selectedCountry ? "views for this country" : "views"}</option>)}
               </select>
             </label>
             <label className="block text-xs font-medium text-gray-600">
@@ -251,12 +254,12 @@ export default function ClicksTracker() {
                 {formatNumber(unattributedPageViews)} of {formatNumber(data.filters.pageTotalViews ?? data.totalViews)} all-time views for this page have no country attribution. Earlier views cannot be assigned to a country retroactively.
               </p>
             : countryFilter
-              ? <p className="mt-3 text-xs leading-5 text-gray-400">Country and page-by-country counts start with this update; earlier views cannot be matched to a page and country combination.</p>
+              ? <p className="mt-3 text-xs leading-5 text-gray-400">{formatNumber(data?.filters?.countryUnattributedPageViews ?? 0)} {data?.filters?.countryUnattributedPageViews === 1 ? "view is" : "views are"} not matched to a page. These may have been recorded before page-by-country tracking began.</p>
               : null}
         </section>
 
         <section aria-label="Page view summary" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          <SummaryCard label={pageOnlyFilter ? "All-time page opens" : countryFilter ? "Matching page opens" : "Total page opens"} value={data?.totalViews ?? 0} detail={pageOnlyFilter ? "Historical total for selected page" : countryFilter ? "Since country tracking began" : data?.unlistedPageViews ? `Includes ${formatNumber(data.unlistedPageViews)} retired page view(s), hidden from the list` : "Across all tracked pages"} icon={<Eye size={18} />} />
+          <SummaryCard label={pageOnlyFilter ? "All-time page opens" : countryFilter ? "Matching page opens" : "Total page opens"} value={data?.totalViews ?? 0} detail={pageOnlyFilter ? "Historical total for selected page" : countryFilter && data?.filters?.countryUnattributedPageViews ? `${formatNumber(data.filters.countryUnattributedPageViews)} not matched to a page` : countryFilter ? "Since country tracking began" : data?.unlistedPageViews ? `Includes ${formatNumber(data.unlistedPageViews)} retired page view(s), hidden from the list` : "Across all tracked pages"} icon={<Eye size={18} />} />
           <SummaryCard label="Today" value={data?.todayViews ?? 0} detail="Since midnight UTC" icon={<Activity size={18} />} />
           <SummaryCard label={data?.periodLabel ?? (range === "24h" ? "Last 24 hours" : `Last ${range} days`)} value={data?.periodViews ?? 0} detail="Page opens in selected range" icon={<CalendarDays size={18} />} />
         </section>
