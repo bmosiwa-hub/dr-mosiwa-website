@@ -94,7 +94,9 @@ export async function POST(request: NextRequest) {
   const countryHeader = request.headers.get("x-vercel-ip-country") ?? "";
   const country = /^[a-z]{2}$/i.test(countryHeader) ? countryHeader.toUpperCase() : undefined;
   const regionHeader = request.headers.get("x-vercel-ip-country-region") ?? "";
-  const region = country && /^[a-z0-9-]{1,25}$/i.test(regionHeader) ? `${country}-${region.toUpperCase()}` : undefined;
+  const region: string | undefined = country && /^[a-z0-9-]{1,25}$/i.test(regionHeader)
+    ? `${country}-${regionHeader.toUpperCase()}`
+    : undefined;
   const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "";
   const referrer = safeReferrer(payload.referrer, host);
   const device = classifyDevice(request.headers.get("user-agent") ?? "");
