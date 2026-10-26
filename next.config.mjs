@@ -21,15 +21,6 @@ const nextConfig = {
       },
     ];
   },
-  async rewrites() {
-    return [
-      // Standalone static prototype in public/; serve it at the clean URL.
-      {
-        source: "/fp-financing-prototype",
-        destination: "/fp-financing-prototype/index.html",
-      },
-    ];
-  },
 };
 
 export default nextConfig;
