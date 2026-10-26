@@ -12,13 +12,15 @@ export async function runRedisCommands(commands: RedisCommand[]) {
     throw new Error("Page analytics is not configured.");
   }
 
-  const response = await fetch(redisUrl, {
+  const isPipeline = commands.length > 1;
+  const endpoint = isPipeline ? `${redisUrl.replace(/\/$/, "")}/pipeline` : redisUrl;
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${redisToken}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(commands.length === 1 ? commands[0] : commands),
+    body: JSON.stringify(isPipeline ? commands : commands[0]),
     cache: "no-store",
   });
 
