@@ -144,6 +144,8 @@ export default function ClicksTracker() {
       !query || page.path.toLowerCase().includes(query) || pageLabel(page.path).toLowerCase().includes(query),
     );
   }, [data?.pages, search]);
+  const pageOnlyFilter = Boolean(data?.filters?.page && !data?.filters?.country);
+  const countryFilter = Boolean(data?.filters?.country);
   const peak = Math.max(1, ...(data?.chart.map((item) => item.views) ?? [0]));
 
   return (
@@ -234,11 +236,15 @@ export default function ClicksTracker() {
               </select>
             </label>
           </div>
-          {data?.filtered && <p className="mt-3 text-xs leading-5 text-gray-400">Filtered totals start accumulating from this update; earlier views cannot be matched to a page and country combination.</p>}
+          {pageOnlyFilter
+            ? <p className="mt-3 text-xs leading-5 text-gray-400">The all-time page total includes earlier views; its chart and daily counts start with this update.</p>
+            : countryFilter
+              ? <p className="mt-3 text-xs leading-5 text-gray-400">Country and page-by-country counts start with this update; earlier views cannot be matched to a page and country combination.</p>
+              : null}
         </section>
 
         <section aria-label="Page view summary" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          <SummaryCard label={data?.filtered ? "Matching page opens" : "Total page opens"} value={data?.totalViews ?? 0} detail={data?.filtered ? "Since filtered tracking began" : "Across all tracked pages"} icon={<Eye size={18} />} />
+          <SummaryCard label={pageOnlyFilter ? "All-time page opens" : countryFilter ? "Matching page opens" : "Total page opens"} value={data?.totalViews ?? 0} detail={pageOnlyFilter ? "Historical total for selected page" : countryFilter ? "Since country tracking began" : "Across all tracked pages"} icon={<Eye size={18} />} />
           <SummaryCard label="Today" value={data?.todayViews ?? 0} detail="Since midnight UTC" icon={<Activity size={18} />} />
           <SummaryCard label={data?.periodLabel ?? (range === "24h" ? "Last 24 hours" : `Last ${range} days`)} value={data?.periodViews ?? 0} detail="Page opens in selected range" icon={<CalendarDays size={18} />} />
         </section>
@@ -291,7 +297,7 @@ export default function ClicksTracker() {
             <div className="mb-6 flex items-start justify-between">
               <div>
                 <h2 className="font-display text-xl font-bold text-navy-900">Top pages</h2>
-                <p className="mt-1 text-sm text-gray-500">{data?.filtered ? "Matching views since filters were added" : "Ranked by total opens"}</p>
+                <p className="mt-1 text-sm text-gray-500">{countryFilter ? "Matching views since filters were added" : pageOnlyFilter ? "Selected page total" : "Ranked by total opens"}</p>
               </div>
               <div className="rounded-lg bg-gold-50 p-2.5 text-gold-700"><Activity size={18} /></div>
             </div>

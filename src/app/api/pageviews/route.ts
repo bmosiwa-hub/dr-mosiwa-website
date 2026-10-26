@@ -206,11 +206,12 @@ export async function GET(request: NextRequest) {
 
     if (isFiltered) {
       const kind = selectedPath ? (selectedCountry ? "country-page" : "page") : "country";
+      const pageKind = selectedCountry ? "country-page" : "page";
       const filteredPaths = selectedPath ? [selectedPath] : paths;
       const segmentPath = kind === "page" || kind === "country-page" ? selectedPath : undefined;
       const segmentCountry = selectedCountry;
       const filteredCommands = [
-        ...filteredPaths.map((path) => ["GET", segmentKey("total", undefined, kind, kind === "country" ? undefined : path, segmentCountry)]),
+        ...filteredPaths.map((path) => ["GET", segmentKey("total", undefined, pageKind, path, segmentCountry)]),
         ...timeline.map(({ key }) => ["GET", segmentKey(isHourly ? "hourly" : "daily", key, kind, segmentPath, segmentCountry)]),
         ["GET", segmentKey("daily", today, kind, segmentPath, segmentCountry)],
       ];
@@ -219,7 +220,12 @@ export async function GET(request: NextRequest) {
       const filteredTimelineValues = filteredValues.slice(filteredPaths.length, filteredPaths.length + timeline.length);
       const filteredTodayViews = Number(filteredValues[filteredPaths.length + timeline.length] ?? 0);
       const filteredPages = filteredPaths
-        .map((path, index) => ({ path, views: Number(filteredPageValues[index] ?? 0) }))
+        .map((path, index) => ({
+          path,
+          views: selectedPath && !selectedCountry
+            ? Number(pageValues[paths.indexOf(path)] ?? 0)
+            : Number(filteredPageValues[index] ?? 0),
+        }))
         .filter((page) => page.views > 0 || page.path === selectedPath)
         .sort((a, b) => b.views - a.views || a.path.localeCompare(b.path));
       const filteredChart = timeline.map(({ time }, index) => ({ time, views: Number(filteredTimelineValues[index] ?? 0) }));
