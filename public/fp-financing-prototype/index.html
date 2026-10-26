@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="color-scheme" content="light"/>
+<title>FP Financing Hub | Prototype v0.2</title>
+<style>
+:root{--plum:#241c47;--plum2:#2f2560;--violet:#5b4bb3;--coral:#d9573f;--teal:#127a74;--sun:#f0b445;--line:#e4e1ee;--soft:#f6f5fa;--ink:#1f2142;--ink2:#4a4868;--muted:#6a6788;--shadow:0 10px 30px rgba(36,28,71,.07);
+ --s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--need:#1f2142;
+ --good:#1e7d4f;--goodbg:#e3f3ea;--warn:#8a5d00;--warnbg:#fdf1d6;--crit:#b3261e;--critbg:#fbe4e1;--info:#3a2f86;--infobg:#efedf8}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:Inter,"Segoe UI",Arial,sans-serif;line-height:1.5;background:#f4f3f9;color:var(--ink);margin:0;font-size:14px}
+h1,h2,h3,h4,p{margin-top:0}h1{font-size:31px;letter-spacing:-1px;line-height:1.15}h2{font-size:22px;letter-spacing:-.6px;line-height:1.25;margin-bottom:6px}h3{font-size:15px;letter-spacing:-.2px;margin-bottom:6px}h4{font-size:12px;margin-bottom:6px}
+a{color:#4a3ca8;text-decoration:none}a:hover{text-decoration:underline}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+input,select,textarea{border:1px solid #d6d2e6;border-radius:8px;padding:7px 9px;background:#fff;width:100%;font-size:13px}
+textarea{min-height:64px;resize:vertical}
+label{display:block;font-size:11px;font-weight:750;color:#5a5680;margin-bottom:4px;letter-spacing:.2px}
+aside{position:fixed;left:0;top:0;bottom:0;width:250px;background:var(--plum);color:#e9e6f7;display:flex;flex-direction:column;padding:20px 14px 14px;z-index:3;overflow-y:auto}
+.brand{padding:4px 10px 16px;border-bottom:1px solid #ffffff1f}
+.brandmark{display:flex;gap:10px;align-items:center}
+.brandmark .dot{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--coral),var(--sun));display:grid;place-items:center;font-weight:900;color:#fff;font-size:12px}
+.brandname{font-weight:780;font-size:17px;line-height:1.2;letter-spacing:-.3px}
+.brand small{color:#b8b0dc;font-size:11px;display:block;margin-top:8px}
+.navlabel{color:#958cc4;text-transform:uppercase;font-size:10px;letter-spacing:1.4px;font-weight:800;margin:16px 12px 6px}
+.nav a{display:flex;gap:10px;align-items:center;border-radius:8px;padding:8px 11px;font-size:12px;color:#cdc7ea;font-weight:650;margin-bottom:1px}
+.nav a.active,.nav a:hover{background:var(--plum2);color:#fff;text-decoration:none}
+.nav .ic{width:20px;text-align:center;opacity:.85}
+.sidefoot{margin-top:auto;padding:14px 10px 2px;border-top:1px solid #ffffff22;font-size:10px;color:#b8b0dc}
+.live{width:7px;height:7px;border-radius:50%;background:#7fe0b0;display:inline-block;margin-right:5px;box-shadow:0 0 0 3px #7fe0b033}
+.layout{margin-left:250px;min-height:100vh}
+.topbar{background:#fff;border-bottom:1px solid var(--line);padding:11px 32px;display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:0;z-index:2}
+.crumb{font-size:11px;color:#85819f}.head-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.updated{font-size:11px;color:var(--ink2)}.updated b{color:var(--ink)}
+.langtoggle{display:flex;border:1px solid #dcd8ea;border-radius:20px;padding:3px;background:#f7f6fb;gap:2px}
+.langtoggle button{border:0;background:transparent;border-radius:18px;padding:4px 10px;font-size:11px;color:#5d5980;font-weight:750}
+.langtoggle button.selected{background:var(--violet);color:#fff}
+.status{font-size:10px;border:1px solid #f1dcae;background:#fff8e9;color:#8a6420;border-radius:18px;padding:5px 10px;letter-spacing:.35px;font-weight:780}
+.content{padding:26px 32px 50px;max-width:1420px;margin:0 auto}
+.section{margin-bottom:44px;scroll-margin-top:70px}
+.zone{display:flex;align-items:center;gap:12px;margin:8px 0 18px;color:#8a85ad;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}
+.zone::after{content:"";flex:1;height:1px;background:#dcd8ea}
+.sectionhead{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.sectionhead p{color:var(--muted);margin:0;max-width:820px;font-size:13px}
+.eyebrow{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--teal);font-weight:800}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+.panel h3 .sub{font-weight:500;color:var(--muted);font-size:12px}
+.hero{display:grid;grid-template-columns:1.6fr 1fr;gap:20px;padding:26px 30px;border-radius:18px;background:linear-gradient(115deg,#2a2058 0%,#3d2f7c 60%,#7c3a5c 100%);color:#fff;margin-bottom:16px}
+.hero h1{color:#fff;margin:6px 0 10px}.hero p{color:#ded8f6;max-width:660px;margin:0}.hero .eyebrow{color:var(--sun)}
+.qlinks{display:grid;gap:7px;align-content:center}
+.qlinks a{display:flex;justify-content:space-between;align-items:center;background:#ffffff14;border:1px solid #ffffff2a;border-radius:10px;padding:10px 13px;color:#fff;font-size:12px;font-weight:650}
+.qlinks a:hover{background:#ffffff24;text-decoration:none}
+.btn{border:1px solid #d3cee6;background:#fff;border-radius:9px;padding:8px 13px;font-weight:700;font-size:12px;color:#352c6e;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--violet)}
+.btn.primary{background:var(--coral);border-color:var(--coral);color:#fff}.btn.primary:hover{background:#c24a33}
+.btn.small{padding:5px 10px;font-size:11px}.btn.danger{color:#a3392a;border-color:#ecc6bf}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.tile{background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px 17px}
+.tile .k{font-size:11px;color:var(--muted);font-weight:650}
+.tile .v{font-size:27px;font-weight:780;letter-spacing:-.8px;color:var(--ink);margin:2px 0}
+.tile .d{font-size:11px;font-weight:700}
+.up{color:var(--good)}.down{color:var(--crit)}.flat{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid32{display:grid;grid-template-columns:1.5fr 1fr;gap:14px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
+.filters>div{min-width:170px}
+.seg{display:inline-flex;border:1px solid #d9d4ec;border-radius:8px;overflow:hidden;background:#fff}
+.seg button{border:0;background:#fff;padding:6px 11px;font-size:11px;font-weight:750;color:#6a6788;border-left:1px solid #ebe8f4}
+.seg button:first-child{border-left:0}.seg button.on{background:var(--violet);color:#fff}
+/* charts */
+.chart{position:relative}
+.chart svg{display:block;width:100%;overflow:visible}
+.chart .grid line{stroke:#ebe9f2;stroke-width:1}
+.chart .axis text{fill:#7a7799;font-size:10px}
+.chart .end text{fill:var(--ink2);font-size:11px;font-weight:650}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--ink2);margin:0 0 8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.legend i.line{height:2px;border-radius:1px;vertical-align:3px;width:14px}
+.tip{position:absolute;pointer-events:none;background:#fff;border:1px solid #dcd8ea;border-radius:9px;padding:8px 10px;font-size:11px;box-shadow:0 8px 20px #24204a1f;min-width:150px;z-index:4;display:none}
+.tip b{display:block;margin-bottom:4px}
+.tip .r{display:flex;justify-content:space-between;gap:10px}.tip .r span:first-child::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;background:var(--c)}
+.tablelink{border:0;background:none;color:#4a3ca8;font-size:11px;font-weight:700;padding:0;margin-top:6px}
+.tview{margin-top:8px;max-height:260px;overflow:auto}
+.hbars{display:grid;gap:7px}
+.hbar{display:grid;grid-template-columns:110px 1fr 54px;gap:9px;align-items:center;font-size:11px}
+.hbar .lab{color:var(--ink2);font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbar .track{display:flex;gap:2px;height:16px}
+.hbar .track div{height:16px}
+.hbar .track div:first-child{border-radius:4px 0 0 4px}.hbar .track div:last-child{border-radius:0 4px 4px 0}
+.hbar .val{text-align:right;font-weight:750;color:var(--ink2)}
+.dbar{display:grid;grid-template-columns:110px 1fr 54px;gap:9px;align-items:center;font-size:11px}
+.dbar .track{position:relative;height:16px}
+.dbar .track::before{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:#bdb8d6}
+.dbar .bar{position:absolute;top:2px;height:12px;background:var(--s2)}
+/* signals */
+.sig{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid #efedf6;font-size:12px}
+.sig:first-child{border-top:0}
+.badge{font-size:10px;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;letter-spacing:.3px}
+.b-crit{background:var(--critbg);color:var(--crit)}.b-warn{background:var(--warnbg);color:var(--warn)}.b-good{background:var(--goodbg);color:var(--good)}.b-info{background:var(--infobg);color:var(--info)}
+.sig .who{font-weight:750}.sig .muted{display:block}
+.small{font-size:12px}.tiny{font-size:11px}.muted{color:var(--muted)}
+.tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;border-radius:6px;padding:2px 7px;background:#efedf8;color:#4a3ca8}
+.tag.grey{background:#efeff3;color:#5f5f72}.tag.teal{background:#dff3ef;color:#0f625d}.tag.sun{background:#fdf1d6;color:#87610f}.tag.coral{background:#fbe6e1;color:#a3402b}
+/* country */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chip{border:1px solid #dcd7ee;border-radius:16px;padding:5px 11px;font-size:12px;font-weight:700;background:#fff;color:#5d5980}
+.chip.on{background:var(--violet);border-color:var(--violet);color:#fff}
+.chip .dotc{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.cbanner{background:linear-gradient(105deg,#2c2260,#5b4bb3);color:#fff;padding:18px 22px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap}
+.cbanner h2{color:#fff;margin:0;font-size:24px}.cbanner p{color:#dcd6f7;margin:0;font-size:12px}
+.cwrap{border:1px solid #d9d4ee;border-radius:15px;background:#f8f7fc}
+.cbody{padding:14px;display:grid;gap:12px}
+.cbody .tiles{margin:0}
+.lens{display:grid;grid-template-columns:170px auto 1fr;gap:10px;align-items:center;padding:7px 0;border-top:1px solid #efedf6;font-size:12px}
+.lens:first-of-type{border-top:0}.lens b{display:block}.lens small{color:var(--muted);font-size:10px}
+.meter{height:8px;border-radius:5px;background:#e6e2f3;overflow:hidden}.meter div{height:8px;background:var(--violet);border-radius:5px}
+.action{border:1px solid #e3dff0;border-left:4px solid var(--violet);border-radius:9px;padding:10px 12px;font-size:12px;background:#fff;margin-bottom:8px}
+.action b{display:block;margin-bottom:2px}.action .links{margin-top:5px;display:flex;gap:6px;flex-wrap:wrap}
+table{border-collapse:collapse;width:100%}
+th,td{padding:7px 8px;border-bottom:1px solid #ece9f4;text-align:left;font-size:12px;vertical-align:top}
+th{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#6a6788;font-weight:800;background:#faf9fd;white-space:nowrap}
+th.sort{cursor:pointer}th.sort:hover{color:var(--violet)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto}
+.inline input,.inline select{font-size:12px;padding:4px 6px}
+.x{border:0;background:transparent;color:#a39fbd;font-size:15px;line-height:1;padding:0 3px}.x:hover{color:var(--coral)}
+/* mechanisms */
+.cellbtn{width:100%;border:1px solid transparent;border-radius:7px;padding:6px 3px;font-size:10px;font-weight:800}
+.s-core{background:#127a74;color:#fff}.s-partial{background:#bfe5df;color:#0f5e59}.s-none{background:#f4f3f8;color:#a5a1bd}.s-unknown{background:#fff;border:1px dashed #cdc6e6!important;color:#8f8ab0}
+.mcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
+.mcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
+.mcard p{font-size:12px;color:var(--ink2);margin:6px 0}
+.mcard .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+/* tools */
+.slider{margin-bottom:12px}.slider label{display:flex;justify-content:space-between}
+input[type=range]{padding:0;border:0;accent-color:var(--violet)}
+.q{margin-bottom:12px}.q .opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{border:1px solid #e3dff0;border-radius:11px;padding:12px 14px;background:#fff;margin-bottom:9px}
+.opt .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.opt .fit{font-size:11px;font-weight:800}
+.fitbar{height:6px;border-radius:4px;background:#ece9f4;margin:7px 0;overflow:hidden}.fitbar div{height:6px;background:var(--violet)}
+.opt p{font-size:12px;margin:4px 0;color:var(--ink2)}
+/* practices */
+.pcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.pcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;display:flex;flex-direction:column;gap:6px}
+.pcard h3{font-size:14px;margin:0}.pcard p{font-size:12px;color:var(--ink2);margin:0}
+.pcard .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;padding-top:7px;border-top:1px solid #efedf6;font-size:11px}
+.dots{display:inline-flex;gap:3px;vertical-align:middle}.dots i{width:7px;height:7px;border-radius:50%;background:#e2def0}.dots i.f{background:var(--teal)}
+details.addform{margin-top:12px}details.addform summary{cursor:pointer;font-weight:750;font-size:12px;color:#4a3ca8}
+.form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:10px}
+.span2{grid-column:span 2}.span4{grid-column:1/-1}
+.statussel{font-size:11px;padding:3px 6px;width:auto;font-weight:750}
+.st0{background:var(--goodbg);color:var(--good)}.st1{background:var(--warnbg);color:var(--warn)}.st2{background:var(--critbg);color:var(--crit)}.st3{background:var(--infobg);color:var(--info)}
+.cstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.cstats div{border-radius:11px;padding:11px 14px;border:1px solid var(--line);background:#fff;font-size:11px;color:var(--muted)}
+.cstats strong{display:block;font-size:22px;color:var(--ink)}
+/* inputs */
+.inputs-zone .panel{background:#fbfaff}
+.datagrid input{width:76px;text-align:right;font-size:12px;padding:4px 6px}
+.log{max-height:240px;overflow:auto}
+.src{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid #efedf6;font-size:12px}.src:first-child{border-top:0}
+.out{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid #efedf6;font-size:12px}.out:first-child{border-top:0}
+.brief{background:#fff;border:1px solid #d9d4ee;border-radius:14px;padding:28px 32px;margin-top:14px}
+.brief h2{color:#2f2560}.brief h4{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--coral);margin:16px 0 5px}
+.brief p,.brief li{font-size:13px;color:#33305a}
+footer{border-top:1px solid var(--line);padding:14px 32px;font-size:11px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;background:#fff;flex-wrap:wrap}
+#toast{position:fixed;bottom:18px;right:18px;background:var(--plum);color:#fff;padding:9px 15px;border-radius:10px;font-size:12px;opacity:0;transition:.2s;pointer-events:none;z-index:9}#toast.show{opacity:1}
+.print-banner{display:none}
+@media(max-width:1200px){.tiles,.cstats{grid-template-columns:repeat(2,minmax(0,1fr))}.pcards,.mcards{grid-template-columns:repeat(2,minmax(0,1fr))}.hero,.grid32{grid-template-columns:1fr}}
+@media(max-width:880px){aside{position:relative;width:100%;padding:12px 14px}.brand{border:0;padding:0 0 8px}.brand small,.navlabel,.sidefoot{display:none}.nav{display:flex;overflow-x:auto}.nav a{white-space:nowrap;font-size:11px;padding:6px 9px}.layout{margin:0}.topbar{position:static}.grid2{grid-template-columns:1fr}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.content{padding:16px 14px 40px}.topbar{padding:9px 14px}.hero{padding:20px}.hero h1{font-size:24px}.tiles,.cstats,.pcards,.mcards,.form-grid{grid-template-columns:1fr}.span2{grid-column:auto}.lens{grid-template-columns:1fr}.hbar,.dbar{grid-template-columns:80px 1fr 44px}.filters>div{min-width:0;flex:1 1 140px}footer{display:block}}
+@page{size:A4;margin:13mm}
+@media print{body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}aside,.topbar,footer,#toast,.btn,.noprint,details.addform,.chips{display:none!important}.layout{margin:0}.content{padding:0;max-width:none}.print-banner{display:block;border-bottom:2px solid var(--coral);padding-bottom:8px;margin-bottom:14px;font-size:15px}.content>*{display:none!important}body.print-country #country,body.print-brief #brief{display:block!important}body.print-brief #brief>*:not(#briefOut){display:none!important}.panel{box-shadow:none;break-inside:avoid}}
+</style></head>
+<body>
+<div class="print-banner"><strong>Family Planning Financing Hub</strong> <span class="tiny muted" id="printMeta"></span></div>
+<aside>
+ <div class="brand"><div class="brandmark"><div class="dot">FP</div><div class="brandname">Family Planning<br/>Financing Hub</div></div><small data-i18n="brandSub">Financing intelligence for countries and partners</small></div>
+ <div class="navlabel" data-i18n="z_intel">Intelligence</div>
+ <nav class="nav" id="nav">
+  <a href="#pulse"><span class="ic">◉</span><span data-i18n="n_pulse">Financing pulse</span></a>
+  <a href="#trends"><span class="ic">↗</span><span data-i18n="n_trends">Financing trends</span></a>
+  <a href="#country"><span class="ic">◈</span><span data-i18n="n_country">Country dashboards</span></a>
+  <a href="#mechanisms"><span class="ic">▦</span><span data-i18n="n_mech">Global mechanisms</span></a>
+ </nav>
+ <div class="navlabel" data-i18n="z_decide">Decide</div>
+ <nav class="nav">
+  <a href="#tools"><span class="ic">⚖</span><span data-i18n="n_tools">Decision tools</span></a>
+  <a href="#practices"><span class="ic">✦</span><span data-i18n="n_prac">What works</span></a>
+  <a href="#commitments"><span class="ic">✓</span><span data-i18n="n_commit">Commitments</span></a>
+ </nav>
+ <div class="navlabel" data-i18n="z_inputs">Inputs</div>
+ <nav class="nav">
+  <a href="#data"><span class="ic">⇅</span><span data-i18n="n_data">Data &amp; updates</span></a>
+  <a href="#brief"><span class="ic">▤</span><span data-i18n="n_out">Outputs library</span></a>
+ </nav>
+ <div class="sidefoot"><span class="live"></span><span data-i18n="sidefoot">Live working hub · prototype with illustrative data. Changes are saved in this browser.</span></div>
+</aside>
+
+<main class="layout">
+ <header class="topbar">
+  <div class="crumb" data-i18n="crumb">Sustainable family planning financing · Financing Hub</div>
+  <div class="head-actions">
+   <span class="updated"><span data-i18n="lastUpd">Data last updated</span>: <b id="lastUpdated">—</b></span>
+   <div class="langtoggle" id="langtoggle"><button data-lang="en" class="selected">EN</button><button data-lang="fr">FR</button></div>
+   <span class="status" data-i18n="statusPill">ILLUSTRATIVE DATA</span>
+  </div>
+ </header>
+ <div class="content">
+
+ <div class="zone" data-i18n="z_intel">Intelligence</div>
+
+ <!-- PULSE -->
+ <section class="section" id="pulse">
+  <div class="hero">
+   <div>
+    <div class="eyebrow" data-i18n="heroEy">Financing pulse · priority countries</div>
+    <h1 data-i18n="heroTitle">Where family planning financing is heading, and what to do about it.</h1>
+    <p data-i18n="heroSub">A living hub that tracks domestic, external and private financing for family planning, flags risks as data arrive and guides governments and partners towards sustainable, country-led choices.</p>
+   </div>
+   <div class="qlinks">
+    <a href="#country"><span data-i18n="q1">How is my country’s financing changing?</span><span>→</span></a>
+    <a href="#tools"><span data-i18n="q2">What if external funding falls further?</span><span>→</span></a>
+    <a href="#tools-options"><span data-i18n="q3">Which financing options fit our context?</span><span>→</span></a>
+    <a href="#mechanisms"><span data-i18n="q4">Which global mechanisms can help, and where are the gaps?</span><span>→</span></a>
+   </div>
+  </div>
+  <div class="tiles" id="pulseTiles"></div>
+  <div class="grid32">
+   <div class="panel"><h3><span data-i18n="pTrendT">FP financing by source, all priority countries</span> <span class="sub">· USD m</span></h3><div id="pulseChart"></div></div>
+   <div class="panel"><h3 data-i18n="signals">Signals to act on</h3><div id="signals"></div></div>
+  </div>
+  <div class="grid2" style="margin-top:14px">
+   <div class="panel"><h3 data-i18n="watch">Emerging issues watch</h3><p class="tiny muted" data-i18n="watchD">Issues in global health financing that may affect family planning. Click a score to change it; priority = impact × likelihood.</p><div class="tablewrap"><table id="issueTable"></table></div><div class="filters noprint" style="margin:10px 0 0"><div style="flex:1"><input id="newIssue" placeholder="New issue…" aria-label="New issue"/></div><button class="btn small" id="addIssue" data-i18n="add">Add</button></div></div>
+   <div class="panel"><h3 data-i18n="recent">Recent updates</h3><div id="recentLog"></div></div>
+  </div>
+ </section>
+
+ <!-- TRENDS -->
+ <section class="section" id="trends">
+  <div class="sectionhead"><div><div class="eyebrow" data-i18n="trEy">Trends</div><h2 data-i18n="trT">Financing trends</h2><p data-i18n="trD">Compare how domestic government, external and private financing for family planning are moving, across regions and countries.</p></div></div>
+  <div class="filters">
+   <div><label for="trGeo" data-i18n="geo">Geography</label><select id="trGeo"></select></div>
+   <div><label data-i18n="measure">Measure</label><div class="seg" id="trMode"><button data-mode="abs" class="on">USD m</button><button data-mode="share" data-i18n="share">Share %</button></div></div>
+  </div>
+  <div class="panel" style="margin-bottom:14px"><h3 id="trTitle"></h3><div id="trChart"></div></div>
+  <div class="grid2">
+   <div class="panel"><h3><span data-i18n="mixT">Financing mix by country</span> <span class="sub" id="mixYear"></span></h3><div class="legend" id="mixLegend"></div><div class="hbars" id="mixBars"></div><button class="tablelink noprint" data-table="mix" data-i18n="showTable">Show as table</button><div class="tview" id="mixTable" hidden></div></div>
+   <div class="panel"><h3><span data-i18n="extChgT">Change in external financing</span> <span class="sub" id="chgYear"></span></h3><p class="tiny muted" data-i18n="extChgD">Year-on-year change; bars left of the line are cuts.</p><div class="hbars" id="chgBars"></div></div>
+  </div>
+ </section>
+
+ <!-- COUNTRY -->
+ <section class="section" id="country">
+  <div class="sectionhead"><div><div class="eyebrow" data-i18n="cEy">Country intelligence</div><h2 data-i18n="cT">Country dashboards</h2><p data-i18n="cD">Each dashboard recalculates from the latest data: trends, risk alerts, readiness across the Catalytic Accelerator Model lenses, and suggested actions.</p></div><button class="btn noprint" data-print="country" data-i18n="printC">Print dashboard</button></div>
+  <div class="chips" id="countryChips"></div>
+  <div id="countryDash"></div>
+  <div class="panel" style="margin-top:14px"><h3 data-i18n="compareT">Compare countries</h3><p class="tiny muted" data-i18n="compareD">Click a column to sort. Latest year with data.</p><div class="tablewrap"><table id="compareTable"></table></div></div>
+ </section>
+
+ <!-- MECHANISMS -->
+ <section class="section" id="mechanisms">
+  <div class="sectionhead"><div><div class="eyebrow" data-i18n="mEy">Global financing architecture</div><h2 data-i18n="mT">Global mechanisms: who funds what</h2><p data-i18n="mD">How global financing mechanisms support family planning, where support is missing and where it overlaps. Click a cell to update its status; gaps and overlaps recalculate.</p></div></div>
+  <div class="panel">
+   <div class="legend"><span><i class="s-core"></i><span data-i18n="sCore">Core support</span></span><span><i class="s-partial"></i><span data-i18n="sPartial">Partial / indirect</span></span><span><i class="s-none" style="border:1px solid #ddd"></i><span data-i18n="sNone">Not a focus</span></span><span><i class="s-unknown" style="border:1px dashed #bbb"></i><span data-i18n="sUnknown">To verify</span></span></div>
+   <div class="tablewrap"><table id="matrix"></table></div>
+   <div class="grid2" style="margin-top:12px" id="mechFlags"></div>
+  </div>
+  <div class="mcards" id="mechCards"></div>
+ </section>
+
+ <div class="zone" data-i18n="z_decide">Decide</div>
+
+ <!-- TOOLS -->
+ <section class="section" id="tools">
+  <div class="sectionhead"><div><div class="eyebrow" data-i18n="tEy">Decision tools</div><h2 data-i18n="tT">Test scenarios and choose financing options</h2><p data-i18n="tD">Start from a country’s latest data, change the assumptions and see the effect on the financing gap to 2030. Then find financing options that fit the country’s context.</p></div></div>
+  <div class="grid32">
+   <div class="panel"><h3 data-i18n="scenT">Scenario simulator</h3><div id="scenChart"></div><div class="tiles" id="scenTiles" style="margin:12px 0 0"></div></div>
+   <div class="panel">
+    <div class="filters"><div style="flex:1"><label for="scCountry" data-i18n="country">Country</label><select id="scCountry"></select></div></div>
+    <div id="scSliders"></div>
+    <button class="btn small" id="scReset" data-i18n="scReset">Reset to latest data</button>
+    <p class="tiny muted" style="margin-top:10px" data-i18n="scNote">Arithmetic projection from the stated assumptions, not a forecast. Available financing = domestic allocation × execution + external + private.</p>
+   </div>
+  </div>
+  <div class="panel" id="tools-options" style="margin-top:14px;scroll-margin-top:70px">
+   <h3 data-i18n="optT">Financing options navigator</h3>
+   <p class="tiny muted" data-i18n="optD">Describe the country context. Options are ranked by fit and linked to examples in What works.</p>
+   <div class="grid32"><div id="optResults"></div><div id="optQs"></div></div>
+  </div>
+ </section>
+
+ <!-- PRACTICES -->
+ <section class="section" id="practices">
+  <div class="sectionhead"><div><div class="eyebrow" data-i18n="prEy">Learning</div><h2 data-i18n="prT">What works: promising financing practices</h2><p data-i18n="prD">Domestic public financing, private sector engagement and innovative financing approaches, rated for evidence strength and transferability.</p></div></div>
+  <div class="filters">
+   <div><label for="fType" data-i18n="fType">Financing type</label><select id="fType"></select></div>
+   <div style="flex:1"><label for="fText" data-i18n="search">Search</label><input id="fText" placeholder="…"/></div>
+  </div>
+  <div class="pcards" id="practiceCards"></div>
+  <details class="addform panel"><summary data-i18n="addPrac">+ Add a documented practice</summary>
+   <form id="practiceForm" class="form-grid">
+    <div class="span2"><label data-i18n="title">Title</label><input name="title" required/></div>
+    <div><label data-i18n="fType">Financing type</label><select name="type"></select></div>
+    <div><label data-i18n="setting">Country / setting</label><input name="where"/></div>
+    <div class="span4"><label data-i18n="howWorks">What it is and how it works</label><textarea name="summary" required></textarea></div>
+    <div class="span2"><label data-i18n="adapt">Adaptation notes</label><input name="adapt"/></div>
+    <div><label data-i18n="evid">Evidence (1–3)</label><select name="evidence"><option>1</option><option selected>2</option><option>3</option></select></div>
+    <div><label data-i18n="transf">Transferability (1–3)</label><select name="transfer"><option>1</option><option selected>2</option><option>3</option></select></div>
+    <div class="span2"><label data-i18n="source">Source / reference</label><input name="source"/></div>
+    <div style="align-self:end"><button class="btn primary" type="submit" data-i18n="save">Save</button></div>
+   </form></details>
+ </section>
+
+ <!-- COMMITMENTS -->
+ <section class="section" id="commitments">
+  <div class="sectionhead"><div><div class="eyebrow" data-i18n="coEy">Accountability</div><h2 data-i18n="coT">Financing commitments</h2><p data-i18n="coD">Commitments made by governments, donors, global mechanisms and partners. Those at risk or off track appear first and feed the signals on the pulse page.</p></div></div>
+  <div class="cstats" id="commitStats"></div>
+  <div class="filters"><div><label for="cmCountry" data-i18n="country">Country</label><select id="cmCountry"></select></div><div><label for="cmType" data-i18n="actorType">Actor type</label><select id="cmType"></select></div></div>
+  <div class="panel"><div class="tablewrap"><table id="commitTable"></table></div></div>
+  <details class="addform panel"><summary data-i18n="addCommit">+ Record a commitment</summary>
+   <form id="commitForm" class="form-grid">
+    <div><label data-i18n="actor">Actor</label><input name="actor" required/></div>
+    <div><label data-i18n="actorType">Actor type</label><select name="type"></select></div>
+    <div><label data-i18n="country">Country</label><select name="country"></select></div>
+    <div><label data-i18n="due">Due</label><input name="due" placeholder="e.g. Dec 2027"/></div>
+    <div class="span4"><label data-i18n="commitment">Commitment</label><input name="text" required/></div>
+    <div class="span2"><label data-i18n="source">Source / reference</label><input name="source"/></div>
+    <div style="align-self:end"><button class="btn primary" type="submit" data-i18n="save">Save</button></div>
+   </form></details>
+ </section>
+
+ <div class="zone" data-i18n="z_inputs">Inputs · what feeds the hub</div>
+
+ <!-- DATA -->
+ <section class="section inputs-zone" id="data">
+  <div class="sectionhead"><div><div class="eyebrow" data-i18n="dEy">Data &amp; updates</div><h2 data-i18n="dT">Update the data</h2><p data-i18n="dD">Every chart, alert and recommendation above is calculated from this data. Edit values directly or import a CSV; each change is logged with its date.</p></div></div>
+  <div class="panel" style="margin-bottom:14px">
+   <div class="filters"><div><label for="dCountry" data-i18n="country">Country</label><select id="dCountry"></select></div><div style="flex:1"></div>
+    <button class="btn small" id="addYear" data-i18n="addYear">+ Add next year</button>
+    <button class="btn small" id="exportCsv" data-i18n="expCsv">Export CSV</button>
+    <label class="btn small" style="margin:0;cursor:pointer"><span data-i18n="impCsv">Import CSV</span><input type="file" id="importCsv" accept=".csv,text/csv" hidden/></label>
+   </div>
+   <div class="tablewrap"><table class="datagrid" id="dataGrid"></table></div>
+   <p class="tiny muted" style="margin-top:8px" data-i18n="csvFmt">CSV format: country,year,indicator,value · indicators: dom, ext, priv, need, exec. Units: USD millions; execution in %.</p>
+  </div>
+  <div class="grid2">
+   <div class="panel"><h3 data-i18n="logT">Update log</h3><div class="log" id="fullLog"></div></div>
+   <div class="panel"><h3 data-i18n="srcT">Data sources</h3><div id="sources"></div>
+    <div class="filters" style="margin:10px 0 0"><div style="flex:1"><input id="newSource" placeholder="Add a source…" aria-label="New source"/></div><button class="btn small" id="addSource" data-i18n="add">Add</button></div></div>
+  </div>
+  <div class="filters" style="margin-top:14px">
+   <button class="btn small" id="exportJson" data-i18n="expJson">Back up everything (JSON)</button>
+   <label class="btn small" style="margin:0;cursor:pointer"><span data-i18n="impJson">Restore from backup</span><input type="file" id="importJson" accept="application/json" hidden/></label>
+   <button class="btn small danger" id="resetAll" data-i18n="reset">Reset to sample data</button>
+  </div>
+ </section>
+
+ <!-- OUTPUTS -->
+ <section class="section inputs-zone" id="brief">
+  <div class="sectionhead"><div><div class="eyebrow" data-i18n="oEy">Outputs library</div><h2 data-i18n="oT">Briefs, case studies and analyses</h2><p data-i18n="oD">Products that feed the hub’s evidence base: advocacy briefs, country case studies, mechanism mappings and dialogue summaries. Draft a country snapshot from the current data at any time.</p></div></div>
+  <div class="grid2">
+   <div class="panel"><h3 data-i18n="libT">Library</h3><div id="outputs"></div>
+    <details class="addform"><summary data-i18n="addOut">+ Add an output</summary>
+     <form id="outForm" class="form-grid" style="grid-template-columns:1fr 1fr">
+      <div class="span4"><label data-i18n="title">Title</label><input name="title" required/></div>
+      <div><label data-i18n="otype">Type</label><select name="type"></select></div>
+      <div><label data-i18n="date">Date</label><input name="date" placeholder="e.g. Mar 2027"/></div>
+      <div class="span4"><label data-i18n="link">Link</label><input name="link" placeholder="https://…"/></div>
+      <div><button class="btn primary" type="submit" data-i18n="save">Save</button></div>
+     </form></details>
+   </div>
+   <div class="panel"><h3 data-i18n="snapT">Country snapshot brief</h3><p class="tiny muted" data-i18n="snapD">Generated from the current data, alerts and commitments. Review every figure before sharing.</p>
+    <div class="filters"><div style="flex:1"><label for="bCountry" data-i18n="country">Country</label><select id="bCountry"></select></div><button class="btn small primary" id="genBrief" data-i18n="gen">Generate</button><button class="btn small" data-print="brief" data-i18n="print">Print</button></div>
+   </div>
+  </div>
+  <div id="briefOut"></div>
+ </section>
+ </div>
+ <footer><span>Family Planning Financing Hub · prototype v0.2</span><span data-i18n="footR">Illustrative data only · not for citation</span></footer>
+</main>
+<div id="toast"></div>
+
+<script>
+'use strict';
+const KEY='fpfh_v3';
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let lang='en';
+
+/* ---------- i18n ---------- */
+const FR={brandSub:'Données de financement pour les pays et les partenaires',z_intel:'Analyse',z_decide:'Décider',z_inputs:'Données sources',n_pulse:'Pouls du financement',n_trends:'Tendances',n_country:'Tableaux de bord pays',n_mech:'Mécanismes mondiaux',n_tools:'Outils d’aide à la décision',n_prac:'Ce qui marche',n_commit:'Engagements',n_data:'Données et mises à jour',n_out:'Publications',
+sidefoot:'Hub de travail vivant · prototype avec données illustratives. Les modifications sont enregistrées dans ce navigateur.',crumb:'Financement durable de la planification familiale · Hub de financement',lastUpd:'Dernière mise à jour',statusPill:'DONNÉES ILLUSTRATIVES',
+heroEy:'Pouls du financement · pays prioritaires',heroTitle:'Où va le financement de la planification familiale, et comment agir.',heroSub:'Un hub vivant qui suit les financements nationaux, extérieurs et privés de la PF, signale les risques au fil des données et oriente gouvernements et partenaires vers des choix durables menés par les pays.',
+q1:'Comment évolue le financement de mon pays ?',q2:'Et si les financements extérieurs baissent encore ?',q3:'Quelles options de financement conviennent à notre contexte ?',q4:'Quels mécanismes mondiaux peuvent aider, et où sont les lacunes ?',
+pTrendT:'Financement de la PF par source, ensemble des pays prioritaires',signals:'Signaux à traiter',watch:'Veille des enjeux émergents',watchD:'Enjeux du financement mondial de la santé pouvant affecter la PF. Cliquez sur une note pour la modifier ; priorité = impact × probabilité.',recent:'Mises à jour récentes',add:'Ajouter',
+trEy:'Tendances',trT:'Tendances du financement',trD:'Comparer l’évolution des financements publics nationaux, extérieurs et privés de la PF, par région et par pays.',geo:'Zone',measure:'Mesure',share:'Part %',mixT:'Composition du financement par pays',extChgT:'Variation du financement extérieur',extChgD:'Variation annuelle ; les barres à gauche de la ligne sont des baisses.',showTable:'Afficher en tableau',
+cEy:'Analyse pays',cT:'Tableaux de bord pays',cD:'Chaque tableau se recalcule à partir des dernières données : tendances, alertes, maturité selon le modèle d’accélérateur catalytique et actions suggérées.',printC:'Imprimer le tableau',compareT:'Comparer les pays',compareD:'Cliquez sur une colonne pour trier. Dernière année disponible.',
+mEy:'Architecture mondiale du financement',mT:'Mécanismes mondiaux : qui finance quoi',mD:'Comment les mécanismes mondiaux appuient la PF, où l’appui manque et où il se chevauche. Cliquez sur une cellule pour mettre à jour son statut.',sCore:'Appui principal',sPartial:'Partiel / indirect',sNone:'Hors champ',sUnknown:'À vérifier',
+tEy:'Outils d’aide à la décision',tT:'Tester des scénarios et choisir des options de financement',tD:'Partir des dernières données d’un pays, modifier les hypothèses et voir l’effet sur le déficit jusqu’en 2030. Puis trouver les options adaptées au contexte.',scenT:'Simulateur de scénarios',country:'Pays',scReset:'Revenir aux dernières données',scNote:'Projection arithmétique fondée sur les hypothèses, pas une prévision. Financement disponible = allocation nationale × exécution + extérieur + privé.',optT:'Navigateur d’options de financement',optD:'Décrivez le contexte du pays. Les options sont classées selon leur pertinence et liées aux exemples de « Ce qui marche ».',
+prEy:'Apprentissage',prT:'Ce qui marche : pratiques de financement prometteuses',prD:'Financement public national, secteur privé et financements innovants, notés selon la solidité des preuves et la transférabilité.',fType:'Type de financement',search:'Rechercher',addPrac:'+ Ajouter une pratique documentée',title:'Titre',setting:'Pays / contexte',howWorks:'Description et fonctionnement',adapt:'Pistes d’adaptation',evid:'Preuves (1–3)',transf:'Transférabilité (1–3)',source:'Source / référence',save:'Enregistrer',
+coEy:'Redevabilité',coT:'Engagements de financement',coD:'Engagements des gouvernements, bailleurs, mécanismes mondiaux et partenaires. Ceux qui sont menacés ou en retard apparaissent en premier et alimentent les signaux.',actorType:'Type d’acteur',addCommit:'+ Enregistrer un engagement',actor:'Acteur',due:'Échéance',commitment:'Engagement',
+dEy:'Données et mises à jour',dT:'Mettre à jour les données',dD:'Tous les graphiques, alertes et recommandations ci-dessus sont calculés à partir de ces données. Modifiez les valeurs ou importez un CSV ; chaque modification est datée.',addYear:'+ Ajouter l’année suivante',expCsv:'Exporter CSV',impCsv:'Importer CSV',csvFmt:'Format CSV : country,year,indicator,value · indicateurs : dom, ext, priv, need, exec. Unités : millions USD ; exécution en %.',logT:'Journal des mises à jour',srcT:'Sources de données',expJson:'Tout sauvegarder (JSON)',impJson:'Restaurer une sauvegarde',reset:'Rétablir les données d’exemple',
+oEy:'Publications',oT:'Notes, études de cas et analyses',oD:'Produits qui alimentent la base de connaissances : notes de plaidoyer, études de cas, cartographies et synthèses de dialogues. Générez à tout moment un aperçu pays à partir des données.',libT:'Bibliothèque',addOut:'+ Ajouter une publication',otype:'Type',date:'Date',link:'Lien',snapT:'Note d’aperçu pays',snapD:'Générée à partir des données, alertes et engagements actuels. Vérifiez chaque chiffre avant diffusion.',gen:'Générer',print:'Imprimer',footR:'Données illustratives · ne pas citer',
+dom:'Public national',ext:'Extérieur',priv:'Privé',need:'Besoin estimé',exec:'Exécution budgétaire %',gap:'Déficit',available:'Disponible',
+tExt:'Financement extérieur',tDomShare:'Part du financement national',tGap:'Pays avec un déficit > 30 %',tRisk:'Engagements menacés ou en retard',vsPrev:'vs année précédente',pp:'pts',
+allPri:'Ensemble des pays prioritaires',region:'Région',trTitleAbs:'Financement de la PF par source',trTitleShare:'Part de chaque source dans le financement de la PF',
+kTotal:'Financement total PF',kDomShare:'Part nationale',kExtChg:'Variation extérieure',kGap:'Déficit vs besoin',alerts:'Alertes',lenses:'Maturité · modèle d’accélérateur',actions:'Actions suggérées',ccommit:'Engagements',noAlerts:'Aucune alerte avec les données actuelles.',
+p_fiscal:'Analyse budgétaire',p_political:'Engagement politique',p_impl:'Appui à la mise en œuvre',p_acct:'Redevabilité',
+cs0:'En bonne voie',cs1:'Menacé',cs2:'En retard',cs3:'Tenu',all:'Tous',global:'Mondial',crit:'CRITIQUE',warn:'ATTENTION',info:'INFO',good:'POSITIF',
+scExt:'Variation annuelle du financement extérieur',scDom:'Variation annuelle du budget national PF',scExec:'Taux d’exécution budgétaire',scNeed:'Croissance annuelle du besoin',cumGap:'Déficit cumulé 2026–2030',gap2030:'Déficit en 2030',domShare2030:'Part nationale en 2030',fit:'Pertinence',why:'Pourquoi',watchOut:'Points de vigilance',examples:'Exemples',
+gaps:'Lacunes',dups:'Chevauchements / coordination',noGaps:'Aucune lacune signalée.',noDups:'Aucun chevauchement signalé.',nextWin:'Prochaine fenêtre / cycle',reviewed:'Dernier examen',entry:'Point d’entrée du plaidoyer',
+year:'Année',saved:'Enregistré'};
+const EN={dom:'Domestic government',ext:'External',priv:'Private',need:'Estimated need',exec:'Budget execution %',gap:'Gap',available:'Available',
+tExt:'External FP financing',tDomShare:'Domestic share of FP financing',tGap:'Countries with gap > 30%',tRisk:'Commitments at risk or off track',vsPrev:'vs previous year',pp:'pts',
+allPri:'All priority countries',region:'Region',trTitleAbs:'FP financing by source',trTitleShare:'Share of FP financing by source',
+kTotal:'Total FP financing',kDomShare:'Domestic share',kExtChg:'External change',kGap:'Gap vs need',alerts:'Alerts',lenses:'Readiness · Catalytic Accelerator Model',actions:'Suggested actions',ccommit:'Commitments',noAlerts:'No alerts on current data.',
+p_fiscal:'Fiscal analysis',p_political:'Political engagement',p_impl:'Implementation support',p_acct:'Accountability',
+cs0:'On track',cs1:'At risk',cs2:'Off track',cs3:'Met',all:'All',global:'Global',crit:'CRITICAL',warn:'WARNING',info:'INFO',good:'POSITIVE',
+scExt:'Annual change in external financing',scDom:'Annual change in domestic FP budget',scExec:'Budget execution rate',scNeed:'Annual growth in need',cumGap:'Cumulative gap 2026–2030',gap2030:'Gap in 2030',domShare2030:'Domestic share in 2030',fit:'Fit',why:'Why',watchOut:'Watch out',examples:'Examples',
+gaps:'Gaps',dups:'Overlaps / coordination needed',noGaps:'No gaps flagged.',noDups:'No overlaps flagged.',nextWin:'Next window / cycle',reviewed:'Last reviewed',entry:'Advocacy entry point',
+year:'Year',saved:'Saved'};
+const STATIC={};document.querySelectorAll('[data-i18n]').forEach(el=>{STATIC[el.dataset.i18n]=el.innerHTML;});
+const t=k=>(lang==='fr'&&FR[k])||EN[k]||STATIC[k]||k;
+function applyLang(){document.documentElement.lang=lang;document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;el.innerHTML=lang==='fr'&&FR[k]?esc(FR[k]):STATIC[k];});document.querySelectorAll('#langtoggle button').forEach(b=>b.classList.toggle('selected',b.dataset.lang===lang));renderAll();}
+
+/* ---------- reference lists ---------- */
+const SRC=[{k:'dom',c:'var(--s1)'},{k:'ext',c:'var(--s2)'},{k:'priv',c:'var(--s3)'}];
+const LENSES=['fiscal','political','impl','acct'];
+const TYPES=['Domestic public financing','Private sector engagement','Innovative financing'];
+const ACTORS=['Government','Donor','Global mechanism','Civil society','Private sector','Technical partner'];
+const FUNCS=['Contraceptive commodities','Service delivery','Supply chain','Co-financing incentive','Financing policy & TA','Data & accountability','Civil society'];
+const STATES=['unknown','core','partial','none'];
+const OTYPES=['Advocacy brief','Country case study','Mechanism mapping','Dialogue summary','Data release'];
+
+/* ---------- illustrative seed data ---------- */
+function seed(){
+ const regions=['Sub-Saharan Africa','Sub-Saharan Africa','Sub-Saharan Africa','Sub-Saharan Africa','Sub-Saharan Africa','Sub-Saharan Africa','Sub-Saharan Africa','Asia Pacific','Asia Pacific','Asia Pacific'];
+ const countries=regions.map((r,i)=>{
+  let e=8+(i*3.7)%12,d=1.5+(i*1.9)%6,p=2+(i*1.3)%4;const g=[.06,.1,-.02,.14,.03,.12,.01,.08,.05,-.01][i];const series={};
+  for(let y=2019;y<=2025;y++){
+   if(y>2019){const ef=y<=2023?1.03+((i+y)%3)*.01:y===2024?.92:.62+(i%4)*.05;e*=ef;d*=1+g+(((i*7+y)%5)-2)*.01;p*=1.03;}
+   series[y]={dom:+d.toFixed(1),ext:+e.toFixed(1),priv:+p.toFixed(1),exec:Math.min(95,55+((i*11+y*3)%38)),need:null};
+  }
+  const s23=series[2023];const need=+((s23.dom+s23.ext+s23.priv)*1.08).toFixed(1);
+  for(let y=2019;y<=2025;y++)series[y].need=+(need*Math.pow(1.03,y-2025)).toFixed(1);
+  return {name:'Country '+(i+1),region:r,series,lenses:[[1,2,1,1],[2,2,1,2],[0,1,1,0],[2,3,2,2],[1,1,0,1],[3,2,2,3],[1,0,1,1],[2,1,2,1],[1,2,2,2],[0,1,0,1]][i]};
+ });
+ const today=new Date().toISOString().slice(0,10);
+ return {countries,sel:0,trGeo:'all',trMode:'abs',sort:{k:'gap',d:-1},
+  log:[{date:today,who:'Hub',what:'Sample dataset loaded (illustrative values for 10 placeholder countries, 2019–2025).'}],
+  sources:[{name:'FP2030 annual progress data and Track20 estimates',status:'Planned connection'},{name:'Donor government funding for FP (annual analysis, e.g. KFF)',status:'Planned connection'},{name:'UNFPA / NIDI Resource Flows project',status:'Planned connection'},{name:'UNFPA Supplies Partnership reporting',status:'Planned connection'},{name:'WHO Global Health Expenditure Database',status:'Planned connection'},{name:'National budgets, budget execution reports and health accounts',status:'Country data entry'}],
+  issues:[{issue:'Steep declines in official development assistance for health',impact:3,lik:3},{issue:'Debt-service pressure crowding out health budgets',impact:3,lik:2},{issue:'Replenishment outcomes of global health funds',impact:2,lik:2},{issue:'Currency depreciation raising commodity costs',impact:2,lik:2},{issue:'Integration of vertical programmes into PHC/UHC',impact:2,lik:3}],
+  mechs:[
+   {name:'UNFPA Supplies Partnership',sub:'incl. Match Fund',states:['core','partial','core','core','partial','partial','none'],note:'Largest dedicated external source for contraceptive commodities; the Match Fund rewards increases in government commodity spending.',entry:'Use match commitments as a lever in budget negotiations.',next:'',rev:''},
+   {name:'Global Financing Facility (GFF)',sub:'women, children & adolescents',states:['partial','partial','partial','core','core','core','partial'],note:'Country-led investment cases linked to World Bank financing; a platform for aligning partners behind a national plan.',entry:'Anchor FP priorities in the GFF investment case and country platform.',next:'',rev:''},
+   {name:'Sustainable Commodity Access Program (S-CAP)',sub:'GFF-linked',states:['unknown','none','unknown','unknown','unknown','unknown','none'],note:'Scope, eligibility and interaction with domestic procurement to be confirmed.',entry:'Clarify eligibility for priority countries.',next:'',rev:''},
+   {name:'World Bank IDA',sub:'concessional loans & grants',states:['partial','partial','partial','partial','core','partial','none'],note:'Large-scale concessional financing; FP is financed when prioritised within health and social sector operations.',entry:'Engage Finance Ministries on prioritising FP in IDA health operations.',next:'',rev:''},
+   {name:'Global Fund',sub:'HIV, TB & malaria',states:['partial','partial','partial','partial','none','partial','partial'],note:'Relevant through integrated SRH–HIV services, condoms and shared supply-chain and data systems.',entry:'Seek integration in shared supply-chain and community-system investments.',next:'',rev:''},
+   {name:'Gavi',sub:'vaccine alliance',states:['none','partial','partial','partial','none','partial','none'],note:'Relevant through postpartum and immunisation contact points, and as a reference for co-financing design.',entry:'Promote FP–immunisation integration at shared service contacts.',next:'',rev:''}],
+  practices:[
+   {title:'Dedicated contraceptive budget line with execution tracking',type:0,where:'Archetype',summary:'A ring-fenced line for contraceptive procurement, with quarterly release and execution reporting.',adapt:'Pair with civil-society budget tracking; time asks to the budget call circular.',evidence:2,transfer:3,source:'To document',opt:'line'},
+   {title:'Matched domestic commitments for commodities',type:0,where:'Archetype',summary:'Government increases its own commodity procurement and the increase is matched externally, creating an incentive to grow domestic share.',adapt:'Needs procurement systems that can absorb domestic funds on time.',evidence:2,transfer:3,source:'UNFPA Supplies Match Fund (verify)',opt:'match'},
+   {title:'FP in the national health insurance benefit package',type:0,where:'Archetype',summary:'Contraceptive services and methods are covered by insurance and paid through provider payment mechanisms.',adapt:'Requires costing, payment rates and protection for the uninsured.',evidence:2,transfer:2,source:'To document',opt:'insurance'},
+   {title:'Earmarked share of health taxes for primary care including FP',type:2,where:'Archetype',summary:'Part of new health-tax revenue funds primary health care, with FP named in the spending plan.',adapt:'Earmarking is sensitive; secure Finance Ministry buy-in early.',evidence:1,transfer:2,source:'To document',opt:'tax'},
+   {title:'Total market approach with private-sector distribution',type:1,where:'Archetype',summary:'Public, social-marketing and commercial channels are segmented so public funds target those least able to pay.',adapt:'Needs market data and regulatory alignment.',evidence:3,transfer:2,source:'To document',opt:'tma'},
+   {title:'IDA-financed results-based PHC programme with FP indicators',type:2,where:'Archetype',summary:'Concessional financing disbursed against results, with FP service indicators among those that trigger payment.',adapt:'Indicator choice and verification capacity are key.',evidence:2,transfer:2,source:'To document',opt:'ida'},
+   {title:'Debt-for-health swap with an FP component',type:2,where:'Archetype',summary:'Part of debt service is converted into domestic health spending, with an agreed allocation to FP.',adapt:'Complex to negotiate; relevant where debt service crowds out health.',evidence:1,transfer:1,source:'To document',opt:'swap'}],
+  commitments:[
+   {actor:'Ministry of Finance',type:0,country:0,text:'Raise the domestic share of contraceptive procurement each year',due:'Dec 2027',status:1,source:'Placeholder'},
+   {actor:'Ministry of Health',type:0,country:0,text:'Release the FP budget line in the first half of the fiscal year',due:'Jun 2027',status:2,source:'Placeholder'},
+   {actor:'UNFPA Supplies Partnership',type:2,country:0,text:'Match new government commodity financing',due:'Dec 2027',status:0,source:'Placeholder'},
+   {actor:'Bilateral donor A',type:1,country:3,text:'Maintain bridge funding for commodities during transition',due:'Dec 2027',status:1,source:'Placeholder'},
+   {actor:'Ministry of Health',type:0,country:5,text:'Include FP methods in the national insurance benefit package',due:'Mar 2027',status:3,source:'Placeholder'},
+   {actor:'Civil-society coalition',type:3,country:2,text:'Publish an annual FP budget scorecard',due:'Sep 2027',status:0,source:'Placeholder'},
+   {actor:'Ministry of Finance',type:0,country:9,text:'Create a dedicated FP budget line',due:'Jul 2027',status:2,source:'Placeholder'}],
+  outputs:[
+   {title:'Global financing mechanisms for FP: rapid mapping',type:2,date:'Planned',link:''},
+   {title:'Country case study: matched domestic commodity financing',type:1,date:'Planned',link:''},
+   {title:'Towards One Financing Plans for family planning',type:0,date:'Planned',link:''},
+   {title:'One Financing Agenda dialogue 1: summary',type:3,date:'Planned',link:''}],
+  opts:{fiscal:1,ins:0,priv:1,ida:1,debt:0,domcom:1},
+  scen:null
+ };
+}
+
+let S;
+function load(){try{const r=localStorage.getItem(KEY);if(r){S=JSON.parse(r);return;}}catch(e){}S=seed();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function logChange(what){S.log.unshift({date:new Date().toISOString().slice(0,10),who:'You',what});S.log=S.log.slice(0,200);}
+function toast(m){const el=$('toast');el.textContent=m;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),1500);}
+
+/* ---------- calculations ---------- */
+const years=c=>Object.keys(c.series).map(Number).sort((a,b)=>a-b);
+const latestYear=c=>{const ys=years(c);return ys[ys.length-1];};
+function allYears(){const set=new Set();S.countries.forEach(c=>years(c).forEach(y=>set.add(y)));return [...set].sort((a,b)=>a-b);}
+const tot=v=>v?(+v.dom||0)+(+v.ext||0)+(+v.priv||0):0;
+const avail=v=>v?(+v.dom||0)*((+v.exec||100)/100)+(+v.ext||0)+(+v.priv||0):0;
+function agg(list,y){const o={dom:0,ext:0,priv:0,need:0,n:0};list.forEach(c=>{const v=c.series[y];if(!v)return;o.dom+=+v.dom||0;o.ext+=+v.ext||0;o.priv+=+v.priv||0;o.need+=+v.need||0;o.n++;});return o;}
+const pctChg=(a,b)=>b?(a-b)/b*100:0;
+const fmt=(n,d=1)=>(n==null||isNaN(n))?'—':(+n).toLocaleString(lang==='fr'?'fr-FR':'en-GB',{maximumFractionDigits:d,minimumFractionDigits:0});
+function cstats(c){const y=latestYear(c),v=c.series[y],p=c.series[y-1];const T=tot(v);
+ return {y,v,p,total:T,domShare:T?v.dom/T*100:0,domSharePrev:p&&tot(p)?p.dom/tot(p)*100:null,extChg:p?pctChg(v.ext,p.ext):null,domChg:p?pctChg(v.dom,p.dom):null,gap:Math.max(0,(+v.need||0)-avail(v)),gapPct:v.need?Math.max(0,(+v.need-avail(v)))/v.need*100:0,extDep:T?v.ext/T*100:0};}
+function alertsFor(ci){
+ const c=S.countries[ci],s=cstats(c),A=[];
+ if(s.extChg!=null&&s.extChg<=-20)A.push({lvl:'crit',k:'extfall',txt:`External FP financing fell ${fmt(-s.extChg,0)}% in ${s.y}.`,fr:`Le financement extérieur de la PF a baissé de ${fmt(-s.extChg,0)} % en ${s.y}.`});
+ if(s.gapPct>=30)A.push({lvl:'crit',k:'gap',txt:`Available financing covers only ${fmt(100-s.gapPct,0)}% of estimated need.`,fr:`Le financement disponible ne couvre que ${fmt(100-s.gapPct,0)} % du besoin estimé.`});
+ if(s.extDep>=60)A.push({lvl:'warn',k:'dep',txt:`${fmt(s.extDep,0)}% of FP financing is external: high dependence.`,fr:`${fmt(s.extDep,0)} % du financement de la PF est extérieur : forte dépendance.`});
+ if(s.domChg!=null&&s.domChg<0)A.push({lvl:'warn',k:'domfall',txt:`Domestic FP financing fell ${fmt(-s.domChg,0)}% in ${s.y}.`,fr:`Le financement national de la PF a baissé de ${fmt(-s.domChg,0)} % en ${s.y}.`});
+ if(+s.v.exec<70)A.push({lvl:'warn',k:'exec',txt:`Only ${fmt(s.v.exec,0)}% of the domestic FP budget was executed.`,fr:`Seulement ${fmt(s.v.exec,0)} % du budget national PF a été exécuté.`});
+ const risk=S.commitments.filter(x=>x.country==ci&&(x.status===1||x.status===2)).length;
+ if(risk)A.push({lvl:risk>1?'crit':'warn',k:'commit',txt:`${risk} financing commitment${risk>1?'s':''} at risk or off track.`,fr:`${risk} engagement(s) de financement menacé(s) ou en retard.`});
+ if(s.domChg!=null&&s.domChg>=10)A.push({lvl:'good',k:'domup',txt:`Domestic FP financing rose ${fmt(s.domChg,0)}% in ${s.y}.`,fr:`Le financement national de la PF a augmenté de ${fmt(s.domChg,0)} % en ${s.y}.`});
+ return A;
+}
+const LVL={crit:3,warn:2,info:1,good:0};
+const ACTIONS={
+ extfall:{t:'Protect commodity supply through the transition',d:'Agree bridge financing with remaining partners and a time-bound plan to raise domestic commodity procurement.',prac:'match',mech:0},
+ gap:{t:'Build a costed One Financing Plan',d:'Bring government and partners together around one costed plan that shows who finances which part of the need.',prac:'line',mech:1},
+ dep:{t:'Set a domestic co-financing pathway',d:'Negotiate a rising domestic share with the Ministry of Finance, linked to matching incentives.',prac:'match',mech:0},
+ domfall:{t:'Make the economic case to the Ministry of Finance',d:'Use returns on investment and budget-cycle timing to defend the FP allocation.',prac:'line',mech:3},
+ exec:{t:'Fix budget release and procurement bottlenecks',d:'Track releases quarterly and address procurement timing so allocations turn into commodities.',prac:'line',mech:1},
+ commit:{t:'Review commitments at the next joint review',d:'Put at-risk commitments on the agenda of the government–partner review with clear owners and dates.',prac:null,mech:null},
+ fiscal:{t:'Strengthen fiscal analysis',d:'Map FP budget lines and run a fiscal space analysis tied to the budget calendar.',prac:'line',mech:1},
+ political:{t:'Mobilise champions across Finance and parliament',d:'Identify champions and align advocacy asks with budget hearings.',prac:'tax',mech:null},
+ impl:{t:'Integrate FP into PHC and insurance purchasing',d:'Cost FP in benefit packages and provider payment arrangements.',prac:'insurance',mech:1},
+ acct:{t:'Support civil-society budget tracking',d:'Fund independent tracking of FP allocations and execution with a public scorecard.',prac:null,mech:null}
+};
+
+/* ---------- charts ---------- */
+function niceMax(v){if(v<=0)return 1;const p=Math.pow(10,Math.floor(Math.log10(v)));const n=v/p;return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p;}
+function lineChart(host,cfg){
+ const W=Math.max(300,host.clientWidth||640),H=cfg.h||250,longest=Math.max(...cfg.series.map(s=>s.label.length));
+ const m={l:42,r:cfg.labels===false?12:Math.min(170,Math.round(longest*6.4)+18),t:12,b:26};
+ const xs=cfg.x,n=xs.length;const vals=cfg.series.flatMap(s=>s.values).filter(v=>v!=null&&!isNaN(v));
+ const max=cfg.max||niceMax(Math.max(...vals,0)*1.05);
+ const X=i=>m.l+(n<2?0:i*(W-m.l-m.r)/(n-1)),Y=v=>H-m.b-(v/max)*(H-m.t-m.b);
+ let g='<g class="grid">',a='<g class="axis">';for(let k=0;k<=4;k++){const v=max*k/4;g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}"/>`;a+=`<text x="${m.l-6}" y="${Y(v)+3}" text-anchor="end">${fmt(v,max<10?1:0)}${cfg.unit==='%'?'%':''}</text>`;}
+ const step=Math.ceil(n/(W<480?4:8));xs.forEach((x,i)=>{if(i%step===0||i===n-1)a+=`<text x="${X(i)}" y="${H-8}" text-anchor="middle">${x}</text>`;});g+='</g>';a+='</g>';
+ let p='';cfg.series.forEach(s=>{let d='',started=false;s.values.forEach((v,i)=>{if(v==null||isNaN(v)){started=false;return;}d+=(started?'L':'M')+X(i)+','+Y(v);started=true;});
+  if(s.area)p+=`<path d="${s.area}" fill="${s.color}" opacity=".12"/>`;
+  p+=`<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2" ${s.dash?'stroke-dasharray="5 4"':''} stroke-linejoin="round" stroke-linecap="round"/>`;});
+ let ends='';if(cfg.labels!==false){const L=cfg.series.map(s=>{let i=s.values.length-1;while(i>=0&&(s.values[i]==null||isNaN(s.values[i])))i--;return {s,i,y:i>=0?Y(s.values[i]):null};}).filter(o=>o.y!=null).sort((a,b)=>a.y-b.y);
+  for(let k=1;k<L.length;k++)if(L[k].y-L[k-1].y<16)L[k].y=L[k-1].y+16;
+  L.forEach(o=>{ends+=`<circle cx="${X(o.i)}" cy="${Y(o.s.values[o.i])}" r="4" fill="${o.s.color}" stroke="#fff" stroke-width="2"/><text x="${X(o.i)+9}" y="${o.y+4}">${esc(o.s.label)}</text>`;});}
+ host.innerHTML=`${cfg.series.length>1?`<div class="legend">${cfg.series.map(s=>`<span><i class="line" style="background:${s.color}${s.dash?';opacity:.7':''}"></i>${esc(s.label)}</span>`).join('')}</div>`:''}<div class="chart"><svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="${esc(cfg.aria||'Line chart')}">${g}${a}${p}<g class="end">${ends}</g><line class="xh" y1="${m.t}" y2="${H-m.b}" stroke="#9a96b8" stroke-width="1" visibility="hidden"/><rect x="${m.l}" y="${m.t}" width="${Math.max(1,W-m.l-m.r)}" height="${H-m.t-m.b}" fill="transparent" class="hit"/></svg><div class="tip"></div></div>${cfg.table!==false?`<button class="tablelink noprint">${esc(t('showTable'))}</button><div class="tview" hidden></div>`:''}`;
+ const svg=host.querySelector('svg'),tip=host.querySelector('.tip'),xh=host.querySelector('.xh'),hit=host.querySelector('.hit');
+ hit.addEventListener('mousemove',e=>{const r=svg.getBoundingClientRect(),sx=(e.clientX-r.left)*W/r.width;const i=Math.max(0,Math.min(n-1,Math.round((sx-m.l)/((W-m.l-m.r)/(n-1||1)))));
+  xh.setAttribute('x1',X(i));xh.setAttribute('x2',X(i));xh.setAttribute('visibility','visible');
+  tip.innerHTML=`<b>${xs[i]}</b>`+cfg.series.map(s=>`<div class="r" style="--c:${s.color}"><span>${esc(s.label)}</span><span>${fmt(s.values[i])}${cfg.unit==='%'?'%':''}</span></div>`).join('');
+  tip.style.display='block';const px=X(i)*r.width/W;tip.style.left=Math.min(px+12,r.width-tip.offsetWidth-4)+'px';tip.style.top='8px';});
+ hit.addEventListener('mouseleave',()=>{tip.style.display='none';xh.setAttribute('visibility','hidden');});
+ const tl=host.querySelector('.tablelink');if(tl)tl.addEventListener('click',()=>{const tv=host.querySelector('.tview');tv.hidden=!tv.hidden;tv.innerHTML=`<table><thead><tr><th>${esc(t('year'))}</th>${cfg.series.map(s=>`<th class="num">${esc(s.label)}</th>`).join('')}</tr></thead><tbody>${xs.map((x,i)=>`<tr><td>${x}</td>${cfg.series.map(s=>`<td class="num">${fmt(s.values[i])}</td>`).join('')}</tr>`).join('')}</tbody></table>`;});
+}
+function bindTips(container,html){container.querySelectorAll('[data-tip]').forEach(el=>{el.addEventListener('mouseenter',()=>{let tip=container.querySelector(':scope > .tip');if(!tip){tip=document.createElement('div');tip.className='tip';container.appendChild(tip);}tip.innerHTML=html(el.dataset.tip);tip.style.display='block';const r=el.getBoundingClientRect(),cr=container.getBoundingClientRect();tip.style.left=Math.min(r.left-cr.left+20,cr.width-170)+'px';tip.style.top=(r.bottom-cr.top+4)+'px';});el.addEventListener('mouseleave',()=>{const tip=container.querySelector(':scope > .tip');if(tip)tip.style.display='none';});});}
+
+/* ---------- PULSE ---------- */
+function tileHTML(k,v,d,cls){return `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${v}</div><div class="d ${cls||'flat'}">${d||'&nbsp;'}</div></div>`;}
+function renderPulse(){
+ const ys=allYears(),y=ys[ys.length-1],a=agg(S.countries,y),b=agg(S.countries,y-1);
+ const extC=pctChg(a.ext,b.ext),ds=a.dom/(a.dom+a.ext+a.priv)*100,dsP=b.dom/((b.dom+b.ext+b.priv)||1)*100;
+ const gapN=S.countries.filter(c=>cstats(c).gapPct>30).length,risk=S.commitments.filter(x=>x.status===1||x.status===2).length;
+ $('pulseTiles').innerHTML=tileHTML(t('tExt')+' · '+y,'$'+fmt(a.ext,0)+'m',`${extC<0?'▼':'▲'} ${fmt(Math.abs(extC),0)}% ${t('vsPrev')}`,extC<0?'down':'up')+
+  tileHTML(t('tDomShare')+' · '+y,fmt(ds,0)+'%',`${ds-dsP>=0?'▲':'▼'} ${fmt(Math.abs(ds-dsP),1)} ${t('pp')} ${t('vsPrev')}`,ds>=dsP?'up':'down')+
+  tileHTML(t('tGap'),gapN+' / '+S.countries.length,'',gapN?'down':'up')+
+  tileHTML(t('tRisk'),risk,`<a href="#commitments">→</a>`,risk?'down':'up');
+ lineChart($('pulseChart'),{x:ys,series:SRC.map(s=>({label:t(s.k),color:s.c,values:ys.map(yy=>agg(S.countries,yy)[s.k])})),aria:'FP financing by source, all priority countries'});
+ const sig=[];S.countries.forEach((c,ci)=>alertsFor(ci).forEach(al=>sig.push({...al,c:c.name,ci})));
+ sig.sort((p,q)=>LVL[q.lvl]-LVL[p.lvl]);
+ $('signals').innerHTML=sig.slice(0,8).map(s=>`<div class="sig"><span class="badge b-${s.lvl}">${s.lvl==='crit'?'▲ ':s.lvl==='good'?'● ':'■ '}${esc(t(s.lvl))}</span><div><a href="#country" class="who" data-goc="${s.ci}">${esc(s.c)}</a> · ${esc(lang==='fr'?s.fr:s.txt)}</div></div>`).join('')+(sig.length>8?`<p class="tiny muted" style="margin:8px 0 0">+${sig.length-8} more in country dashboards</p>`:'');
+ const pr=v=>v>=6?['crit','High']:v>=4?['warn','Medium']:['info','Low'];
+ const list=S.issues.map((x,i)=>({...x,i})).sort((p,q)=>q.impact*q.lik-p.impact*p.lik);
+ $('issueTable').innerHTML=`<thead><tr><th>Issue</th><th>Impact</th><th>Likelihood</th><th>Priority</th><th></th></tr></thead><tbody>${list.map(x=>{const p=pr(x.impact*x.lik);return `<tr><td>${esc(x.issue)}</td><td><button class="chip" data-isv="${x.i}:impact">${x.impact}</button></td><td><button class="chip" data-isv="${x.i}:lik">${x.lik}</button></td><td><span class="badge b-${p[0]}">${p[1]}</span></td><td><button class="x" data-delis="${x.i}" aria-label="Delete">×</button></td></tr>`;}).join('')}</tbody>`;
+ $('recentLog').innerHTML=S.log.slice(0,6).map(l=>`<div class="sig"><span class="badge b-info">${esc(l.date)}</span><div>${esc(l.what)}</div></div>`).join('');
+ $('lastUpdated').textContent=S.log[0]?S.log[0].date:'—';
+}
+
+/* ---------- TRENDS ---------- */
+function geoList(){const g=S.trGeo;if(g==='all')return S.countries;if(g.startsWith('r:'))return S.countries.filter(c=>c.region===g.slice(2));return [S.countries[+g.slice(2)]].filter(Boolean);}
+function renderTrends(){
+ const regs=[...new Set(S.countries.map(c=>c.region))];
+ $('trGeo').innerHTML=`<option value="all">${esc(t('allPri'))}</option>`+regs.map(r=>`<option value="r:${esc(r)}">${esc(t('region'))}: ${esc(r)}</option>`).join('')+S.countries.map((c,i)=>`<option value="c:${i}">${esc(c.name)}</option>`).join('');
+ $('trGeo').value=S.trGeo;if($('trGeo').value!==S.trGeo){S.trGeo='all';$('trGeo').value='all';}
+ document.querySelectorAll('#trMode button').forEach(b=>b.classList.toggle('on',b.dataset.mode===S.trMode));
+ const list=geoList(),ys=allYears(),share=S.trMode==='share';
+ $('trTitle').textContent=(share?t('trTitleShare'):t('trTitleAbs'))+' · '+$('trGeo').selectedOptions[0].textContent+(share?'':' · USD m');
+ lineChart($('trChart'),{x:ys,unit:share?'%':'',max:share?100:null,h:280,series:SRC.map(s=>({label:t(s.k),color:s.c,values:ys.map(y=>{const a=agg(list,y);if(!a.n)return null;const T=a.dom+a.ext+a.priv;return share?(T?a[s.k]/T*100:null):a[s.k];})})).concat(share?[]:[{label:t('need'),color:'var(--need)',dash:true,values:ys.map(y=>{const a=agg(list,y);return a.n?a.need:null;})}]),aria:'FP financing trend'});
+ const y=ys[ys.length-1];$('mixYear').textContent='· '+y;$('chgYear').textContent=`· ${y-1}→${y}`;
+ $('mixLegend').innerHTML=SRC.map(s=>`<span><i style="background:${s.c}"></i>${esc(t(s.k))}</span>`).join('');
+ const rows=S.countries.map((c,i)=>{const v=c.series[y];const T=tot(v);return {i,c,v,T,ds:T?v.dom/T*100:0};}).filter(r=>r.v).sort((a,b)=>b.ds-a.ds);
+ $('mixBars').innerHTML=rows.map(r=>`<div class="hbar" data-tip="${r.i}"><span class="lab">${esc(r.c.name)}</span><div class="track">${SRC.map(s=>`<div style="width:${r.T?r.v[s.k]/r.T*100:0}%;background:${s.c}"></div>`).join('')}</div><span class="val">${fmt(r.ds,0)}%</span></div>`).join('');
+ bindTips($('mixBars'),i=>{const c=S.countries[+i],v=c.series[y],T=tot(v);return `<b>${esc(c.name)} · ${y}</b>`+SRC.map(s=>`<div class="r" style="--c:${s.c}"><span>${esc(t(s.k))}</span><span>${fmt(v[s.k])} (${fmt(v[s.k]/T*100,0)}%)</span></div>`).join('');});
+ $('mixTable').innerHTML=`<table><thead><tr><th>Country</th>${SRC.map(s=>`<th class="num">${esc(t(s.k))}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.c.name)}</td>${SRC.map(s=>`<td class="num">${fmt(r.v[s.k])}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+ const ch=S.countries.map((c,i)=>{const a=c.series[y],b=c.series[y-1];return {i,c,v:a&&b?pctChg(a.ext,b.ext):null};}).filter(r=>r.v!=null).sort((a,b)=>a.v-b.v);
+ const mx=Math.max(10,...ch.map(r=>Math.abs(r.v)));
+ $('chgBars').innerHTML=ch.map(r=>{const w=Math.abs(r.v)/mx*50;return `<div class="dbar"><span class="lab">${esc(r.c.name)}</span><div class="track"><div class="bar" style="${r.v<0?`right:50%;width:${w}%;border-radius:4px 0 0 4px`:`left:50%;width:${w}%;border-radius:0 4px 4px 0`}"></div></div><span class="val">${r.v>0?'+':''}${fmt(r.v,0)}%</span></div>`;}).join('');
+}
+
+/* ---------- COUNTRY ---------- */
+function renderCountry(){
+ $('countryChips').innerHTML=S.countries.map((c,i)=>{const top=alertsFor(i).reduce((m,a)=>Math.max(m,LVL[a.lvl]),0);return `<button class="chip ${i===S.sel?'on':''}" data-ci="${i}"><span class="dotc" style="background:${top===3?'var(--crit)':top===2?'#d99a00':'var(--good)'}"></span>${esc(c.name)}</button>`;}).join('');
+ const ci=S.sel,c=S.countries[ci],s=cstats(c),A=alertsFor(ci),ys=years(c);
+ const weak=LENSES.map((k,i)=>({k,v:c.lenses[i]})).filter(o=>o.v<=1).map(o=>o.k);
+ const actKeys=[...new Set([...A.filter(a=>a.lvl!=='good').map(a=>a.k),...weak])].slice(0,5);
+ const cm=S.commitments.filter(x=>x.country==ci);
+ $('countryDash').innerHTML=`<div class="cwrap"><div class="cbanner"><div><p>${esc(c.region)} · ${s.y}</p><h2>${esc(c.name)}</h2></div><div class="noprint" style="display:flex;gap:8px;align-items:center"><input id="cName" value="${esc(c.name)}" aria-label="Country name" style="max-width:180px;background:#ffffff1c;border-color:#ffffff40;color:#fff"/></div></div>
+ <div class="cbody">
+  <div class="tiles">${tileHTML(t('kTotal')+' · '+s.y,'$'+fmt(s.total)+'m','')}${tileHTML(t('kDomShare'),fmt(s.domShare,0)+'%',s.domSharePrev!=null?`${s.domShare>=s.domSharePrev?'▲':'▼'} ${fmt(Math.abs(s.domShare-s.domSharePrev),1)} ${t('pp')}`:'',s.domShare>=s.domSharePrev?'up':'down')}${tileHTML(t('kExtChg'),s.extChg==null?'—':(s.extChg>0?'+':'')+fmt(s.extChg,0)+'%',t('vsPrev'),s.extChg<0?'down':'up')}${tileHTML(t('kGap'),fmt(s.gapPct,0)+'%','$'+fmt(s.gap)+'m',s.gapPct>30?'down':'flat')}</div>
+  <div class="grid32"><div class="panel"><h3>${esc(t('trTitleAbs'))} <span class="sub">· USD m</span></h3><div id="cChart"></div></div>
+   <div class="panel"><h3>${esc(t('alerts'))}</h3>${A.map(a=>`<div class="sig"><span class="badge b-${a.lvl}">${a.lvl==='crit'?'▲ ':a.lvl==='good'?'● ':'■ '}${esc(t(a.lvl))}</span><div>${esc(lang==='fr'?a.fr:a.txt)}</div></div>`).join('')||`<p class="small muted">${esc(t('noAlerts'))}</p>`}</div></div>
+  <div class="grid2"><div class="panel"><h3>${esc(t('actions'))}</h3>${actKeys.map(k=>{const a=ACTIONS[k];const p=a.prac?S.practices.findIndex(x=>x.opt===a.prac):-1;return `<div class="action"><b>${esc(a.t)}</b>${esc(a.d)}<div class="links">${p>=0?`<a class="tag teal" href="#practices" data-gop="${p}">✦ ${esc(S.practices[p].title.slice(0,42))}…</a>`:''}${a.mech!=null&&S.mechs[a.mech]?`<a class="tag" href="#mechanisms">▦ ${esc(S.mechs[a.mech].name)}</a>`:''}</div></div>`;}).join('')||`<p class="small muted">—</p>`}</div>
+   <div class="panel"><h3>${esc(t('lenses'))}</h3>${LENSES.map((k,i)=>`<div class="lens"><div><b>${esc(t('p_'+k))}</b></div><div class="seg">${[0,1,2,3].map(v=>`<button data-lens="${i}:${v}" class="${c.lenses[i]===v?'on':''}">${v}</button>`).join('')}</div><div class="meter"><div style="width:${c.lenses[i]/3*100}%"></div></div></div>`).join('')}
+    <h3 style="margin-top:14px">${esc(t('ccommit'))}</h3>${cm.map(x=>`<div class="sig"><span class="badge ${['b-good','b-warn','b-crit','b-info'][x.status]}">${esc(t('cs'+x.status))}</span><div><b>${esc(x.actor)}</b> · ${esc(x.text)}</div></div>`).join('')||'<p class="small muted">—</p>'}</div></div>
+ </div></div>`;
+ lineChart($('cChart'),{x:ys,series:SRC.map(sr=>({label:t(sr.k),color:sr.c,values:ys.map(y=>c.series[y][sr.k])})).concat([{label:t('need'),color:'var(--need)',dash:true,values:ys.map(y=>c.series[y].need)}]),aria:c.name+' FP financing'});
+ const cols=[['name','Country'],['region',t('region')],['total',t('kTotal')],['domShare',t('kDomShare')],['extChg',t('kExtChg')],['exec',t('exec')],['gap',t('kGap')],['alerts',t('alerts')]];
+ const rows=S.countries.map((c2,i)=>{const s2=cstats(c2);return {i,name:c2.name,region:c2.region,total:s2.total,domShare:s2.domShare,extChg:s2.extChg,exec:+s2.v.exec,gap:s2.gapPct,alerts:alertsFor(i).filter(a=>a.lvl==='crit'||a.lvl==='warn').length};});
+ const {k,d}=S.sort;rows.sort((a,b)=>(typeof a[k]==='string'?a[k].localeCompare(b[k]):(a[k]??-1e9)-(b[k]??-1e9))*d);
+ $('compareTable').innerHTML=`<thead><tr>${cols.map(([ck,cl])=>`<th class="sort ${ck==='name'||ck==='region'?'':'num'}" data-sort="${ck}">${esc(cl)}${k===ck?(d>0?' ▲':' ▼'):''}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr><td><a href="#country" data-ci="${r.i}">${esc(r.name)}</a></td><td>${esc(r.region)}</td><td class="num">${fmt(r.total)}</td><td class="num">${fmt(r.domShare,0)}%</td><td class="num">${r.extChg==null?'—':(r.extChg>0?'+':'')+fmt(r.extChg,0)+'%'}</td><td class="num">${fmt(r.exec,0)}%</td><td class="num">${fmt(r.gap,0)}%</td><td class="num">${r.alerts}</td></tr>`).join('')}</tbody>`;
+}
+
+/* ---------- MECHANISMS ---------- */
+function renderMechs(){
+ const lab={core:t('sCore'),partial:t('sPartial'),none:t('sNone'),unknown:t('sUnknown')};
+ $('matrix').innerHTML=`<thead><tr><th>Mechanism</th>${FUNCS.map(f=>`<th style="text-align:center;white-space:normal;min-width:84px">${esc(f)}</th>`).join('')}</tr></thead><tbody>${S.mechs.map((m,mi)=>`<tr><td><b>${esc(m.name)}</b><div class="tiny muted">${esc(m.sub)}</div></td>${m.states.map((st,fi)=>`<td><button class="cellbtn s-${st}" data-cell="${mi}:${fi}" title="${esc(m.name)} · ${esc(FUNCS[fi])}">${esc(lab[st])}</button></td>`).join('')}</tr>`).join('')}</tbody>`;
+ const gaps=[],dups=[];FUNCS.forEach((f,fi)=>{const core=S.mechs.filter(m=>m.states[fi]==='core');const unk=S.mechs.filter(m=>m.states[fi]==='unknown').length;if(!core.length)gaps.push(f+(unk?` (${unk} to verify)`:''));if(core.length>1)dups.push(`${f}: ${core.map(m=>m.name).join(', ')}`);});
+ $('mechFlags').innerHTML=`<div class="action" style="border-left-color:var(--crit)"><b>${esc(t('gaps'))}</b>${gaps.map(esc).join(' · ')||esc(t('noGaps'))}</div><div class="action" style="border-left-color:#d99a00"><b>${esc(t('dups'))}</b>${dups.map(esc).join('<br/>')||esc(t('noDups'))}</div>`;
+ $('mechCards').innerHTML=S.mechs.map((m,i)=>`<div class="mcard"><span class="tag sun">Verify</span><h3 style="margin:7px 0 0">${esc(m.name)}</h3><p>${esc(m.note)}</p><label>${esc(t('entry'))}</label><input data-mf="${i}:entry" value="${esc(m.entry)}"/><div class="row"><div><label>${esc(t('nextWin'))}</label><input data-mf="${i}:next" value="${esc(m.next)}" placeholder="—"/></div><div><label>${esc(t('reviewed'))}</label><input data-mf="${i}:rev" value="${esc(m.rev)}" placeholder="—"/></div></div></div>`).join('');
+}
+
+/* ---------- TOOLS ---------- */
+function scenBase(ci){const c=S.countries[ci],y=latestYear(c),v=c.series[y];return {ci,ext:-15,dom:8,exec:+v.exec||75,needg:3};}
+function renderTools(){
+ if(!S.scen||!S.countries[S.scen.ci])S.scen=scenBase(0);
+ const sc=S.scen;$('scCountry').innerHTML=S.countries.map((c,i)=>`<option value="${i}" ${i===sc.ci?'selected':''}>${esc(c.name)}</option>`).join('');
+ const sl=[['ext',t('scExt'),-40,15,'%/yr'],['dom',t('scDom'),-10,30,'%/yr'],['exec',t('scExec'),40,100,'%'],['needg',t('scNeed'),0,8,'%/yr']];
+ $('scSliders').innerHTML=sl.map(([k,l,mn,mx,u])=>`<div class="slider"><label><span>${esc(l)}</span><b id="sv_${k}">${sc[k]>0&&u!=='%'?'+':''}${sc[k]}${u}</b></label><input type="range" min="${mn}" max="${mx}" step="1" value="${sc[k]}" data-sc="${k}" aria-label="${esc(l)}"/></div>`).join('');
+ drawScen();renderOptions();
+}
+function drawScen(){
+ const sc=S.scen,c=S.countries[sc.ci],y0=latestYear(c),v=c.series[y0];const ys=[],need=[],av=[],dsh=[];let d=+v.dom,e=+v.ext,p=+v.priv,nd=+v.need,cum=0;
+ for(let y=y0;y<=2030;y++){if(y>y0){d*=1+sc.dom/100;e*=1+sc.ext/100;p*=1.03;nd*=1+sc.needg/100;}const a=d*sc.exec/100+e+p;ys.push(y);need.push(nd);av.push(a);dsh.push(d/(d+e+p)*100);if(y>y0)cum+=Math.max(0,nd-a);}
+ lineChart($('scenChart'),{x:ys,h:240,series:[{label:t('need'),color:'var(--need)',dash:true,values:need},{label:t('available'),color:'var(--s1)',values:av}],aria:'Scenario: need vs available financing'});
+ const last=ys.length-1,g=Math.max(0,need[last]-av[last]);
+ $('scenTiles').innerHTML=tileHTML(t('cumGap'),'$'+fmt(cum)+'m','',cum>0?'down':'up')+tileHTML(t('gap2030'),'$'+fmt(g)+'m',fmt(g/need[last]*100,0)+'% of need',g>0?'down':'up')+tileHTML(t('domShare2030'),fmt(dsh[last],0)+'%','',dsh[last]>=50?'up':'flat');
+}
+const QS=[['fiscal','Fiscal space for health',['Very limited','Some','Expanding']],['ins','Health insurance coverage',['None / pilot','Partial','Broad']],['priv','Private health market',['Weak','Moderate','Strong']],['ida','Eligible for IDA / GFF support',['No','Yes']],['debt','High debt distress',['No','Yes']],['domcom','Government spending on commodities',['None','Some','Substantial']]];
+const OPTIONS=[
+ {k:'line',t:'Dedicated FP budget line with execution tracking',score:o=>2+(o.domcom===0?2:o.domcom===1?1:0)+(o.fiscal>0?1:0),why:'Makes FP visible in the budget and lets partners track allocation and release.',risk:'Allocations without execution do not reach clients; track releases.'},
+ {k:'match',t:'Matched domestic commodity financing',score:o=>2+(o.domcom<2?2:0)+(o.fiscal===0?1:0),why:'External matching makes each new domestic dollar count double while domestic share grows.',risk:'Matching periods end; plan the domestic share beyond them.'},
+ {k:'insurance',t:'Include FP in insurance benefit packages',score:o=>[0,2,4][o.ins]+(o.fiscal>0?1:0),why:'Creates a sustained purchasing channel for FP services.',risk:'Low coverage leaves the poorest out; keep a tax-funded route.'},
+ {k:'tax',t:'Health taxes with a PHC / FP spending plan',score:o=>1+(o.fiscal===0?2:1)+(o.debt?1:0),why:'New revenue without competing directly for existing allocations.',risk:'Earmarks are politically sensitive and revenue can be volatile.'},
+ {k:'tma',t:'Total market approach with the private sector',score:o=>[0,2,4][o.priv]+1,why:'Lets public funds focus on those least able to pay as others use private supply.',risk:'Needs market data and safeguards for affordability and choice.'},
+ {k:'ida',t:'IDA / GFF financing with FP results',score:o=>o.ida?4+(o.fiscal===0?1:0):0,why:'Large concessional resources that can carry FP if government prioritises it.',risk:'Borrowing adds to debt; FP must be explicitly prioritised.'},
+ {k:'swap',t:'Debt-for-health swap with an FP component',score:o=>o.debt?3+(o.fiscal===0?1:0):0,why:'Turns debt service into health spending where debt crowds out health.',risk:'Complex and slow to negotiate.'}];
+function renderOptions(){
+ const o=S.opts;
+ $('optQs').innerHTML=QS.map(([k,l,opts])=>`<div class="q"><label>${esc(l)}</label><div class="opts">${opts.map((x,i)=>`<button class="chip ${o[k]===i?'on':''}" data-opt="${k}:${i}">${esc(x)}</button>`).join('')}</div></div>`).join('');
+ const ranked=OPTIONS.map(x=>({...x,s:Math.min(6,x.score(o))})).sort((a,b)=>b.s-a.s);
+ $('optResults').innerHTML=ranked.map(x=>{const p=S.practices.findIndex(pr=>pr.opt===x.k);return `<div class="opt"><div class="top"><b>${esc(x.t)}</b><span class="fit">${esc(t('fit'))} ${x.s}/6</span></div><div class="fitbar"><div style="width:${x.s/6*100}%;opacity:${.35+x.s/6*.65}"></div></div><p><b>${esc(t('why'))}:</b> ${esc(x.why)}</p><p><b>${esc(t('watchOut'))}:</b> ${esc(x.risk)}</p>${p>=0?`<a class="tag teal" href="#practices" data-gop="${p}">✦ ${esc(t('examples'))}</a>`:''}</div>`;}).join('');
+}
+
+/* ---------- PRACTICES ---------- */
+function fillSel(el,list,allLabel){const v=el.value;el.innerHTML=(allLabel?`<option value="all">${esc(allLabel)}</option>`:'')+list.map((x,i)=>`<option value="${i}">${esc(x)}</option>`).join('');if(v&&[...el.options].some(o=>o.value===v))el.value=v;}
+const dots=n=>`<span class="dots">${[1,2,3].map(i=>`<i class="${i<=n?'f':''}"></i>`).join('')}</span>`;
+function renderPractices(){
+ fillSel($('fType'),TYPES,t('all'));fillSel($('practiceForm').type,TYPES);
+ const ft=$('fType').value,q=$('fText').value.toLowerCase();
+ $('practiceCards').innerHTML=S.practices.map((p,i)=>({...p,i})).filter(p=>(ft==='all'||p.type==ft)&&(!q||(p.title+p.summary+p.where).toLowerCase().includes(q))).map(p=>`<div class="pcard" id="prac${p.i}"><div><span class="tag ${['teal','sun','coral'][p.type]}">${esc(TYPES[p.type])}</span> <span class="tag grey">${esc(p.where)}</span></div><h3>${esc(p.title)}</h3><p>${esc(p.summary)}</p>${p.adapt?`<p class="tiny"><b>↻</b> ${esc(p.adapt)}</p>`:''}<p class="tiny muted">${esc(p.source||'')}</p><div class="foot"><span>Evidence ${dots(p.evidence)} · Transferability ${dots(p.transfer)}</span><button class="x" data-delprac="${p.i}" aria-label="Delete">×</button></div></div>`).join('')||'<p class="muted">—</p>';
+}
+
+/* ---------- COMMITMENTS ---------- */
+const cName=i=>i<0?t('global'):(S.countries[i]?.name||'—');
+function renderCommitments(){
+ const opts=`<option value="-1">${esc(t('global'))}</option>`+S.countries.map((c,i)=>`<option value="${i}">${esc(c.name)}</option>`).join('');
+ const cs=$('cmCountry'),cv=cs.value;cs.innerHTML=`<option value="all">${esc(t('all'))}</option>`+opts;if(cv)cs.value=cv;
+ fillSel($('cmType'),ACTORS,t('all'));const f=$('commitForm');fillSel(f.type,ACTORS);const fc=f.country.value;f.country.innerHTML=opts;if(fc)f.country.value=fc;
+ const fcv=cs.value,ftv=$('cmType').value;
+ const list=S.commitments.map((x,i)=>({...x,i})).filter(x=>(fcv==='all'||x.country==fcv)&&(ftv==='all'||x.type==ftv));
+ $('commitStats').innerHTML=[0,1,2,3].map(si=>`<div><strong>${list.filter(x=>x.status===si).length}</strong><span class="badge ${['b-good','b-warn','b-crit','b-info'][si]}">${esc(t('cs'+si))}</span></div>`).join('');
+ const order=[2,1,0,3];list.sort((a,b)=>order.indexOf(a.status)-order.indexOf(b.status));
+ $('commitTable').innerHTML=`<thead><tr><th>${esc(t('actor'))}</th><th>${esc(t('country'))}</th><th>${esc(t('commitment'))}</th><th>${esc(t('due'))}</th><th>Status</th><th></th></tr></thead><tbody>${list.map(x=>`<tr><td><b>${esc(x.actor)}</b><div class="tiny muted">${esc(ACTORS[x.type])}</div></td><td>${esc(cName(x.country))}</td><td>${esc(x.text)}${x.source?`<div class="tiny muted">${esc(x.source)}</div>`:''}</td><td>${esc(x.due)}</td><td><select class="statussel st${x.status}" data-cst="${x.i}" aria-label="Status">${[0,1,2,3].map(si=>`<option value="${si}" ${si===x.status?'selected':''}>${esc(t('cs'+si))}</option>`).join('')}</select></td><td><button class="x" data-delcm="${x.i}" aria-label="Delete">×</button></td></tr>`).join('')||'<tr><td colspan="6" class="muted">—</td></tr>'}</tbody>`;
+}
+
+/* ---------- DATA ---------- */
+const IND=['dom','ext','priv','need','exec'];
+function renderData(){
+ const ds=$('dCountry'),dv=ds.value;ds.innerHTML=S.countries.map((c,i)=>`<option value="${i}">${esc(c.name)}</option>`).join('');ds.value=dv||'0';
+ const ci=+ds.value,c=S.countries[ci],ys=years(c);
+ $('dataGrid').innerHTML=`<thead><tr><th>${esc(t('year'))}</th>${IND.map(k=>`<th class="num">${esc(t(k))}</th>`).join('')}<th></th></tr></thead><tbody>${ys.map(y=>`<tr><td><b>${y}</b></td>${IND.map(k=>`<td class="num"><input type="number" step="any" min="0" data-dv="${ci}:${y}:${k}" value="${esc(c.series[y][k]??'')}" aria-label="${y} ${esc(t(k))}"/></td>`).join('')}<td><button class="x" data-dely="${ci}:${y}" aria-label="Delete year">×</button></td></tr>`).join('')}</tbody>`;
+ $('fullLog').innerHTML=S.log.map(l=>`<div class="sig"><span class="badge b-info">${esc(l.date)}</span><div>${esc(l.what)}<span class="tiny muted">${esc(l.who)}</span></div></div>`).join('');
+ $('sources').innerHTML=S.sources.map((s,i)=>`<div class="src"><span>${esc(s.name)}</span><span style="display:flex;gap:6px;align-items:center"><span class="tag ${s.status==='Connected'?'teal':'grey'}">${esc(s.status)}</span><button class="x" data-delsrc="${i}" aria-label="Remove">×</button></span></div>`).join('');
+}
+function importCsv(txt){
+ const lines=txt.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);let n=0,skip=0;
+ lines.forEach((l,li)=>{const [cn,yr,ind,val]=l.split(',').map(x=>x.trim().replace(/^"|"$/g,''));if(li===0&&/country/i.test(cn))return;
+  const ci=S.countries.findIndex(c=>c.name.toLowerCase()===String(cn).toLowerCase());const y=parseInt(yr,10),v=parseFloat(val);
+  if(ci<0||!y||!IND.includes(ind)||isNaN(v)){skip++;return;}
+  const c=S.countries[ci];c.series[y]=c.series[y]||{dom:null,ext:null,priv:null,need:null,exec:null};c.series[y][ind]=v;n++;});
+ logChange(`CSV import: ${n} value${n===1?'':'s'} updated${skip?`, ${skip} row(s) skipped`:''}.`);save();renderAll();toast(`${n} values imported`);
+}
+
+/* ---------- OUTPUTS ---------- */
+function renderOutputs(){
+ fillSel($('outForm').type,OTYPES);
+ $('outputs').innerHTML=S.outputs.map((o,i)=>`<div class="out"><span class="tag ${['coral','teal','','sun','grey'][o.type]}">${esc(OTYPES[o.type])}</span><span>${o.link?`<a href="${esc(o.link)}" target="_blank" rel="noopener">${esc(o.title)}</a>`:esc(o.title)}</span><span style="display:flex;gap:6px;align-items:center"><span class="tiny muted">${esc(o.date)}</span><button class="x" data-delout="${i}" aria-label="Delete">×</button></span></div>`).join('');
+ const bs=$('bCountry'),bv=bs.value;bs.innerHTML=S.countries.map((c,i)=>`<option value="${i}">${esc(c.name)}</option>`).join('');bs.value=bv||String(S.sel);
+}
+function genBrief(){
+ const ci=+$('bCountry').value,c=S.countries[ci],s=cstats(c),A=alertsFor(ci).filter(a=>a.lvl!=='good');
+ const weak=LENSES.map((k,i)=>({k,v:c.lenses[i]})).filter(o=>o.v<=1).map(o=>o.k);
+ const acts=[...new Set([...A.map(a=>a.k),...weak])].slice(0,4).map(k=>ACTIONS[k]);
+ const cm=S.commitments.filter(x=>x.country==ci);
+ $('briefOut').innerHTML=`<div class="brief"><div style="border-bottom:3px solid var(--coral);padding-bottom:10px"><div class="eyebrow">Country financing snapshot · data as of ${esc(S.log[0]?.date||'')}</div><h2 style="margin:4px 0">${esc(c.name)}: family planning financing in ${s.y}</h2><p class="small muted" style="margin:0">${esc(c.region)} · Generated from hub data. Illustrative; verify all figures before use.</p></div>
+ <h4>Financing picture</h4><p>Total FP financing reached $${fmt(s.total)}m in ${s.y}. Domestic government sources provided ${fmt(s.domShare,0)}%${s.domSharePrev!=null?` (${s.domShare>=s.domSharePrev?'up':'down'} ${fmt(Math.abs(s.domShare-s.domSharePrev),1)} points)`:''}, and external financing changed by ${s.extChg==null?'—':fmt(s.extChg,0)+'%'} on the previous year. Available financing covers ${fmt(100-s.gapPct,0)}% of estimated need, a gap of $${fmt(s.gap)}m.</p>
+ <h4>Risks</h4><ul>${A.map(a=>`<li>${esc(a.txt)}</li>`).join('')||'<li>No alerts on current data.</li>'}</ul>
+ <h4>Recommended actions</h4><ul>${acts.map(a=>`<li><b>${esc(a.t)}.</b> ${esc(a.d)}</li>`).join('')||'<li>—</li>'}</ul>
+ <h4>Commitments</h4><ul>${cm.map(x=>`<li>${esc(x.actor)}: ${esc(x.text)} (${esc(EN['cs'+x.status])}, due ${esc(x.due)})</li>`).join('')||'<li>None recorded.</li>'}</ul>
+ <h4>Asks</h4><ul><li><b>Government:</b> protect and grow the domestic FP allocation and release it on time.</li><li><b>Donors and global mechanisms:</b> finance against one costed national plan and avoid abrupt exits.</li><li><b>Civil society:</b> track allocation and execution publicly.</li></ul></div>`;
+ $('briefOut').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderAll(){renderPulse();renderTrends();renderCountry();renderMechs();renderTools();renderPractices();renderCommitments();renderData();renderOutputs();}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button,a,[data-print]');if(!b)return;const D=b.dataset;
+ if(D.lang){lang=D.lang;applyLang();return;}
+ if(D.ci!==undefined){S.sel=+D.ci;save();renderCountry();if(b.tagName==='BUTTON')return;}
+ if(D.goc!==undefined){S.sel=+D.goc;save();renderCountry();return;}
+ if(D.gop!==undefined){$('fType').value='all';$('fText').value='';renderPractices();setTimeout(()=>{const el=$('prac'+D.gop);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.outline='3px solid var(--sun)';setTimeout(()=>el.style.outline='',1800);}},50);e.preventDefault();return;}
+ if(D.mode){S.trMode=D.mode;save();renderTrends();return;}
+ if(D.table==='mix'){$('mixTable').hidden=!$('mixTable').hidden;return;}
+ if(D.lens){const [i,v]=D.lens.split(':').map(Number);S.countries[S.sel].lenses[i]=v;save();renderCountry();return;}
+ if(D.sort){S.sort={k:D.sort,d:S.sort.k===D.sort?-S.sort.d:-1};save();renderCountry();return;}
+ if(D.cell){const [m,f]=D.cell.split(':').map(Number);const st=S.mechs[m].states;st[f]=STATES[(STATES.indexOf(st[f])+1)%4];logChange(`${S.mechs[m].name} · ${FUNCS[f]} set to “${st[f]}”.`);save();renderMechs();renderPulse();return;}
+ if(D.opt){const [k,v]=D.opt.split(':');S.opts[k]=+v;save();renderOptions();return;}
+ if(D.isv){const [i,f]=D.isv.split(':');const x=S.issues[+i];x[f]=x[f]%3+1;save();renderPulse();return;}
+ if(D.delis!==undefined){S.issues.splice(+D.delis,1);save();renderPulse();return;}
+ if(D.delprac!==undefined){if(confirm('Delete this practice?')){S.practices.splice(+D.delprac,1);save();renderAll();}return;}
+ if(D.delcm!==undefined){if(confirm('Delete this commitment?')){S.commitments.splice(+D.delcm,1);logChange('Commitment deleted.');save();renderAll();}return;}
+ if(D.dely){const [ci,y]=D.dely.split(':');const c=S.countries[+ci];if(years(c).length<2)return;if(confirm(`Delete ${y} data for ${c.name}?`)){delete c.series[y];logChange(`${c.name}: ${y} data deleted.`);save();renderAll();}return;}
+ if(D.delsrc!==undefined){S.sources.splice(+D.delsrc,1);save();renderData();return;}
+ if(D.delout!==undefined){S.outputs.splice(+D.delout,1);save();renderOutputs();return;}
+ if(D.print){document.body.className='print-'+D.print;$('printMeta').textContent='· '+new Date().toLocaleDateString()+' · illustrative data';window.print();setTimeout(()=>document.body.className='',300);return;}
+ switch(b.id){
+  case 'addIssue':{const v=$('newIssue').value.trim();if(v){S.issues.push({issue:v,impact:2,lik:2});$('newIssue').value='';logChange('Emerging issue added: '+v);save();renderPulse();}return;}
+  case 'scReset':S.scen=scenBase(S.scen.ci);save();renderTools();return;
+  case 'addYear':{const ci=+$('dCountry').value,c=S.countries[ci],y=latestYear(c)+1;c.series[y]={...c.series[y-1]};logChange(`${c.name}: ${y} added (copied from ${y-1}; update the values).`);save();renderAll();return;}
+  case 'exportCsv':{let out='country,year,indicator,value\n';S.countries.forEach(c=>years(c).forEach(y=>IND.forEach(k=>{const v=c.series[y][k];if(v!=null&&v!=='')out+=`"${c.name.replace(/"/g,'""')}",${y},${k},${v}\n`;})));download(out,'fp-financing-data.csv','text/csv');return;}
+  case 'exportJson':download(JSON.stringify(S,null,1),'fp-financing-hub-backup.json','application/json');return;
+  case 'resetAll':if(confirm('Replace all data with the sample dataset?')){S=seed();save();renderAll();toast(t('saved'));}return;
+  case 'addSource':{const v=$('newSource').value.trim();if(v){S.sources.push({name:v,status:'Planned connection'});$('newSource').value='';save();renderData();}return;}
+  case 'genBrief':genBrief();return;
+ }
+});
+function download(text,name,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+let dataTimer;
+document.addEventListener('input',e=>{
+ const el=e.target,D=el.dataset;
+ if(D.sc){S.scen[D.sc]=+el.value;const u=D.sc==='exec'?'%':'%/yr';$('sv_'+D.sc).textContent=(+el.value>0&&u!=='%'?'+':'')+el.value+u;save();drawScen();return;}
+ if(D.mf){const [i,k]=D.mf.split(':');S.mechs[+i][k]=el.value;save();return;}
+ if(el.id==='fText'){renderPractices();return;}
+});
+document.addEventListener('change',e=>{
+ const el=e.target,D=el.dataset;
+ if(D.dv){const [ci,y,k]=D.dv.split(':');const c=S.countries[+ci];const old=c.series[y][k];c.series[y][k]=el.value===''?null:+el.value;logChange(`${c.name} ${y}: ${EN[k]} ${old??'—'} → ${el.value||'—'}.`);save();clearTimeout(dataTimer);dataTimer=setTimeout(()=>{renderPulse();renderTrends();renderCountry();renderTools();renderData();},50);return;}
+ if(el.id==='trGeo'){S.trGeo=el.value;save();renderTrends();return;}
+ if(el.id==='cName'){const c=S.countries[S.sel],n=el.value.trim();if(n&&n!==c.name){logChange(`${c.name} renamed to ${n}.`);c.name=n;save();renderAll();}return;}
+ if(el.id==='scCountry'){S.scen=scenBase(+el.value);save();renderTools();return;}
+ if(el.id==='fType'){renderPractices();return;}
+ if(['cmCountry','cmType'].includes(el.id)){renderCommitments();return;}
+ if(D.cst!==undefined){const x=S.commitments[+D.cst];x.status=+el.value;logChange(`${x.actor} (${cName(x.country)}): commitment marked “${EN['cs'+x.status]}”.`);save();renderAll();return;}
+ if(el.id==='dCountry'){renderData();return;}
+ if(el.id==='importCsv'&&el.files[0]){el.files[0].text().then(importCsv);el.value='';return;}
+ if(el.id==='importJson'&&el.files[0]){el.files[0].text().then(txt=>{try{const d=JSON.parse(txt);if(!d.countries||!d.log)throw 0;S=d;save();renderAll();toast(t('saved'));}catch(err){alert('This file is not a valid hub backup.');}});el.value='';}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='newIssue')$('addIssue').click();if(e.key==='Enter'&&e.target.id==='newSource')$('addSource').click();});
+$('practiceForm').addEventListener('submit',e=>{e.preventDefault();const f=e.target;S.practices.unshift({title:f.title.value.trim(),type:+f.type.value,where:f.where.value.trim()||'—',summary:f.summary.value.trim(),adapt:f.adapt.value.trim(),evidence:+f.evidence.value,transfer:+f.transfer.value,source:f.source.value.trim()});logChange('Practice added: '+f.title.value.trim());f.reset();save();renderPractices();renderPulse();toast(t('saved'));});
+$('commitForm').addEventListener('submit',e=>{e.preventDefault();const f=e.target;S.commitments.push({actor:f.actor.value.trim(),type:+f.type.value,country:+f.country.value,text:f.text.value.trim(),due:f.due.value.trim(),status:0,source:f.source.value.trim()});logChange('Commitment recorded: '+f.actor.value.trim());f.reset();save();renderAll();toast(t('saved'));});
+$('outForm').addEventListener('submit',e=>{e.preventDefault();const f=e.target;S.outputs.unshift({title:f.title.value.trim(),type:+f.type.value,date:f.date.value.trim(),link:/^https?:\/\//i.test(f.link.value.trim())?f.link.value.trim():''});logChange('Output added: '+f.title.value.trim());f.reset();save();renderOutputs();renderPulse();toast(t('saved'));});
+
+/* nav highlight + responsive charts */
+const obs=new IntersectionObserver(en=>en.forEach(x=>{if(x.isIntersecting)document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+x.target.id));}),{rootMargin:'-30% 0px -60% 0px'});
+document.querySelectorAll('.section').forEach(s=>obs.observe(s));
+let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{renderPulse();renderTrends();renderCountry();drawScen();},200);});
+
+load();renderAll();
+</script>
+</body></html>
