@@ -179,23 +179,27 @@ export async function GET(request: NextRequest) {
 
   try {
     const [pathsResult] = await runRedisCommands([["SMEMBERS", "pageviews:paths"]]);
-    const paths = Array.isArray(pathsResult)
-      ? pathsResult.filter((path): path is string => typeof path === "string" && !EXCLUDED_PATHS.has(path))
+    const allPaths = Array.isArray(pathsResult)
+      ? pathsResult.filter((path): path is string => typeof path === "string")
       : [];
+    const paths = allPaths.filter((path) => !EXCLUDED_PATHS.has(path));
     const commands = [
-      ...paths.map((path) => ["GET", `pageviews:total:${pageKey(path).replace("pageviews:", "")}`]),
+      ...allPaths.map((path) => ["GET", `pageviews:total:${pageKey(path).replace("pageviews:", "")}`]),
       ...timeline.map(({ key }) => ["GET", `pageviews:${isHourly ? "hourly" : "daily"}:${key}:total`]),
       ["GET", `pageviews:daily:${today}:total`],
       ...DIMENSIONS.map((dimension) => ["HGETALL", `pageviews:${dimension}`]),
     ];
     const values = await runRedisCommands(commands);
-    const pageValues = values.slice(0, paths.length);
-    const timelineValues = values.slice(paths.length, paths.length + timeline.length);
-    const todayViews = Number(values[paths.length + timeline.length] ?? 0);
-    const dimensionValues = values.slice(paths.length + timeline.length + 1);
+    const pageValues = values.slice(0, allPaths.length);
+    const timelineValues = values.slice(allPaths.length, allPaths.length + timeline.length);
+    const todayViews = Number(values[allPaths.length + timeline.length] ?? 0);
+    const dimensionValues = values.slice(allPaths.length + timeline.length + 1);
     const pages = paths
-      .map((path, index) => ({ path, views: Number(pageValues[index] ?? 0) }))
+      .map((path) => ({ path, views: Number(pageValues[allPaths.indexOf(path)] ?? 0) }))
       .sort((a, b) => b.views - a.views || a.path.localeCompare(b.path));
+    const unlistedPageViews = allPaths
+      .filter((path) => EXCLUDED_PATHS.has(path))
+      .reduce((sum, path) => sum + Number(pageValues[allPaths.indexOf(path)] ?? 0), 0);
     const chart = timeline.map(({ time }, index) => ({ time, views: Number(timelineValues[index] ?? 0) }));
     const dimensions = Object.fromEntries(DIMENSIONS.map((name, index) => [name, dimensionRows(dimensionValues[index])]));
 
@@ -235,7 +239,7 @@ export async function GET(request: NextRequest) {
         .map((path, index) => ({
           path,
           views: selectedPath && !selectedCountry
-            ? Number(pageValues[paths.indexOf(path)] ?? 0)
+            ? Number(pageValues[allPaths.indexOf(path)] ?? 0)
             : Number(filteredPageValues[index] ?? 0),
         }))
         .filter((page) => page.views > 0 || page.path === selectedPath)
@@ -247,21 +251,29 @@ export async function GET(request: NextRequest) {
         totalViews: filteredPages.reduce((sum, page) => sum + page.views, 0),
         todayViews: filteredTodayViews,
         periodViews: filteredChart.reduce((sum, item) => sum + item.views, 0),
+        unlistedPageViews: 0,
         pages: filteredPages,
         chart: filteredChart,
         chartMode: isHourly ? "hourly" : "daily",
         periodLabel: isHourly ? "Last 24 hours" : `Last ${days} days`,
         dimensions,
-        filters: { page: selectedPath ?? "", country: selectedCountry ?? "", availablePages: paths, availableCountries: pageCountries },
+        filters: {
+          page: selectedPath ?? "",
+          country: selectedCountry ?? "",
+          availablePages: paths,
+          availableCountries: pageCountries,
+          ...(selectedPath ? { pageTotalViews: Number(pageValues[allPaths.indexOf(selectedPath)] ?? 0) } : {}),
+        },
         filtered: true,
       });
     }
 
     return NextResponse.json({
       configured: true,
-      totalViews: pages.reduce((sum, page) => sum + page.views, 0),
+      totalViews: pageValues.reduce((sum, value) => sum + Number(value ?? 0), 0),
       todayViews,
       periodViews: chart.reduce((sum, item) => sum + item.views, 0),
+      unlistedPageViews,
       pages,
       chart,
       chartMode: isHourly ? "hourly" : "daily",

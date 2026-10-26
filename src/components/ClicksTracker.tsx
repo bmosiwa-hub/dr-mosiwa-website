@@ -18,6 +18,7 @@ type Dimensions = {
 type AnalyticsData = {
   configured: boolean;
   totalViews: number;
+  unlistedPageViews?: number;
   todayViews: number;
   periodViews: number;
   pages: { path: string; views: number }[];
@@ -30,6 +31,7 @@ type AnalyticsData = {
     country: string;
     availablePages: string[];
     availableCountries: DimensionRow[];
+    pageTotalViews?: number;
   };
   filtered?: boolean;
 };
@@ -146,6 +148,10 @@ export default function ClicksTracker() {
   }, [data?.pages, search]);
   const pageOnlyFilter = Boolean(data?.filters?.page && !data?.filters?.country);
   const countryFilter = Boolean(data?.filters?.country);
+  const pageKnownCountryViews = (data?.filters?.availableCountries ?? []).reduce((sum, row) => sum + row.views, 0);
+  const unattributedPageViews = selectedPage && data?.filters?.page === selectedPage
+    ? Math.max(0, (data.filters.pageTotalViews ?? data.totalViews) - pageKnownCountryViews)
+    : 0;
   const peak = Math.max(1, ...(data?.chart.map((item) => item.views) ?? [0]));
 
   return (
@@ -236,15 +242,17 @@ export default function ClicksTracker() {
               </select>
             </label>
           </div>
-          {pageOnlyFilter
-            ? <p className="mt-3 text-xs leading-5 text-gray-400">The all-time page total includes earlier views; its chart and daily counts start with this update.</p>
+          {selectedPage && data?.filters?.page === selectedPage
+            ? <p className="mt-3 text-xs leading-5 text-gray-500">
+                {formatNumber(unattributedPageViews)} of {formatNumber(data.filters.pageTotalViews ?? data.totalViews)} all-time views for this page have no country attribution. Earlier views cannot be assigned to a country retroactively.
+              </p>
             : countryFilter
               ? <p className="mt-3 text-xs leading-5 text-gray-400">Country and page-by-country counts start with this update; earlier views cannot be matched to a page and country combination.</p>
               : null}
         </section>
 
         <section aria-label="Page view summary" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          <SummaryCard label={pageOnlyFilter ? "All-time page opens" : countryFilter ? "Matching page opens" : "Total page opens"} value={data?.totalViews ?? 0} detail={pageOnlyFilter ? "Historical total for selected page" : countryFilter ? "Since country tracking began" : "Across all tracked pages"} icon={<Eye size={18} />} />
+          <SummaryCard label={pageOnlyFilter ? "All-time page opens" : countryFilter ? "Matching page opens" : "Total page opens"} value={data?.totalViews ?? 0} detail={pageOnlyFilter ? "Historical total for selected page" : countryFilter ? "Since country tracking began" : data?.unlistedPageViews ? `Includes ${formatNumber(data.unlistedPageViews)} retired page view(s), hidden from the list` : "Across all tracked pages"} icon={<Eye size={18} />} />
           <SummaryCard label="Today" value={data?.todayViews ?? 0} detail="Since midnight UTC" icon={<Activity size={18} />} />
           <SummaryCard label={data?.periodLabel ?? (range === "24h" ? "Last 24 hours" : `Last ${range} days`)} value={data?.periodViews ?? 0} detail="Page opens in selected range" icon={<CalendarDays size={18} />} />
         </section>
@@ -421,7 +429,7 @@ export default function ClicksTracker() {
           </div>
           <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3.5 text-xs text-gray-400 sm:px-7">
             <span>{formatNumber(filteredPages.length)} {filteredPages.length === 1 ? "page" : "pages"}</span>
-            <span className="inline-flex items-center gap-1"><ArrowUpRight size={13} /> Counts update as pages are opened</span>
+            <span className="inline-flex items-center gap-1"><ArrowUpRight size={13} /> Counts update as pages are opened{!data?.filtered && data?.unlistedPageViews ? ` · ${formatNumber(data.unlistedPageViews)} retired page view(s) hidden` : ""}</span>
           </div>
         </section>
 
