@@ -160,7 +160,7 @@ export const projects = [
   {
     id: "stc-cholera-ewars",
     title: "Climate-Informed Cholera Early Warning and Response System (EWARS)",
-    role: "Lead Consultant",
+    role: "Lead Local Expert, Malawi",
     client: "Save the Children / Alisios | Southern Malawi",
     period: "Aug 2026 – Present",
     partners: ["Save the Children", "Alisios", "Malawi Ministry of Health", "Public Health Institute of Malawi", "DCCMS"],
