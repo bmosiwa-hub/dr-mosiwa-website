@@ -1,48 +1,125 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  dayKey,
-  isAnalyticsConfigured,
-  pageKey,
-  runRedisCommands,
-  utcDay,
-} from "@/lib/page-analytics";
+import { dayKey, isAnalyticsConfigured, pageKey, runRedisCommands, utcDay } from "@/lib/page-analytics";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+const DIMENSIONS = ["countries", "regions", "devices", "browsers", "referrers", "utm_sources", "utm_mediums", "utm_campaigns"] as const;
+const HOUR_TTL_SECONDS = 60 * 60 * 24 * 90;
+
+function safeLabel(value: unknown) {
+  if (typeof value !== "string") return undefined;
+  if (/[\w.+-]+@[\w.-]+\.[a-z]{2,}/i.test(value)) return undefined;
+  const label = value.normalize("NFKC").replace(/[^\p{L}\p{N} ._-]/gu, " ").trim().replace(/\s+/g, " ").slice(0, 80);
+  return label ? label.toLowerCase() : undefined;
+}
+
+function safeReferrer(value: unknown, host: string) {
+  if (typeof value !== "string" || value.length > 300) return undefined;
+  if (value.toLowerCase() === "direct / unknown") return "direct / unknown";
+  try {
+    const url = new URL(value.includes("://") ? value : `https://${value}`);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return undefined;
+    const hostname = url.hostname.toLowerCase().replace(/^www\./, "");
+    const ownHost = host.toLowerCase().replace(/^www\./, "").split(":")[0];
+    if (!hostname || hostname === ownHost || hostname === "azariahmosiwa.com" || hostname.endsWith(".azariahmosiwa.com")) return undefined;
+    return hostname.slice(0, 253);
+  } catch {
+    return undefined;
+  }
+}
+
+function classifyDevice(userAgent: string) {
+  if (/iPad|Tablet/i.test(userAgent)) return "tablet";
+  if (/Mobi|Android|iPhone|iPod/i.test(userAgent)) return "mobile";
+  return "desktop";
+}
+
+function classifyBrowser(userAgent: string) {
+  if (/Edg\//i.test(userAgent)) return "edge";
+  if (/OPR\//i.test(userAgent)) return "opera";
+  if (/SamsungBrowser/i.test(userAgent)) return "samsung internet";
+  if (/Firefox|FxiOS/i.test(userAgent)) return "firefox";
+  if (/Chrome|CriOS/i.test(userAgent)) return "chrome";
+  if (/Safari/i.test(userAgent)) return "safari";
+  return "other";
+}
+
+function dimensionRows(value: unknown) {
+  const rows: { label: string; views: number }[] = [];
+  if (Array.isArray(value)) {
+    for (let index = 0; index + 1 < value.length; index += 2) {
+      rows.push({ label: String(value[index]), views: Number(value[index + 1] ?? 0) });
+    }
+  } else if (value && typeof value === "object") {
+    for (const [label, count] of Object.entries(value)) rows.push({ label, views: Number(count ?? 0) });
+  }
+  return rows.sort((a, b) => b.views - a.views || a.label.localeCompare(b.label));
+}
 
 export async function POST(request: NextRequest) {
   if (!isAnalyticsConfigured()) {
     return NextResponse.json({ error: "Analytics is not configured." }, { status: 503 });
   }
 
-  let path: unknown;
+  let body: unknown;
   try {
-    ({ path } = await request.json());
+    body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+  }
+  const payload = body as Record<string, unknown>;
+
+  const path = payload.path;
+  const normalizedPath = typeof path === "string" ? (path.length > 1 ? path.replace(/\/+$/, "") : path) : "";
   if (
     typeof path !== "string" ||
     !path.startsWith("/") ||
     path.startsWith("//") ||
     path.length > 500 ||
     path.startsWith("/api/") ||
-    path === "/clicks-tracker"
+    normalizedPath === "/clicks-tracker"
   ) {
     return NextResponse.json({ error: "Invalid page path." }, { status: 400 });
   }
 
-  const normalizedPath = path.length > 1 ? path.replace(/\/+$/, "") : path;
   const encoded = pageKey(normalizedPath).replace("pageviews:", "");
-  const today = dayKey(utcDay());
+  const now = new Date();
+  const today = dayKey(utcDay(now));
+  const hour = now.toISOString().slice(0, 13).replace(/[-T]/g, "");
+  const countryHeader = request.headers.get("x-vercel-ip-country") ?? "";
+  const country = /^[a-z]{2}$/i.test(countryHeader) ? countryHeader.toUpperCase() : undefined;
+  const regionHeader = request.headers.get("x-vercel-ip-country-region") ?? "";
+  const region = country && /^[a-z0-9-]{1,25}$/i.test(regionHeader) ? `${country}-${region.toUpperCase()}` : undefined;
+  const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "";
+  const referrer = safeReferrer(payload.referrer, host);
+  const device = classifyDevice(request.headers.get("user-agent") ?? "");
+  const browser = classifyBrowser(request.headers.get("user-agent") ?? "");
+  const utmSource = safeLabel(payload.utm_source);
+  const utmMedium = safeLabel(payload.utm_medium);
+  const utmCampaign = safeLabel(payload.utm_campaign);
+  const commands = [
+    ["INCR", `pageviews:total:${encoded}`],
+    ["INCR", `pageviews:daily:${today}:total`],
+    ["INCR", `pageviews:hourly:${hour}:total`],
+    ["EXPIRE", `pageviews:hourly:${hour}:total`, String(HOUR_TTL_SECONDS)],
+    ["SADD", "pageviews:paths", normalizedPath],
+    ["HINCRBY", "pageviews:devices", device, "1"],
+    ["HINCRBY", "pageviews:browsers", browser, "1"],
+    ...(country ? [["HINCRBY", "pageviews:countries", country, "1"]] : []),
+    ...(region ? [["HINCRBY", "pageviews:regions", region, "1"]] : []),
+    ...(referrer ? [["HINCRBY", "pageviews:referrers", referrer, "1"]] : []),
+    ...(utmSource ? [["HINCRBY", "pageviews:utm_sources", utmSource, "1"]] : []),
+    ...(utmMedium ? [["HINCRBY", "pageviews:utm_mediums", utmMedium, "1"]] : []),
+    ...(utmCampaign ? [["HINCRBY", "pageviews:utm_campaigns", utmCampaign, "1"]] : []),
+  ];
 
   try {
-    await runRedisCommands([
-      ["INCR", `pageviews:total:${encoded}`],
-      ["INCR", `pageviews:daily:${today}:total`],
-      ["SADD", "pageviews:paths", normalizedPath],
-    ]);
+    await runRedisCommands(commands);
     return new NextResponse(null, { status: 204 });
   } catch {
     return NextResponse.json({ error: "Could not record page view." }, { status: 503 });
@@ -54,39 +131,54 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ configured: false }, { status: 200 });
   }
 
+  const isHourly = request.nextUrl.searchParams.get("period") === "24h";
   const requestedDays = Number(request.nextUrl.searchParams.get("days") ?? "7");
-  const days = Number.isFinite(requestedDays)
-    ? Math.min(90, Math.max(1, Math.floor(requestedDays)))
-    : 7;
+  const days = Number.isFinite(requestedDays) ? Math.min(90, Math.max(1, Math.floor(requestedDays))) : 7;
+  const now = new Date();
+  const today = dayKey(utcDay(now));
+  const timeline = isHourly
+    ? Array.from({ length: 24 }, (_, index) => {
+        const date = new Date(now);
+        date.setUTCHours(date.getUTCHours() - (23 - index), 0, 0, 0);
+        return { key: date.toISOString().slice(0, 13).replace(/[-T]/g, ""), time: date.toISOString() };
+      })
+    : Array.from({ length: days }, (_, index) => {
+        const date = new Date(now);
+        date.setUTCDate(date.getUTCDate() - (days - index - 1));
+        const day = utcDay(date);
+        return { key: dayKey(day), time: `${day}T00:00:00.000Z` };
+      });
 
   try {
     const [pathsResult] = await runRedisCommands([["SMEMBERS", "pageviews:paths"]]);
     const paths = Array.isArray(pathsResult) ? pathsResult.filter((path) => typeof path === "string") : [];
-    const dates = Array.from({ length: days }, (_, index) => {
-      const date = new Date();
-      date.setUTCDate(date.getUTCDate() - (days - index - 1));
-      return utcDay(date);
-    });
     const commands = [
       ...paths.map((path) => ["GET", `pageviews:total:${pageKey(path).replace("pageviews:", "")}`]),
-      ...dates.map((date) => ["GET", `pageviews:daily:${dayKey(date)}:total`]),
+      ...timeline.map(({ key }) => ["GET", `pageviews:${isHourly ? "hourly" : "daily"}:${key}:total`]),
+      ["GET", `pageviews:daily:${today}:total`],
+      ...DIMENSIONS.map((dimension) => ["HGETALL", `pageviews:${dimension}`]),
     ];
-    const values = commands.length ? await runRedisCommands(commands) : [];
+    const values = await runRedisCommands(commands);
     const pageValues = values.slice(0, paths.length);
-    const dayValues = values.slice(paths.length);
+    const timelineValues = values.slice(paths.length, paths.length + timeline.length);
+    const todayViews = Number(values[paths.length + timeline.length] ?? 0);
+    const dimensionValues = values.slice(paths.length + timeline.length + 1);
     const pages = paths
       .map((path, index) => ({ path, views: Number(pageValues[index] ?? 0) }))
       .sort((a, b) => b.views - a.views || a.path.localeCompare(b.path));
-    const daily = dates.map((date, index) => ({ date, views: Number(dayValues[index] ?? 0) }));
+    const chart = timeline.map(({ time }, index) => ({ time, views: Number(timelineValues[index] ?? 0) }));
+    const dimensions = Object.fromEntries(DIMENSIONS.map((name, index) => [name, dimensionRows(dimensionValues[index])]));
 
     return NextResponse.json({
       configured: true,
       totalViews: pages.reduce((sum, page) => sum + page.views, 0),
-      todayViews: daily.at(-1)?.views ?? 0,
-      periodViews: daily.reduce((sum, day) => sum + day.views, 0),
+      todayViews,
+      periodViews: chart.reduce((sum, item) => sum + item.views, 0),
       pages,
-      daily,
-      days,
+      chart,
+      chartMode: isHourly ? "hourly" : "daily",
+      periodLabel: isHourly ? "Last 24 hours" : `Last ${days} days`,
+      dimensions,
     });
   } catch {
     return NextResponse.json({ configured: true, error: "Could not load analytics." }, { status: 503 });

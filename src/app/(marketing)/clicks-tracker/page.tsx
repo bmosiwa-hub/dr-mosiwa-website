@@ -3,7 +3,7 @@ import ClicksTracker from "@/components/ClicksTracker";
 
 export const metadata: Metadata = {
   title: "Clicks Tracker",
-  description: "Page open counts across azariahmosiwa.com.",
+  description: "Anonymous page opens, traffic sources, and visitor context across azariahmosiwa.com.",
   alternates: { canonical: "/clicks-tracker" },
 };
 

@@ -2,7 +2,19 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Activity, ArrowUpRight, CalendarDays, ChevronRight, Clock3, Eye, RefreshCw, Search, Settings2 } from "lucide-react";
+import { Activity, ArrowUpRight, CalendarDays, ChevronRight, Clock3, Eye, Globe2, MonitorSmartphone, RefreshCw, Search, Settings2, Share2, Tag } from "lucide-react";
+
+type DimensionRow = { label: string; views: number };
+type Dimensions = {
+  countries: DimensionRow[];
+  regions: DimensionRow[];
+  devices: DimensionRow[];
+  browsers: DimensionRow[];
+  referrers: DimensionRow[];
+  utm_sources: DimensionRow[];
+  utm_mediums: DimensionRow[];
+  utm_campaigns: DimensionRow[];
+};
 
 type AnalyticsData = {
   configured: boolean;
@@ -10,11 +22,13 @@ type AnalyticsData = {
   todayViews: number;
   periodViews: number;
   pages: { path: string; views: number }[];
-  daily: { date: string; views: number }[];
-  days: number;
+  chart: { time: string; views: number }[];
+  chartMode: "hourly" | "daily";
+  periodLabel: string;
+  dimensions: Dimensions;
 };
 
-const ranges = [7, 30, 90] as const;
+const ranges = ["24h", 7, 30, 90] as const;
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("en").format(value);
@@ -29,8 +43,22 @@ function pageLabel(path: string) {
     .join(" / ");
 }
 
-function formatDate(date: string, options: Intl.DateTimeFormatOptions = {}) {
-  return new Date(`${date}T00:00:00`).toLocaleDateString("en", options);
+function locationLabel(label: string) {
+  const [country, region] = label.split("-");
+  try {
+    const names = new Intl.DisplayNames(["en"], { type: "region" });
+    const countryName = names.of(country) ?? country;
+    return region ? `${countryName} · ${region}` : countryName;
+  } catch {
+    return label;
+  }
+}
+
+function chartLabel(time: string, hourly: boolean) {
+  const date = new Date(time);
+  return hourly
+    ? date.toLocaleString("en", { month: "short", day: "numeric", hour: "numeric", timeZone: "UTC" }) + " UTC"
+    : date.toLocaleDateString("en", { month: "short", day: "numeric", timeZone: "UTC" });
 }
 
 export default function ClicksTracker() {
@@ -44,7 +72,8 @@ export default function ClicksTracker() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(`/api/pageviews?days=${range}`, { cache: "no-store" });
+      const query = range === "24h" ? "period=24h" : `days=${range}`;
+      const response = await fetch(`/api/pageviews?${query}`, { cache: "no-store" });
       if (!response.ok) throw new Error("Analytics data could not be loaded.");
       const result = await response.json();
       setData(result);
@@ -65,7 +94,7 @@ export default function ClicksTracker() {
       !query || page.path.toLowerCase().includes(query) || pageLabel(page.path).toLowerCase().includes(query),
     );
   }, [data?.pages, search]);
-  const peak = Math.max(1, ...(data?.daily.map((item) => item.views) ?? [0]));
+  const peak = Math.max(1, ...(data?.chart.map((item) => item.views) ?? [0]));
 
   return (
     <div className="min-h-screen bg-[#f5f7fa] pb-20 pt-28 md:pt-36">
@@ -116,7 +145,7 @@ export default function ClicksTracker() {
         <section aria-label="Page view summary" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <SummaryCard label="Total page opens" value={data?.totalViews ?? 0} detail="Across all tracked pages" icon={<Eye size={18} />} />
           <SummaryCard label="Today" value={data?.todayViews ?? 0} detail="Since midnight UTC" icon={<Activity size={18} />} />
-          <SummaryCard label={`${range} day period`} value={data?.periodViews ?? 0} detail="Page opens in selected range" icon={<CalendarDays size={18} />} />
+          <SummaryCard label={data?.periodLabel ?? (range === "24h" ? "Last 24 hours" : `Last ${range} days`)} value={data?.periodViews ?? 0} detail="Page opens in selected range" icon={<CalendarDays size={18} />} />
         </section>
 
         <section className="mt-6 grid gap-6 xl:grid-cols-[1.35fr_0.8fr]">
@@ -124,7 +153,7 @@ export default function ClicksTracker() {
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
               <div>
                 <h2 className="font-display text-xl font-bold text-navy-900">Traffic over time</h2>
-                <p className="mt-1 text-sm text-gray-500">Daily page opens</p>
+                <p className="mt-1 text-sm text-gray-500">{range === "24h" ? "Hourly page opens · UTC" : "Daily page opens · UTC"}</p>
               </div>
               <div className="inline-flex self-start rounded-lg bg-gray-100 p-1" aria-label="Chart date range">
                 {ranges.map((days) => (
@@ -135,18 +164,18 @@ export default function ClicksTracker() {
                     onClick={() => setRange(days)}
                     className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${range === days ? "bg-white text-navy-900 shadow-sm" : "text-gray-500 hover:text-navy-900"}`}
                   >
-                    {days}d
+                    {days === "24h" ? "24h" : `${days}d`}
                   </button>
                 ))}
               </div>
             </div>
-            <div className="mt-8 flex h-52 items-end gap-1.5 sm:gap-2" role="img" aria-label={`${range} day page views chart`}>
-              {(data?.daily ?? []).map((item) => {
+            <div className="mt-8 flex h-52 items-end gap-1.5 sm:gap-2" role="img" aria-label={`${range === "24h" ? "24 hour" : `${range} day`} page views chart`}>
+              {(data?.chart ?? []).map((item) => {
                 const height = item.views ? Math.max(5, (item.views / peak) * 100) : 2;
                 return (
-                  <div key={item.date} className="group relative flex h-full min-w-0 flex-1 flex-col justify-end" title={`${formatDate(item.date, { dateStyle: "medium" })}: ${formatNumber(item.views)} opens`}>
+                  <div key={item.time} className="group relative flex h-full min-w-0 flex-1 flex-col justify-end" title={`${chartLabel(item.time, data?.chartMode === "hourly")}: ${formatNumber(item.views)} opens`}>
                     <div className="absolute bottom-full left-1/2 z-10 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-navy-950 px-2.5 py-1.5 text-xs text-white shadow-lg group-hover:block group-focus-within:block">
-                      {formatDate(item.date, { dateStyle: "medium" })}: {formatNumber(item.views)}
+                      {chartLabel(item.time, data?.chartMode === "hourly")}: {formatNumber(item.views)}
                     </div>
                     <div
                       className={`w-full rounded-t-sm transition-colors ${item.views ? "bg-gold-500 group-hover:bg-gold-600" : "bg-gray-100"}`}
@@ -155,11 +184,11 @@ export default function ClicksTracker() {
                   </div>
                 );
               })}
-              {!data?.daily.length && <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">{loading ? "Loading activity…" : "No page views in this period"}</div>}
+              {!data?.chart.length && <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">{loading ? "Loading activity…" : "No page views in this period"}</div>}
             </div>
             <div className="mt-3 flex justify-between text-xs text-gray-400">
-              <span>{data?.daily[0] ? formatDate(data.daily[0].date, { month: "short", day: "numeric" }) : ""}</span>
-              <span>{data?.daily.at(-1) ? formatDate(data.daily.at(-1)!.date, { month: "short", day: "numeric" }) : ""}</span>
+              <span>{data?.chart[0] ? chartLabel(data.chart[0].time, data.chartMode === "hourly") : ""}</span>
+              <span>{data?.chart.at(-1) ? chartLabel(data.chart.at(-1)!.time, data.chartMode === "hourly") : ""}</span>
             </div>
           </div>
 
@@ -202,6 +231,54 @@ export default function ClicksTracker() {
               </div>
             )}
           </div>
+        </section>
+
+        <section className="mt-6" aria-labelledby="traffic-insights-heading">
+          <div className="mb-4">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-gold-600">Visitor context</p>
+            <h2 id="traffic-insights-heading" className="mt-1 font-display text-2xl font-bold text-navy-900">Traffic insights</h2>
+            <p className="mt-1 text-sm text-gray-500">Aggregate patterns from page opens; no individual visitor profiles.</p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <BreakdownPanel
+              title="Entry sources"
+              description="Referring site on landing"
+              icon={<Share2 size={17} />}
+              rows={data?.dimensions?.referrers ?? []}
+            />
+            <BreakdownPanel
+              title="Country & region"
+              description="Approximate IP-based location"
+              icon={<Globe2 size={17} />}
+              rows={[
+                ...(data?.dimensions?.countries ?? []).map((row) => ({ ...row, label: `Country · ${locationLabel(row.label)}` })),
+                ...(data?.dimensions?.regions ?? []).map((row) => ({ ...row, label: `Region · ${locationLabel(row.label)}` })),
+              ].sort((a, b) => b.views - a.views)}
+            />
+            <BreakdownPanel
+              title="Devices & browsers"
+              description="Broad device and browser type"
+              icon={<MonitorSmartphone size={17} />}
+              rows={[
+                ...(data?.dimensions?.devices ?? []).map((row) => ({ ...row, label: `Device · ${row.label}` })),
+                ...(data?.dimensions?.browsers ?? []).map((row) => ({ ...row, label: `Browser · ${row.label}` })),
+              ].sort((a, b) => b.views - a.views).slice(0, 6)}
+            />
+            <BreakdownPanel
+              title="Campaigns"
+              description="UTM campaign tags"
+              icon={<Tag size={17} />}
+              rows={data?.dimensions?.utm_campaigns?.length ? data.dimensions.utm_campaigns : data?.dimensions?.utm_sources ?? []}
+              emptyLabel="No campaign tags recorded"
+              footer={[
+                ...(data?.dimensions?.utm_sources ?? []).slice(0, 2).map((row) => `source: ${row.label}`),
+                ...(data?.dimensions?.utm_mediums ?? []).slice(0, 2).map((row) => `medium: ${row.label}`),
+              ].join(" · ")}
+            />
+          </div>
+          <p className="mt-3 text-xs leading-5 text-gray-400">
+            Referral data stores website hostnames only. Location is approximate; raw IP addresses and names are not stored. These breakdowns start with this update; earlier page totals remain available.
+          </p>
         </section>
 
         <section className="mt-6 overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm">
@@ -248,7 +325,7 @@ export default function ClicksTracker() {
         </section>
 
         <p className="mt-5 flex items-center justify-center gap-1 text-center text-xs text-gray-400">
-          Anonymous page counts only. No names, IP addresses, or personal visitor details are stored.
+          Aggregate analytics only. No names, raw IP addresses, or individual visitor profiles are stored.
         </p>
       </div>
     </div>
@@ -264,6 +341,55 @@ function SummaryCard({ label, value, detail, icon }: { label: string; value: num
       </div>
       <p className="mt-4 text-3xl font-bold tracking-tight tabular-nums text-navy-900">{formatNumber(value)}</p>
       <p className="mt-1.5 text-xs text-gray-400">{detail}</p>
+    </div>
+  );
+}
+
+function BreakdownPanel({
+  title,
+  description,
+  icon,
+  rows,
+  emptyLabel = "No detail recorded yet",
+  footer,
+}: {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  rows: DimensionRow[];
+  emptyLabel?: string;
+  footer?: string;
+}) {
+  const visibleRows = rows.slice(0, 5);
+  const max = Math.max(1, ...visibleRows.map((row) => row.views));
+
+  return (
+    <div className="rounded-2xl border border-gray-200/80 bg-white p-5 shadow-sm">
+      <div className="mb-5 flex items-start justify-between gap-3">
+        <div>
+          <h3 className="font-semibold text-navy-900">{title}</h3>
+          <p className="mt-1 text-xs text-gray-500">{description}</p>
+        </div>
+        <div className="rounded-lg bg-gold-50 p-2 text-gold-700">{icon}</div>
+      </div>
+      {visibleRows.length ? (
+        <div className="space-y-3">
+          {visibleRows.map((row) => (
+            <div key={row.label}>
+              <div className="mb-1.5 flex items-center justify-between gap-3 text-xs">
+                <span className="truncate text-gray-600">{row.label}</span>
+                <span className="shrink-0 font-semibold tabular-nums text-navy-900">{formatNumber(row.views)}</span>
+              </div>
+              <div className="h-1 overflow-hidden rounded-full bg-gray-100">
+                <div className="h-full rounded-full bg-gold-500" style={{ width: `${Math.max(2, (row.views / max) * 100)}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex min-h-24 items-center justify-center text-center text-xs text-gray-400">{emptyLabel}</div>
+      )}
+      {footer && <p className="mt-4 border-t border-gray-100 pt-3 text-[11px] leading-5 text-gray-400">{footer}</p>}
     </div>
   );
 }
