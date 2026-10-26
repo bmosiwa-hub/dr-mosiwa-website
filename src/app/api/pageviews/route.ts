@@ -6,6 +6,7 @@ export const dynamic = "force-dynamic";
 
 const DIMENSIONS = ["countries", "regions", "devices", "browsers", "referrers", "utm_sources", "utm_mediums", "utm_campaigns"] as const;
 const HOUR_TTL_SECONDS = 60 * 60 * 24 * 90;
+const EXCLUDED_PATHS = new Set(["/fm-financing-prototype"]);
 
 function segmentKey(period: "total" | "daily" | "hourly", time: string | undefined, kind: "page" | "country" | "country-page", path: string | undefined, country: string | undefined) {
   const pathId = path ? pageKey(path).replace("pageviews:", "") : "";
@@ -101,7 +102,8 @@ export async function POST(request: NextRequest) {
     path.length > 500 ||
     path.startsWith("/api/") ||
     normalizedPath === "/clicks-tracker" ||
-    normalizedPath.startsWith("/clicks-tracker/")
+    normalizedPath.startsWith("/clicks-tracker/") ||
+    EXCLUDED_PATHS.has(normalizedPath)
   ) {
     return NextResponse.json({ error: "Invalid page path." }, { status: 400 });
   }
@@ -177,7 +179,9 @@ export async function GET(request: NextRequest) {
 
   try {
     const [pathsResult] = await runRedisCommands([["SMEMBERS", "pageviews:paths"]]);
-    const paths = Array.isArray(pathsResult) ? pathsResult.filter((path) => typeof path === "string") : [];
+    const paths = Array.isArray(pathsResult)
+      ? pathsResult.filter((path): path is string => typeof path === "string" && !EXCLUDED_PATHS.has(path))
+      : [];
     const commands = [
       ...paths.map((path) => ["GET", `pageviews:total:${pageKey(path).replace("pageviews:", "")}`]),
       ...timeline.map(({ key }) => ["GET", `pageviews:${isHourly ? "hourly" : "daily"}:${key}:total`]),
