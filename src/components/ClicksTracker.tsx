@@ -223,7 +223,7 @@ export default function ClicksTracker() {
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block text-xs font-medium text-gray-600">
               Page
-              <select value={selectedPage} onChange={(event) => setSelectedPage(event.target.value)} className="mt-1.5 h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-navy-900 outline-none transition focus:border-navy-400 focus:ring-2 focus:ring-navy-100">
+              <select value={selectedPage} onChange={(event) => { setSelectedPage(event.target.value); setSelectedCountry(""); }} className="mt-1.5 h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-navy-900 outline-none transition focus:border-navy-400 focus:ring-2 focus:ring-navy-100">
                 <option value="">All pages</option>
                 {(data?.filters?.availablePages ?? []).map((path) => <option key={path} value={path}>{pageLabel(path)} · {path}</option>)}
               </select>
@@ -232,7 +232,7 @@ export default function ClicksTracker() {
               Country
               <select value={selectedCountry} onChange={(event) => setSelectedCountry(event.target.value)} className="mt-1.5 h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-navy-900 outline-none transition focus:border-navy-400 focus:ring-2 focus:ring-navy-100">
                 <option value="">All countries</option>
-                {(data?.filters?.availableCountries ?? []).map((row) => <option key={row.label} value={row.label}>{locationLabel(row.label)} · {formatNumber(row.views)}</option>)}
+                {(data?.filters?.availableCountries ?? []).map((row) => <option key={row.label} value={row.label}>{locationLabel(row.label)} · {formatNumber(row.views)} {selectedPage ? "views for this page" : "views"}</option>)}
               </select>
             </label>
           </div>

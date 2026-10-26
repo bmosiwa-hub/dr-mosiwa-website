@@ -197,9 +197,17 @@ export async function GET(request: NextRequest) {
 
     const requestedPath = request.nextUrl.searchParams.get("page");
     const selectedPath = requestedPath && paths.includes(requestedPath) ? requestedPath : undefined;
+    const allCountries = dimensions.countries as { label: string; views: number }[];
+    const pageCountryCounts = selectedPath && allCountries.length
+      ? await runRedisCommands(allCountries.map((row) => ["GET", segmentKey("total", undefined, "country-page", selectedPath, row.label)]))
+      : [];
+    const pageCountries = selectedPath
+      ? allCountries
+          .map((row, index) => ({ ...row, views: Number(pageCountryCounts[index] ?? 0) }))
+          .filter((row) => row.views > 0)
+      : allCountries;
     const requestedCountry = request.nextUrl.searchParams.get("country")?.toUpperCase();
-    const availableCountries = (dimensions.countries as { label: string; views: number }[]).map((row) => row.label);
-    const selectedCountry = requestedCountry && /^[A-Z]{2}$/.test(requestedCountry) && availableCountries.includes(requestedCountry)
+    const selectedCountry = requestedCountry && /^[A-Z]{2}$/.test(requestedCountry) && pageCountries.some((row) => row.label === requestedCountry)
       ? requestedCountry
       : undefined;
     const isFiltered = Boolean(selectedPath || selectedCountry);
@@ -240,7 +248,7 @@ export async function GET(request: NextRequest) {
         chartMode: isHourly ? "hourly" : "daily",
         periodLabel: isHourly ? "Last 24 hours" : `Last ${days} days`,
         dimensions,
-        filters: { page: selectedPath ?? "", country: selectedCountry ?? "", availablePages: paths, availableCountries: dimensions.countries },
+        filters: { page: selectedPath ?? "", country: selectedCountry ?? "", availablePages: paths, availableCountries: pageCountries },
         filtered: true,
       });
     }
@@ -255,7 +263,7 @@ export async function GET(request: NextRequest) {
       chartMode: isHourly ? "hourly" : "daily",
       periodLabel: isHourly ? "Last 24 hours" : `Last ${days} days`,
       dimensions,
-      filters: { page: "", country: "", availablePages: paths, availableCountries: dimensions.countries },
+      filters: { page: "", country: "", availablePages: paths, availableCountries: allCountries },
       filtered: false,
     });
   } catch {
