@@ -242,28 +242,18 @@ export async function GET(request: NextRequest) {
     const requestedPath = request.nextUrl.searchParams.get("page");
     const selectedPath = requestedPath && paths.includes(requestedPath) ? requestedPath : undefined;
     const allCountries = dimensions.countries as { label: string; views: number }[];
-    const excludedPaths = [...EXCLUDED_PATHS];
-    const filterCountryCounts = allCountries.length
-      ? await runRedisCommands([
-          ...allCountries.map((row) => ["GET", segmentKey("total", undefined, "country", undefined, row.label)]),
-          ...allCountries.flatMap((row) => excludedPaths.map((path) => [
-            "GET",
-            segmentKey("total", undefined, "country-page", path, row.label),
-          ])),
-          ...(selectedPath
-            ? allCountries.map((row) => ["GET", segmentKey("total", undefined, "country-page", selectedPath, row.label)])
-            : []),
-        ])
+    const countryPagePaths = selectedPath ? [selectedPath] : paths;
+    const filterCountryCounts = allCountries.length && countryPagePaths.length
+      ? await runRedisCommands(countryPagePaths.flatMap((path) => allCountries.map((row) => [
+          "GET",
+          segmentKey("total", undefined, "country-page", path, row.label),
+        ])))
       : [];
     const pageCountries = allCountries
       .map((row, index) => {
-        const excludedViews = excludedPaths.reduce((sum, _path, pathIndex) =>
-          sum + Number(filterCountryCounts[allCountries.length + index * excludedPaths.length + pathIndex] ?? 0), 0);
-        const countryViews = Math.max(0, Number(filterCountryCounts[index] ?? 0) - excludedViews);
-        const pageViews = selectedPath
-          ? Number(filterCountryCounts[allCountries.length * (1 + excludedPaths.length) + index] ?? 0)
-          : countryViews;
-        return { ...row, views: selectedPath ? pageViews : countryViews };
+        const views = countryPagePaths.reduce((sum, _path, pathIndex) =>
+          sum + Number(filterCountryCounts[pathIndex * allCountries.length + index] ?? 0), 0);
+        return { ...row, views };
       })
       .filter((row) => row.views > 0);
     const requestedCountry = request.nextUrl.searchParams.get("country")?.toUpperCase();
