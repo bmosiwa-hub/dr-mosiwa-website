@@ -158,6 +158,27 @@ export const services = [
 
 export const projects = [
   {
+    id: "frontline-aids-hf-landscape",
+    title: "Health Financing Landscape Analysis",
+    role: "Health Financing & Political Economy Consultant",
+    client: "Frontline AIDS",
+    period: "2026 – Present",
+    partners: ["Frontline AIDS"],
+    tags: ["Health Financing", "Political Economy", "Multi-Country"],
+    summary:
+      "Conducting a global health-financing landscape analysis with eight priority sub-Saharan African countries (Angola, Côte d'Ivoire, Kenya, Malawi, Mozambique, Nigeria, Uganda and Zimbabwe), analysing domestic resource mobilisation, fiscal space, financing reforms, donor transition and sustainability.",
+    problem:
+      "Donor transition is exposing new resource needs across the eight priority countries, requiring clear intelligence on where strategic influence and resource mobilisation are feasible and which alternative financing mechanisms are accessible.",
+    approach:
+      "Applies political economy analysis to map the actors, interests, incentives, institutional dynamics, power relations and policy windows shaping health-financing decisions. Assesses the feasibility and accessibility of alternative and emerging financing mechanisms, including social contracting, domestic public financing, insurance, results-based financing and development-bank financing, and models the resource needs exposed by donor transition. Developed and applied a strategic prioritisation framework to identify where financing analysis can most effectively influence policy, mobilise resources and strengthen sustainable financing.",
+    results: [
+      "Global-to-country Health Financing Intelligence Hub integrating financing trends, actors, mechanisms, policy developments and funding opportunities",
+      "Strategic prioritisation framework for financing influence and resource mobilisation",
+      "Country-level financing roadmaps and actionable recommendations through 2030",
+      "Financing objectives, partnership opportunities and advocacy entry points for each country",
+    ],
+  },
+  {
     id: "stc-cholera-ewars",
     title: "Climate-Informed Cholera Early Warning and Response System (EWARS)",
     role: "Lead Local Expert, Malawi",
@@ -200,27 +221,6 @@ export const projects = [
       "Climate and health equity scorecard for maternal and child health services developed and validated",
       "Policy briefs, scientific publications and national validation workshops",
       "Methods harmonised with PIs in four other countries for comparative evidence",
-    ],
-  },
-  {
-    id: "frontline-aids-hf-landscape",
-    title: "Health Financing Landscape Analysis",
-    role: "Health Financing & Political Economy Consultant",
-    client: "Frontline AIDS",
-    period: "2026 – Present",
-    partners: ["Frontline AIDS"],
-    tags: ["Health Financing", "Political Economy", "Multi-Country"],
-    summary:
-      "Conducting a global health-financing landscape analysis with eight priority sub-Saharan African countries (Angola, Côte d'Ivoire, Kenya, Malawi, Mozambique, Nigeria, Uganda and Zimbabwe), analysing domestic resource mobilisation, fiscal space, financing reforms, donor transition and sustainability.",
-    problem:
-      "Donor transition is exposing new resource needs across the eight priority countries, requiring clear intelligence on where strategic influence and resource mobilisation are feasible and which alternative financing mechanisms are accessible.",
-    approach:
-      "Applies political economy analysis to map the actors, interests, incentives, institutional dynamics, power relations and policy windows shaping health-financing decisions. Assesses the feasibility and accessibility of alternative and emerging financing mechanisms, including social contracting, domestic public financing, insurance, results-based financing and development-bank financing, and models the resource needs exposed by donor transition. Developed and applied a strategic prioritisation framework to identify where financing analysis can most effectively influence policy, mobilise resources and strengthen sustainable financing.",
-    results: [
-      "Global-to-country Health Financing Intelligence Hub integrating financing trends, actors, mechanisms, policy developments and funding opportunities",
-      "Strategic prioritisation framework for financing influence and resource mobilisation",
-      "Country-level financing roadmaps and actionable recommendations through 2030",
-      "Financing objectives, partnership opportunities and advocacy entry points for each country",
     ],
   },
   {
