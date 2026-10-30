@@ -159,23 +159,23 @@ export const services = [
 export const projects = [
   {
     id: "frontline-aids-hf-landscape",
-    title: "Health Financing Landscape Analysis",
-    role: "Health Financing & Political Economy Consultant",
+    title: "HIV and SRH Financing Landscape Analysis",
+    role: "HIV and SRH Financing & Political Economy Consultant",
     client: "Frontline AIDS",
     period: "2026 – Present",
     partners: ["Frontline AIDS"],
-    tags: ["Health Financing", "Political Economy", "Multi-Country"],
+    tags: ["HIV Financing", "SRH Financing", "Political Economy", "Multi-Country"],
     summary:
-      "Conducting a global health-financing landscape analysis with eight priority sub-Saharan African countries (Angola, Côte d'Ivoire, Kenya, Malawi, Mozambique, Nigeria, Uganda and Zimbabwe), analysing domestic resource mobilisation, fiscal space, financing reforms, donor transition and sustainability.",
+      "Conducting a global-to-country landscape analysis of HIV and sexual and reproductive health (SRH) financing across eight priority sub-Saharan African countries (Angola, Côte d'Ivoire, Kenya, Malawi, Mozambique, Nigeria, Uganda and Zimbabwe), examining domestic resource mobilisation, fiscal space, financing reforms, donor transition and sustainability for HIV and SRH programmes.",
     problem:
-      "Donor transition is exposing new resource needs across the eight priority countries, requiring clear intelligence on where strategic influence and resource mobilisation are feasible and which alternative financing mechanisms are accessible.",
+      "Donor transition and constrained fiscal space are exposing financing risks for HIV and SRH programmes across the eight countries. Decision-makers need evidence on resource needs, feasible advocacy opportunities and accessible alternatives to sustain these services.",
     approach:
-      "Applies political economy analysis to map the actors, interests, incentives, institutional dynamics, power relations and policy windows shaping health-financing decisions. Assesses the feasibility and accessibility of alternative and emerging financing mechanisms, including social contracting, domestic public financing, insurance, results-based financing and development-bank financing, and models the resource needs exposed by donor transition. Developed and applied a strategic prioritisation framework to identify where financing analysis can most effectively influence policy, mobilise resources and strengthen sustainable financing.",
+      "Applies political economy analysis to map the actors, interests, incentives, institutional dynamics, power relations and policy windows shaping HIV and SRH financing decisions. Assesses the feasibility and accessibility of alternative and emerging financing mechanisms—including social contracting, domestic public financing, insurance, results-based financing and development-bank financing—for sustaining HIV and SRH programmes. Models resource needs exposed by donor transition and applies a strategic prioritisation framework to identify where financing analysis can most effectively influence policy and mobilise sustainable resources.",
     results: [
-      "Global-to-country Health Financing Intelligence Hub integrating financing trends, actors, mechanisms, policy developments and funding opportunities",
-      "Strategic prioritisation framework for financing influence and resource mobilisation",
-      "Country-level financing roadmaps and actionable recommendations through 2030",
-      "Financing objectives, partnership opportunities and advocacy entry points for each country",
+      "Global-to-country HIV and SRH Financing Intelligence Hub integrating financing trends, actors, mechanisms, policy developments and funding opportunities",
+      "Strategic prioritisation framework for HIV and SRH financing influence and resource mobilisation",
+      "Country-level HIV and SRH financing roadmaps and actionable recommendations through 2030",
+      "HIV and SRH financing objectives, partnership opportunities and advocacy entry points for each country",
     ],
   },
   {
